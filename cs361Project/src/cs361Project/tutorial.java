@@ -6,6 +6,7 @@ public class tutorial {
 		System.out.println("Tutorial...");
 		System.out.println("This is a new change!  ~NB");
 		System.out.println("Y U Do Dis");
+		System.out.println("Testing from home...because Macs seriously suck.");
 	}
 	
 
