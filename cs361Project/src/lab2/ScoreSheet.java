@@ -8,9 +8,15 @@ public class ScoreSheet {
 	private class Frame {
 		int first;
 		int second;
+		boolean isFirstFrame = true;
 		
-		public void setFirst(int x){
-			
+		public void throwFrame(int x){
+			if (isFirstFrame) {
+				first = x;
+				isFirstFrame = false;
+			} else {
+				second = x;
+			}
 		}
 		
 		public boolean isStrike() {
@@ -38,11 +44,21 @@ public class ScoreSheet {
 	}
 	
 	public int getGameScore() {
+		int result = 0;
+		for(int i = 0; i < 10; i++) {
+			result += this.getFrameScore(i);
+		}
 		return 0;
 	}
 	
 	public int getFrameScore(int frame) {
-		return 0;
+		if(frames[frame].isStrike()) {
+			return frames[frame].score() + frames[frame + 1].score() + frames[frame + 2].score();
+		} else if (frames[frame].isSpare()) {
+			return frames[frame].score() + frames[frame + 1].score();
+		} else {
+			return frames[frame].score();
+		}
 	}
 	
 }
