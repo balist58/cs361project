@@ -47,6 +47,14 @@ public class Fraction {
 	}
 	
 	@Override
+	public boolean equals(Object other){
+		if(!(other instanceof Fraction))
+			return false;
+		Fraction temp1 = this.simplify();
+		Fraction temp2 = ((Fraction)other);
+	}
+	
+	@Override
 	public String toString() {
 		return denominator == 1 ? ("" + numerator): ("" + numerator + " / " + denominator);
 	}
