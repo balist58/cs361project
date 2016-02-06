@@ -7,9 +7,6 @@ import org.junit.Test;
 
 public class ScoreSheetTest {
 	ScoreSheet myScoreSheet1 = new ScoreSheet();
-	ScoreSheet myScoreSheet2 = new ScoreSheet();
-	ScoreSheet myScoreSheet3 = new ScoreSheet();
-	ScoreSheet myScoreSheet4 = new ScoreSheet();
 	
 	/**test two throws and check scoring for the first frame and game*/
 	@Test
