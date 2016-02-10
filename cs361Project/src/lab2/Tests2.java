@@ -10,6 +10,7 @@ public class Tests2 {
 	/**Test a single throw, make sure that it matches the frame score and game score*/
 	@Test
 	public void testOneThrow(){
+		testScoreSheet = new ScoreSheet();
 		testScoreSheet.throwBall(7); //throw goes in frame 1
 		
 		assertEquals(7, testScoreSheet.getFrameScore(1));
@@ -21,6 +22,7 @@ public class Tests2 {
 	 */
 	@Test
 	public void testThreeThrows(){
+		testScoreSheet = new ScoreSheet();
 		testScoreSheet.throwBall(7); //throw goes in frame 1
 		testScoreSheet.throwBall(2); //throw goes in frame 1
 		testScoreSheet.throwBall(8); //throw goes in frame 2
@@ -34,6 +36,7 @@ public class Tests2 {
 	/**Test that the frame increments by one when a strike is thrown*/
 	@Test
 	public void testStrikeMovesToNextFrame(){
+		testScoreSheet = new ScoreSheet();
 		testScoreSheet.throwBall(10); //throw a strike in frame 1
 		
 		assertEquals(10, testScoreSheet.getFrameScore(1)); //verify the frame is set to the max score (for now)
@@ -44,6 +47,7 @@ public class Tests2 {
 	/**Test the functionality of throwing a spare on the final frame; verify both the score
 	 * in the 10th frame, and the total game score, and that the frame increments to the game's end state*/
 	public void testSpareOnLastFrame(){
+		testScoreSheet = new ScoreSheet();
 		for(int i = 0; i < 18; ++i){
 			testScoreSheet.throwBall(2); //throw for 2 pins, 18 times in a row
 		}
@@ -58,6 +62,7 @@ public class Tests2 {
 	/**Attempt to throw the ball on the "11th frame"; with the way the Score Sheet is designed,
 	 * this will take the form of the throwBall() method returning false*/
 	public void testThrowOn11thFrame(){
+		testScoreSheet = new ScoreSheet();
 		for(int i = 0; i < 20; ++i){
 			testScoreSheet.throwBall(4); //throw for 4 pins, 20 throws in a row
 		}
