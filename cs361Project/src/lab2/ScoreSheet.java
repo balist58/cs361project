@@ -71,7 +71,7 @@ public class ScoreSheet {
 	 * @return the current frame number
 	 */
 	public int getFrame() {
-		return frameNumber;
+		return frameNumber + 1; //The frames are stored as 0 based
 	}
 	
 	/**
@@ -87,12 +87,12 @@ public class ScoreSheet {
 		if(frame < frames.length && frame >= 0 && frames[frame] != null) {
 			result = frames[frame].score();
 			
-			if(frames[frame].isStrike() && frame <= 8) {
+			if(frames[frame].isStrike() && frame <= 8 && frames[frame + 1] != null) {
 				result += frames[frame + 1].score();
-				if(frame <= 7) {
+				if(frame <= 7 && frames[frame + 2] != null) {
 					result += frames[frame + 2].score();
 				}
-			} else if (frames[frame].isSpare() && frame <= 8) {
+			} else if (frames[frame].isSpare() && frame <= 8 && frames[frame + 1] != null) {
 				result += frames[frame + 1].score();
 			}
 		}
