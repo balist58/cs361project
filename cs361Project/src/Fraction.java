@@ -51,7 +51,8 @@ public class Fraction {
 		if(!(other instanceof Fraction))
 			return false;
 		Fraction temp1 = this.simplify();
-		Fraction temp2 = ((Fraction)other);
+		Fraction temp2 = ((Fraction)other).simplify();
+		return temp1.denominator == temp2.denominator && temp1.numerator == temp2.numerator;
 	}
 	
 	@Override
