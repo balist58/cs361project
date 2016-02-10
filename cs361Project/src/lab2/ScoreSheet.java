@@ -67,6 +67,14 @@ public class ScoreSheet {
 	}
 	
 	/**
+	 * Get the current frame number
+	 * @return the current frame number
+	 */
+	public int getFrame() {
+		return frameNumber;
+	}
+	
+	/**
 	 * Gets the score of the frame number passed in
 	 * @param frame the frame number to get the score of (between 1-10)
 	 * @return the score of the frame
