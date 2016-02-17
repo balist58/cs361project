@@ -38,6 +38,9 @@ public class Tests2 {
 	@Test
 	public void testStrikeMovesToNextFrame(){
 		testScoreSheet = new ScoreSheet();
+		
+		assertEquals(1, testScoreSheet.getFrame());
+		
 		testScoreSheet.throwBall(10); //throw a strike in frame 1
 		
 		assertEquals(10, testScoreSheet.getFrameScore(1)); //verify the frame is set to the max score (for now)
