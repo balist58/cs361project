@@ -31,6 +31,7 @@ public class Tests2 {
 		assertEquals(8, testScoreSheet.getFrameScore(2)); //verify frame 2's score is the same as throw 3
 		assertEquals(17, testScoreSheet.getGameScore()); //verify game score is the sum of all 3 throws
 		assertEquals(2, testScoreSheet.getFrame()); //verify that the game is still on frame 2
+		// Frame = Frame you think - 1 (0 to n-1)
 	}
 	
 	/**Test that the frame increments by one when a strike is thrown*/
