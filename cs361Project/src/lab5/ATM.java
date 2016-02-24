@@ -21,10 +21,10 @@ public class ATM
 			System.out.print("Please enter an account number: ");
 			acct = stdIn.nextInt();
 			System.out.print("Please enter your PIN: ");
-			acct = stdIn.nextInt();
+			pin = stdIn.nextInt();
 			
 			accountValidated = bank.validate(acct,  pin);
-		}while(accountValidated == false);
+		}while(!accountValidated);
 		
 		do{
 			System.out.println("Please select an action:");
