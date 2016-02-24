@@ -26,8 +26,13 @@ public class Bank {
 		}
 	}
 	
-	ArrayList<Account> accounts = new ArrayList<Account>();
-	public void addAccount(int acct, int pinNumber, int initBalance){
+
+	ArrayList<Account> accounts;
+	public Bank(){
+		accounts = new ArrayList<Account>();
+	}
+	
+	public void add(int acct, int pinNumber, int initBalance){
 		accounts.add(new Account(acct, pinNumber, initBalance));
 	}
 	public Account getAccount(int acctNum){
@@ -46,7 +51,7 @@ public class Bank {
 		}
 	}
 	
-	public boolean modifyAccountBalance(int acct, int amount){
+	public boolean modify(int acct, int amount){
 		Account acctToModify = getAccount(acct);
 		if(acctToModify == null) return false;
 		else return acctToModify.modifyBal(amount);
