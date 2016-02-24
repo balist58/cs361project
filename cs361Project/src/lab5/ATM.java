@@ -27,8 +27,12 @@ public class ATM
 	{
 		if (bank.validate(account, pin) && isStarted) {
 			acnt = bank.getAccount(account);
+			System.out.println("Account Number: " + acnt.getAccountNumber());
+			System.out.println("Account Balance: " + acnt.getBal());
 			return true;
 		} else {
+			System.out.println("Account Validation Failed");
+			isStarted = false;
 			return false;
 		}
 	}
@@ -43,8 +47,7 @@ public class ATM
 				result = acnt.modifyBal(amount);
 			}
 			
-			
-			System.out.print("Current Balance: " + acnt.getBal());
+			System.out.println(result ? "Final Balance: " + acnt.getBal() : "Transaction failed. Insufficient funds.");
 			acnt = null;
 			isStarted = false;			
 		}
