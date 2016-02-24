@@ -1,56 +1,63 @@
 package lab5;
 
+import java.util.Scanner;
+
 public class ATM 
 {
 	Bank bank;
-	boolean isStarted;
-	Bank.Account acnt;
+	int acct;
+	int pin;
+	char action;
+	Scanner stdIn = new Scanner(System.in);
 	
 	public ATM(Bank b) 
 	{
 		bank = b;
-		isStarted = false;
 	}
 	
-	public String start()
-	{
-		isStarted = true;
-		return "ATM Started";
-	}
-	
-	public boolean accountExists(int accountNum)
-	{
-		return bank.getAccount(accountNum) != null;
-	}
-	
-	public boolean getAccount(int account, int pin)
-	{
-		if (bank.validate(account, pin) && isStarted) {
-			acnt = bank.getAccount(account);
-			System.out.println("Account Number: " + acnt.getAccountNumber());
-			System.out.println("Account Balance: " + acnt.getBal());
-			return true;
-		} else {
-			System.out.println("Account Validation Failed");
-			isStarted = false;
-			return false;
-		}
-	}
-	
-	public boolean doAction(char action, double amount) 
-	{
-		boolean result = false;
-		if(isStarted) {
-			if(action == 'W') {
-				result = acnt.modifyBal(-amount);
-			} else if(action == 'D') {
-				result = acnt.modifyBal(amount);
-			}
+	public void start(){
+		boolean accountValidated = false;
+		do{
+			System.out.print("Please enter an account number: ");
+			acct = stdIn.nextInt();
+			System.out.print("Please enter your PIN: ");
+			acct = stdIn.nextInt();
 			
-			System.out.println(result ? "Final Balance: " + acnt.getBal() : "Transaction failed. Insufficient funds.");
-			acnt = null;
-			isStarted = false;			
+			accountValidated = bank.validate(acct,  pin);
+		}while(accountValidated == false);
+		
+		do{
+			System.out.println("Please select an action:");
+			System.out.println("W  for Withdrawal");
+			System.out.println("D for Deposit");
+			System.out.println("Any other key to quit: ");
+			String response = stdIn.next();
+			action = response.charAt(0);
+			System.out.println("");
+			
+			if(action == 'D' || action == 'W') modify(acct);
+		}while(action != 'D' && action != 'W');
+	}
+	
+	public void modify(int account){
+		if(action == 'D'){
+			int dep;
+			System.out.print("Select the number of dollars to deposit: ");
+			dep = stdIn.nextInt();
+			bank.modify(acct, dep);
+			System.out.println();
+			System.out.println("Your new account balance is $" + bank.getAccount(acct).getBal());
 		}
-		return result;
+		else{
+			int with;
+			boolean success;
+			System.out.print("Select the number of dollars to withdraw: ");
+			with = stdIn.nextInt();
+			with *= (-1);
+			success = bank.modify(acct, with);
+			System.out.println();
+			if(success) System.out.println("Your new account balance is $" + bank.getAccount(acct).getBal());
+			else System.out.println("Sorry, your account only has $" + bank.getAccount(acct).getBal() + ", you cannot withdraw that much money.");
+		}
 	}
 }
