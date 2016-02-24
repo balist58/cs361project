@@ -10,11 +10,19 @@ public class ATM
 	char action;
 	Scanner stdIn = new Scanner(System.in);
 	
+	/**
+	 * The ATM constructor specifies the bank being used - in later cases, this could be linked up to the account, but
+	 * for simplicity's sake, we're linking up the bank to the ATM first
+	 */
 	public ATM(Bank b) 
 	{
 		bank = b;
 	}
 	
+	/**
+	 * Start() runs a pair of validation loops - the account validation, which prompts for acct and pin numbers and validates them,
+	 * and an "action loop" which prompts for Deposit or Withdrawal actions (or can quit the loop with any other entry)
+	 */
 	public void start(){
 		boolean accountValidated = false;
 		do{
@@ -44,6 +52,11 @@ public class ATM
 		}while(action != 'D' && action != 'W');
 	}
 	
+	
+	/**
+	 * Modify is a helper method that takes the active account as a parameter, and prompts the user to deposit or withdraw from the account,
+	 * performs the action (if possible), and prints back the resultant balance when done
+	 */
 	public void modify(int account){
 		if(action == 'D'){
 			int dep;
