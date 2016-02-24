@@ -24,9 +24,14 @@ public class ATM
 			pin = stdIn.nextInt();
 			
 			accountValidated = bank.validate(acct,  pin);
+			if(!accountValidated) System.out.println("Sorry, the PIN was incorrect.  Please try again.");
 		}while(!accountValidated);
 		
 		do{
+			System.out.println("Welcome to account "+ acct);
+			System.out.println("Your current balance is $" + bank.getAccount(acct).getBal());
+			System.out.println("------------------------------");
+			System.out.println();
 			System.out.println("Please select an action:");
 			System.out.println("W  for Withdrawal");
 			System.out.println("D for Deposit");
