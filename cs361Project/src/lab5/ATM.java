@@ -18,6 +18,11 @@ public class ATM
 		return "ATM Started";
 	}
 	
+	public boolean accountExists(int accountNum)
+	{
+		return bank.getAccount(accountNum) != null;
+	}
+	
 	public boolean getAccount(int account, int pin)
 	{
 		if (bank.validate(account, pin) && isStarted) {
@@ -31,16 +36,18 @@ public class ATM
 	public boolean doAction(char action, double amount) 
 	{
 		boolean result = false;
-		if(action == 'W') {
+		if(isStarted) {
+			if(action == 'W') {
+				result = acnt.modifyBal(-amount);
+			} else if(action == 'D') {
+				result = acnt.modifyBal(amount);
+			}
 			
-		} else if(action == 'D') {
 			
+			System.out.print("Current Balance: " + acnt.getBal());
+			acnt = null;
+			isStarted = false;			
 		}
-		
-
-		System.out.print("Current Balance: " + acnt.getBal());
-		acnt = null;
-		isStarted = false;
 		return result;
 	}
 }

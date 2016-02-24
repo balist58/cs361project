@@ -5,7 +5,7 @@ public class Bank {
 	public class Account{
 		private int accountNumber;
 		private int pin;
-		private int balance;
+		private double balance;
 		
 		public Account(int acct, int pinNumber, int initBalance){
 			accountNumber = acct;
@@ -15,9 +15,9 @@ public class Bank {
 		
 		public int getAccountNumber(){return accountNumber;}
 		public int getPIN(){return pin;}
-		public int getBal(){return balance;}
+		public double getBal(){return balance;}
 		
-		public boolean modifyBal(int amount){
+		public boolean modifyBal(double amount){
 			if((balance + amount) < 0) return false;
 			else{
 				balance += amount;
