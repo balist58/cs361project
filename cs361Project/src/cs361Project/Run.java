@@ -14,6 +14,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.Calendar;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class Run{
 	/**
@@ -24,27 +26,27 @@ public class Run{
 		private int number;
 		private Calendar startTime = null;
 		private Calendar endTime = null;
+		private DateFormat simple = new SimpleDateFormat("HH:mm:ss.SS");
 		
 		public Runner(int num){
 			number = num;
 		}
 		
 		public int getNumber(){return number;}
-		public String getStart(){
-			return startTime.get(Calendar.HOUR_OF_DAY) + ":" + startTime.get(Calendar.MINUTE) + ":" +
-					startTime.get(Calendar.SECOND) + "." + startTime.get(Calendar.MILLISECOND);
-		}
-		public String getEnd(){
-			return endTime.get(Calendar.HOUR_OF_DAY) + ":" + endTime.get(Calendar.MINUTE) + ":" +
-					endTime.get(Calendar.SECOND) + "." + endTime.get(Calendar.MILLISECOND);
-		}
+		public String getStart(){return simple.format(startTime);}
+		public String getEnd(){return simple.format(endTime);}
 		public void setStart(Calendar start){startTime = start;}
 		public void setEnd(Calendar end){endTime = end;}
 		
 		/**
-		 * Runner.elapsed returns the total length of time elapsed by the current Runner; it is only
-		 * valid for a Runner with both a startTime and an EndTime
+		 * Runner.getElapsed returns the total length of time elapsed by the current Runner (in seconds);
+		 * it is only valid for a Runner with both a startTime and an EndTime
 		 */
+		public String getElapsed(){
+			long elapsed = endTime.getTimeInMillis() - startTime.getTimeInMillis();
+			double dblElapsed = ((double)elapsed)/1000;
+			return Double.toString(dblElapsed);
+		}
 	}
 	
 	
@@ -79,13 +81,13 @@ public class Run{
 		for(Runner r : waitingRunners)
 			log += (r.getNumber() + "\n");
 		for(Runner r : activeRunners)
-			log += (r.getNumber() + " START " + r.getStart() + "\n");
+			log += (r.getNumber() + " Start: " + r.getStart() + "\n");
 		for(Runner r : finishedRunners){
 			if(r.getEnd() == null)
 				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: DNF\n");
 			else
 				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: " + r.getEnd() + "\n");
-				log += (r.getNumber() + "");
+				log += (r.getNumber() + " Elapsed Time: " + r.getElapsed() + " seconds");
 		}
 		return log;
 	}
