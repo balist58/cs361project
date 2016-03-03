@@ -123,7 +123,11 @@ public class CmdInterface {
 		switch(cmd.toUpperCase())
 		{
 		case "ON":
+			ct.on();
+			break;
 		case "OFF":
+			ct.off();
+			break;
 		case "TIME":
 			ct.time(argList.get(0));
 			break;
