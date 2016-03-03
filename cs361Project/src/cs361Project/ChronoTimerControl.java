@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+
 public class ChronoTimerControl {
 	private class Channel{
 		/**
@@ -70,6 +71,8 @@ public class ChronoTimerControl {
 	private ArrayList<Event> eventList;
 	private Event event;
 	private Calendar time;
+	//private LocalDateTime time2;
+	//private Clock clock;
 	
 	
 	/**
@@ -104,10 +107,16 @@ public class ChronoTimerControl {
 	 * @param time - a String, which must be of the format "HH:mm:ss"
 	 */
 	public void time(String timeString){
-		String[] timeParts = timeString.split(":");
+		
+		String delims = (":|\\.");
+		
+		String[] timeParts = timeString.split(delims);
 		time.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
 		time.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
 		time.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+		time.set(Calendar.MILLISECOND, Integer.parseInt(timeParts[3]));
+		
+		//System.out.println(time.getTime());
 	}
 	
 	/**
