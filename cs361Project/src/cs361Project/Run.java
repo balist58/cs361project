@@ -18,6 +18,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 public class Run{
+	//IMPORTANT:  This is the run class as would be implemented in a "Run" superclass in later releases;
+	//some of the methods' functionality is only applicable to the IND event, and will need to utilize an
+	//inheritance relationship in later builds to reflect the different functionality for the other event types
+	
 	/**
 	 * Each run contains a number of entries of the private Runner class, which holds the number for each
 	 * runner in the Run, as well as their start and end times, and methods to get/set the data
@@ -87,7 +91,7 @@ public class Run{
 				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: DNF\n");
 			else
 				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: " + r.getEnd() + "\n");
-				log += (r.getNumber() + " Elapsed Time: " + r.getElapsed() + " seconds");
+				log += (r.getNumber() + " Total Elapsed Time: " + r.getElapsed() + " seconds\n");
 		}
 		return log;
 	}

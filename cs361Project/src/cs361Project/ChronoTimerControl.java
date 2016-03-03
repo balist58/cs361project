@@ -25,7 +25,7 @@ public class ChronoTimerControl {
 		private String sensor;
 		
 		/**
-		 * The constructor doesn't do much - it sets the channel as disabled, with nothing plugged in
+		 * The constructor sets the channel as disabled by default, with no sensor plugged in
 		 */
 		public Channel(){
 			enabled = false;
@@ -64,19 +64,26 @@ public class ChronoTimerControl {
 	
 	/**
 	 * Controller fields - an array representing the channels connected to the ChronoTimer; the current system time;
-	 * a pointer to the current event object, which we'll be using to forward commands regarding runs; and a list
-	 * of all of the events that have been run since the system was turned on (or reset)
+	 * a pointer to the current event object, which we'll be using to forward commands regarding runs; a list
+	 * of all of the Events that have been run since the system was turned on (or reset); the system state (on/off)
 	 */
 	private Channel[] channels;
 	private ArrayList<Event> eventList;
 	private Event event;
 	private Calendar time;
+
 	//private LocalDateTime time2;
 	//private Clock clock;
 	
 	
+	//NOTE:  *all* of the controller methods are set to not run unless the system is flagged as enabled; this
+	//is a virtualization representing the system being physically turned on
+	private boolean enabled;
+
+	
+	
 	/**
-	 * The Controller constructor (run through the ON command) initializes the channel array with new default Channels
+	 * The Controller constructor initializes the channel array with new default Channels
 	 * and sets event data to null until the event type can be specified using the EVENT command
 	 */
 	public ChronoTimerControl(){
@@ -84,73 +91,121 @@ public class ChronoTimerControl {
 		for(int i = 0; i < channels.length; ++i){
 			channels[i] = new Channel();
 		}
-		eventList = new ArrayList<Event>();
+		eventList = null;
 		event = null;
-		time = new GregorianCalendar();
+		time = null;
+		enabled = false;
 	}
 	
 	/**
-	 * Controller.reset is much like the constructor, but doesn't need to re-initialize the channels or eventList;
-	 * instead, it overwrites the channels with (new) default states and clears the eventList
+	 * Controller.on switches the controller to an enabled state, and initializes the other fields,
+	 * with the exception of the "event" field, which must be initialized via event() call
+	 */
+	public void on(){
+		if (enabled) {
+			eventList = new ArrayList<Event>();
+			time = new GregorianCalendar();
+			enabled = true;
+		}
+	}
+	
+	/**
+	 * Controller.off is the converse of on(); it flips the enabled field to false, and wipes all fields
+	 */
+	public void off(){
+		if (enabled) {
+			eventList = null;
+			event = null;
+			time = null;
+			enabled = false;
+		}
+	}
+	
+	/**
+	 * Controller.reset sets the channel states and eventList back to defaults, removes the current event,
+	 * and sets the system time back to its default (the current system time)
 	 */
 	public void reset(){
-		for(int i = 0; i < channels.length; ++i){
-			channels[i] = new Channel();
+		if (enabled) {
+			for (int i = 0; i < channels.length; ++i) {
+				channels[i] = new Channel();
+			}
+			eventList.clear();
+			event = null;
+			time = new GregorianCalendar();
 		}
-		eventList.clear();
-		event = null;
-		time = new GregorianCalendar();
 	}
 	
 	/**
-	 * Controller.time sets the system timer to the time declared in the specified time parameter
-	 * @param time - a String, which must be of the format "HH:mm:ss"
+	 * Controller.time sets the system timer to the time declared in the specified time parameter; the time
+	 * must be a valid one on a 24-hour clock, or the method will do nothing
+	 * @param time - a String, which must be of the format "HH:mm:ss.S", or this method will crash
 	 */
 	public void time(String timeString){
+
+		//String delims = (":|\\.");
 		
-		String delims = (":|\\.");
-		
-		String[] timeParts = timeString.split(delims);
-		time.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
-		time.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
-		time.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
-		time.set(Calendar.MILLISECOND, Integer.parseInt(timeParts[3]));
+		//String[] timeParts = timeString.split(delims);
+		//time.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
+		//time.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
+		//time.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+	    // time.set(Calendar.MILLISECOND, Integer.parseInt(timeParts[3]));
 		
 		//System.out.println(time.getTime());
+
+		if (enabled) {
+			String[] timeParts = timeString.split(":");
+			String[] secondParts = timeParts[2].split(".");
+			int hour = Integer.parseInt(timeParts[0]);
+			int minute = Integer.parseInt(timeParts[1]);
+			int second = Integer.parseInt(secondParts[0]);
+			int millisecond = Integer.parseInt(secondParts[1]);
+			if((hour >= 0 && hour < 24) && (minute >= 0 && minute < 60) &&
+					(second >=0 && second < 60) && (millisecond >=0 && millisecond < 1000)){
+				time.set(Calendar.HOUR_OF_DAY, hour);
+				time.set(Calendar.MINUTE, minute);
+				time.set(Calendar.SECOND, second);
+				time.set(Calendar.MILLISECOND, millisecond);
+			}
+		}
+
 	}
 	
 	/**
-	 * Controller.event instantiates a new event
+	 * Controller.event instantiates a new event, and makes it into the current event in the controller
 	 * @param type
 	 */
 	public void event(String type){
-		//TODO:  Implement multiple types of events based on the "type" String specified in the command line
-		event = new Event();
-		eventList.add(event);
+		if (enabled) {
+			event = new Event(type);
+			eventList.add(event);
+		}
 	}
 	
 	/**
 	 * The following commands get forwarded to the corresponding Channel in channels; only the trig() method
 	 * requires additional input - it specifies the current event, and will do nothing if there is none
-	 * @param chan
+	 * @param chan - specifies with which channel in the channels array the method is to interact
+	 * @param sen - a String representing what sensor is plugged in, for conn() (one of: GATE, PAD, EYE)
 	 */
-	public void tog(int chan){channels[chan].tog();}
-	public void conn(String sen, int chan){channels[chan].conn(sen);}
-	public void disc(int chan){channels[chan].disc();}
-	public void trig(int chan){if(event != null) channels[chan].trig(event, time);}
+	public void tog(int chan){if(enabled)channels[chan].tog();}
+	public void conn(String sen, int chan){if(enabled) channels[chan].conn(sen);}
+	public void disc(int chan){if(enabled) channels[chan].disc();}
+	public void trig(int chan){if(enabled && event != null) channels[chan].trig(event, time);}
 	
 	/**
 	 * The following commands get forwarded to the current event; if there is no current event, they do nothing
+	 * @param number - the number of the runner, only needed for the Event.Run.num() and Event.Run.clr() commands
 	 */
-	public void newRun(){event.newRun();}
-	public void endRun(){event.endRun();}
-	public void num(int number){event.num(number);}
-	public void clr(int number){event.clr(number);}
-	public void swap(){event.swap();}
-	public void start(){event.start(time);}
-	public void cancel(){event.cancel();}
-	public void dnf(){event.dnf();}
-	public void finish(){event.finish(time);}
+	public void newRun(){if(enabled && event != null) event.newRun();}
+	public void endRun(){if(enabled && event != null) event.endRun();}
+	public void num(int number){if(enabled && event != null) event.num(number);}
+	public void clr(int number){if(enabled && event != null) event.clr(number);}
+	public void swap(){if(enabled && event != null) event.swap();}
+	public void start(){if(enabled && event != null) event.start(time);}
+	public void cancel(){if(enabled && event != null) event.cancel();}
+	public void dnf(){if(enabled && event != null) event.dnf();}
+	public void finish(){if(enabled && event != null) event.finish(time);}
 	
 	/**
 	 * Controller.print prompts the currentEvent's currentRun for a full log of its status; this is returned back
