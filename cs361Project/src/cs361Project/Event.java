@@ -16,18 +16,20 @@ import java.util.Calendar;
 public class Event {
 	/**
 	 * Fields for the Event class - an ArrayList containing each of the runs that have been done in this event,
-	 * and a pointer to whichever run is currently in progress (if any)
+	 * a pointer to whichever run is currently in progress (if any), and a marker as to the type of event being run
 	 */
 	private ArrayList<Run> runs;
 	private Run currentRun;
+	private String eventType;
 	
 	/**
 	 * The constructor for the Event class instantiates an empty ArrayList for the runs;
 	 * it does not instantiate a currentRun until specified to do so by the newRun command
 	 */
-	public Event(){
+	public Event(String type){
 		runs = new ArrayList<Run>();
 		currentRun = null;
+		eventType = type;
 	}
 	
 	/**
@@ -35,6 +37,7 @@ public class Event {
 	 * if there is already a currentRun, then the method does nothing
 	 */
 	public void newRun(){
+		//TODO:  Implement a system to instantiate new runs based on the eventType
 		if(currentRun == null){
 			currentRun = new Run(runs.size() + 1);
 			runs.add(currentRun);
