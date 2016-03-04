@@ -44,8 +44,9 @@ public class CmdInterface {
 		else if(this.inputType == 2){
 			this.inputFile();
 		}
-		else 
+		else {
 			System.exit(3);	
+		}
 	}
 	
 	/**
@@ -55,11 +56,13 @@ public class CmdInterface {
 		
 		String cmdstring;
 		Scanner sin = new Scanner(System.in);	
-		System.out.println("Enter command in format: <TIMESTAMP> <COMMAND> <ARGLIST><EOL>");
-		cmdstring = sin.nextLine();
-		sin.close();
+		System.out.println("Enter commands in format <COMMAND> <ARGLIST><EOL>:");
 		
-		parseLine(cmdstring);
+		do {
+			cmdstring = sin.nextLine();		
+		} while(parseLine(cmdstring));
+		
+		sin.close();
 	}
 	
 	/**
@@ -79,27 +82,17 @@ public class CmdInterface {
 	 * parseLine(): Private helper method that takes a string and parses into the appropriate command parts.
 	 * @param cmdstring - String containing the user entered command line to parse.
 	 */
-	private void parseLine(String cmdstring){
-		String delims = "[ ]+|\t";
-		String[] tokens = cmdstring.split(delims);
+	private boolean parseLine(String cmdstring){
+		//String delims = "[ ]+|\t";
+		String[] tokens = cmdstring.split(" ");
+		this.argList.clear(); //TODO remove this
+		this.cmd = tokens[0];
 		
-		
-		
-		for(int i = 0; i < tokens.length; i++){
-			
-			if(i==0){
-				this.timestamp = tokens[0];
-			}
-			
-			else if(i==1){
-				this.cmd = tokens[1];
-			}
-			else{
-				this.argList.add(tokens[i]);
-			}
+		for(int i = 1; i < tokens.length; i++){
+			this.argList.add(tokens[i]);
 		}
 		
-		execute(timestamp, cmd, argList,ct);
+		return execute(timestamp, cmd, argList,ct);
 		
 	}
 	
@@ -118,64 +111,73 @@ public class CmdInterface {
 	 * @param argList - List of arguments to pass to command.
 	 * @param ct - ChronoTimerControl object to execute commands from.
 	 */
-	private void execute(String timestamp, String cmd, ArrayList<String> argList,ChronoTimerControl ct){
+	private boolean execute(String timestamp, String cmd, ArrayList<String> argList,ChronoTimerControl ct){
 		
 		switch(cmd.toUpperCase())
 		{
-		case "ON":
-			ct.on();
-			break;
-		case "OFF":
-			ct.off();
-			break;
-		case "TIME":
-			ct.time(argList.get(0));
-			break;
-		case "NEWRUN":
-			ct.newRun();
-			break;
-		case "ENDRUN":
-			ct.endRun();
-			break;
-		case "NUM":
-			ct.num(Integer.parseInt(argList.get(0)));
-			break;
-		case "CLR":
-			ct.clr(Integer.parseInt(argList.get(0)));
-			break;
-		case "SWAP":
-			ct.swap();
-			break;
-		case "START":
-			ct.start();
-			break;
-		case "CANCEL":
-			ct.cancel();
-			break;
-		case "DNF":
-			ct.dnf();
-			break;
-		case "FINISH":
-			ct.finish();
-			break;
-		case "TOG":
-			ct.tog(Integer.parseInt(argList.get(0)));
-			break;
-		case "CONN":
-			ct.conn(argList.get(0),Integer.parseInt(argList.get(1)));
-			break;
-		case "DISC":
-			ct.disc(Integer.parseInt(argList.get(0)));
-			break;
-		case "TRIG":
-			ct.trig(Integer.parseInt(argList.get(0)));
-			break;
-		case "PRINT":
-			ct.print();
-			break;
-		default : break;
-			
-		}	
+			case "ON":
+				ct.on();
+				break;
+			case "OFF":
+				ct.off();
+				break;
+			case "RESET":
+				ct.reset();
+				break;
+			case "TIME":
+				ct.time(argList.get(0));
+				break;
+			case "EVENT" :
+				ct.event(argList.get(0));
+				break;
+			case "NEWRUN":
+				ct.newRun();
+				break;
+			case "ENDRUN":
+				ct.endRun();
+				break;
+			case "NUM":
+				ct.num(Integer.parseInt(argList.get(0)));
+				break;
+			case "CLR":
+				ct.clr(Integer.parseInt(argList.get(0)));
+				break;
+			case "SWAP":
+				ct.swap();
+				break;
+			case "START":
+				ct.start();
+				break;
+			case "CANCEL":
+				ct.cancel();
+				break;
+			case "DNF":
+				ct.dnf();
+				break;
+			case "FINISH":
+				ct.finish();
+				break;
+			case "TOG": case "TOGGLE":
+				ct.tog(Integer.parseInt(argList.get(0)));
+				break;
+			case "CONN":
+				ct.conn(argList.get(0),Integer.parseInt(argList.get(1)));
+				break;
+			case "DISC":
+				ct.disc(Integer.parseInt(argList.get(0)));
+				break;
+			case "TRIG":
+				ct.trig(Integer.parseInt(argList.get(0)));
+				break;
+			case "PRINT":
+				ct.print();
+				break;
+			case "EXIT":
+				return false;
+			default : break;
+				
+		}
+		return true;
 	}
 	
 }

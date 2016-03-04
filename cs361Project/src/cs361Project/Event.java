@@ -55,8 +55,8 @@ public class Event {
 	
 	//NOTE:  The remaining methods simply forward the command into the nested Run class and return accordingly;
 	//this only applies when the currentRun is actually pointing to a Run object - if null, they do nothing
-	public String print(){
-		if(currentRun != null) return currentRun.print();
+	public String printRun(){
+		if(currentRun != null) return currentRun.printRun();
 		else return "There is no current run in progress.";}
 	public void num(int number){if(currentRun != null) currentRun.num(number);}
 	public void clr(int number){if(currentRun != null) currentRun.clr(number);}

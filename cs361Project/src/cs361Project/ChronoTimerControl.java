@@ -36,7 +36,7 @@ public class ChronoTimerControl {
 		 * Control.Channel.conn changes the sensor that is connected to the device
 		 * @param sen - a String representing which sensor is being used
 		 */
-		public void conn(String sen){sensor = sen;}
+		public void conn(String sen){sensor = sen.toUpperCase();}
 		
 		/**
 		 * Control.Channel.disc changes the connected sensor back to null
@@ -56,8 +56,8 @@ public class ChronoTimerControl {
 		 */
 		public void trig(Event event, Calendar time){
 			if(enabled && (sensor != null)){
-				if(sensor == "GATE") event.start(time);
-				else if(sensor == "EYE" || sensor == "PAD") event.finish(time);
+				if(sensor.equals("GATE")) event.start(time);
+				else if(sensor.equals("EYE") || sensor.equals("PAD")) event.finish(time);
 			}
 		}
 	}
@@ -71,6 +71,7 @@ public class ChronoTimerControl {
 	private ArrayList<Event> eventList;
 	private Event event;
 	private Calendar time;
+	private boolean runInProgress;
 
 	//private LocalDateTime time2;
 	//private Clock clock;
@@ -95,6 +96,7 @@ public class ChronoTimerControl {
 		event = null;
 		time = null;
 		enabled = false;
+		runInProgress = false;
 	}
 	
 	/**
@@ -102,10 +104,11 @@ public class ChronoTimerControl {
 	 * with the exception of the "event" field, which must be initialized via event() call
 	 */
 	public void on(){
-		if (enabled) {
+		if (!enabled) {
 			eventList = new ArrayList<Event>();
 			time = new GregorianCalendar();
 			enabled = true;
+			runInProgress = false;
 		}
 	}
 	
@@ -118,6 +121,7 @@ public class ChronoTimerControl {
 			event = null;
 			time = null;
 			enabled = false;
+			runInProgress = false;
 		}
 	}
 	
@@ -133,6 +137,7 @@ public class ChronoTimerControl {
 			eventList.clear();
 			event = null;
 			time = new GregorianCalendar();
+			runInProgress = false;
 		}
 	}
 	
@@ -176,9 +181,10 @@ public class ChronoTimerControl {
 	 * @param type
 	 */
 	public void event(String type){
-		if (enabled) {
+		if (enabled && runInProgress) {
 			event = new Event(type);
 			eventList.add(event);
+			event.newRun();
 		}
 	}
 	
@@ -188,17 +194,17 @@ public class ChronoTimerControl {
 	 * @param chan - specifies with which channel in the channels array the method is to interact
 	 * @param sen - a String representing what sensor is plugged in, for conn() (one of: GATE, PAD, EYE)
 	 */
-	public void tog(int chan){if(enabled)channels[chan].tog();}
-	public void conn(String sen, int chan){if(enabled) channels[chan].conn(sen);}
-	public void disc(int chan){if(enabled) channels[chan].disc();}
-	public void trig(int chan){if(enabled && event != null) channels[chan].trig(event, time);}
+	public void tog(int chan){if(enabled)channels[chan-1].tog();}
+	public void conn(String sen, int chan){if(enabled) channels[chan-1].conn(sen);}
+	public void disc(int chan){if(enabled) channels[chan-1].disc();}
+	public void trig(int chan){if(enabled && event != null) channels[chan-1].trig(event, time);}
 	
 	/**
 	 * The following commands get forwarded to the current event; if there is no current event, they do nothing
 	 * @param number - the number of the runner, only needed for the Event.Run.num() and Event.Run.clr() commands
 	 */
-	public void newRun(){if(enabled && event != null) event.newRun();}
-	public void endRun(){if(enabled && event != null) event.endRun();}
+	public void newRun(){if(enabled && !runInProgress) { runInProgress = true; }}
+	public void endRun(){if(enabled && runInProgress && event != null) { runInProgress = false; event.endRun(); }}
 	public void num(int number){if(enabled && event != null) event.num(number);}
 	public void clr(int number){if(enabled && event != null) event.clr(number);}
 	public void swap(){if(enabled && event != null) event.swap();}
@@ -212,5 +218,11 @@ public class ChronoTimerControl {
 	 * in the form of a String, which is then printed to the console
 	 */
 	//TODO:  Change the print() method to output to a different stream once a proper GUI is implemented
-	public void print(){System.out.print(event.print());}
+	public void print(){
+		if(event != null) {
+			System.out.print(event.printRun());
+		} else {
+			System.out.println("No event to print");
+		}
+	}
 }

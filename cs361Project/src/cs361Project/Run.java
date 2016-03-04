@@ -80,7 +80,7 @@ public class Run{
 	 * Event.Run.print collects and returns a printable form of the current status of the run
 	 * @return
 	 */
-	public String print(){
+	public String printRun(){
 		String log = "Run " + runNumber + "\n";
 		for(Runner r : waitingRunners)
 			log += (r.getNumber() + "\n");
