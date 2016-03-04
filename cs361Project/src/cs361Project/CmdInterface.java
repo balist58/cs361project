@@ -59,8 +59,8 @@ public class CmdInterface {
 		System.out.println("Enter commands in format <COMMAND> <ARGLIST><EOL>:");
 		
 		do {
-			cmdstring = sin.nextLine();		
-		} while(parseLine(cmdstring));
+			cmdstring = sin.nextLine();	
+		} while(parseLine(cmdstring, true));
 		
 		sin.close();
 	}
@@ -82,7 +82,7 @@ public class CmdInterface {
 	 * parseLine(): Private helper method that takes a string and parses into the appropriate command parts.
 	 * @param cmdstring - String containing the user entered command line to parse.
 	 */
-	private boolean parseLine(String cmdstring){
+	private boolean parseLine(String cmdstring, boolean updateToCurrentTime){
 		//String delims = "[ ]+|\t";
 		String[] tokens = cmdstring.split(" ");
 		this.argList.clear(); //TODO remove this
@@ -91,8 +91,8 @@ public class CmdInterface {
 		for(int i = 1; i < tokens.length; i++){
 			this.argList.add(tokens[i]);
 		}
-		
-		return execute(timestamp, cmd, argList,ct);
+		if(updateToCurrentTime) ct.updateTimeToCurrent();
+		return execute(timestamp, cmd, argList);
 		
 	}
 	
@@ -111,7 +111,7 @@ public class CmdInterface {
 	 * @param argList - List of arguments to pass to command.
 	 * @param ct - ChronoTimerControl object to execute commands from.
 	 */
-	private boolean execute(String timestamp, String cmd, ArrayList<String> argList,ChronoTimerControl ct){
+	private boolean execute(String timestamp, String cmd, ArrayList<String> argList){
 		
 		switch(cmd.toUpperCase())
 		{

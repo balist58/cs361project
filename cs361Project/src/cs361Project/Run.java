@@ -37,8 +37,8 @@ public class Run{
 		}
 		
 		public int getNumber(){return number;}
-		public String getStart(){return simple.format(startTime);}
-		public String getEnd(){return simple.format(endTime);}
+		public String getStart(){return simple.format(startTime.getTime());}
+		public String getEnd(){return simple.format(endTime.getTime());}
 		public void setStart(Calendar start){startTime = start;}
 		public void setEnd(Calendar end){endTime = end;}
 		

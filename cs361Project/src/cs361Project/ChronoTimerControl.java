@@ -141,6 +141,10 @@ public class ChronoTimerControl {
 		}
 	}
 	
+	public void updateTimeToCurrent() {
+		time = new GregorianCalendar();
+	}
+	
 	/**
 	 * Controller.time sets the system timer to the time declared in the specified time parameter; the time
 	 * must be a valid one on a 24-hour clock, or the method will do nothing
@@ -173,7 +177,6 @@ public class ChronoTimerControl {
 				time.set(Calendar.MILLISECOND, millisecond);
 			}
 		}
-
 	}
 	
 	/**
