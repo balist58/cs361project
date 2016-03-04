@@ -75,7 +75,7 @@ public class CmdInterface {
 	private void inputFile(){
 		String filename;
 		Scanner sin = new Scanner(System.in);	
-		System.out.print("Enter name of text file containing commands: ");
+		System.out.print("Enter filepath of text file containing commands: ");
 		filename = sin.nextLine();
 		sin.close();
 		
