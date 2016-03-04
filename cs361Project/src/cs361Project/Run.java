@@ -37,8 +37,8 @@ public class Run{
 		}
 		
 		public int getNumber(){return number;}
-		public String getStart(){return simple.format(startTime.getTime());}
-		public String getEnd(){return simple.format(endTime.getTime());}
+		public String getStart(){return startTime != null ? simple.format(startTime.getTime()) : "N/A";}
+		public String getEnd(){return endTime != null ? simple.format(endTime.getTime()) : "N/A";}
 		public void setStart(Calendar start){startTime = start;}
 		public void setEnd(Calendar end){endTime = end;}
 		
@@ -47,9 +47,13 @@ public class Run{
 		 * it is only valid for a Runner with both a startTime and an EndTime
 		 */
 		public String getElapsed(){
-			long elapsed = endTime.getTimeInMillis() - startTime.getTimeInMillis();
-			double dblElapsed = ((double)elapsed)/1000;
-			return Double.toString(dblElapsed);
+			if(endTime != null && startTime != null) {
+				long elapsed = endTime.getTimeInMillis() - startTime.getTimeInMillis();
+				double dblElapsed = ((double)elapsed)/1000;
+				return Double.toString(dblElapsed) + " seconds";				
+			} else {
+				return "N/A";
+			}
 		}
 	}
 	
@@ -87,11 +91,11 @@ public class Run{
 		for(Runner r : activeRunners)
 			log += (r.getNumber() + " Start: " + r.getStart() + "\n");
 		for(Runner r : finishedRunners){
-			if(r.getEnd() == null)
+			if(r.endTime == null)
 				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: DNF\n");
 			else
 				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: " + r.getEnd() + "\n");
-				log += (r.getNumber() + " Total Elapsed Time: " + r.getElapsed() + " seconds\n");
+				log += (r.getNumber() + " Total Elapsed Time: " + r.getElapsed() + "\n");
 		}
 		return log;
 	}
