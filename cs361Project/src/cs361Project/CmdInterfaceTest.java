@@ -11,7 +11,7 @@ public class CmdInterfaceTest {
 	public static void main(String[] args) {
 		ChronoTimerControl ct = new ChronoTimerControl();
 		
-		CmdInterface test = new CmdInterface(1,ct);
+		CmdInterface test = new CmdInterface(2,ct);
 		
 		test.go();
 	}

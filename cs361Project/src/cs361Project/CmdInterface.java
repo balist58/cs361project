@@ -2,6 +2,10 @@ package cs361Project;
 
 
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -60,7 +64,7 @@ public class CmdInterface {
 		
 		do {
 			cmdstring = sin.nextLine();	
-		} while(parseLine(cmdstring, true));
+		} while(parseLine(cmdstring, null));
 		
 		sin.close();
 	}
@@ -71,7 +75,7 @@ public class CmdInterface {
 	private void inputFile(){
 		String filename;
 		Scanner sin = new Scanner(System.in);	
-		System.out.println("Enter name of text file containing commands: >");
+		System.out.print("Enter name of text file containing commands: ");
 		filename = sin.nextLine();
 		sin.close();
 		
@@ -82,8 +86,8 @@ public class CmdInterface {
 	 * parseLine(): Private helper method that takes a string and parses into the appropriate command parts.
 	 * @param cmdstring - String containing the user entered command line to parse.
 	 */
-	private boolean parseLine(String cmdstring, boolean updateToCurrentTime){
-		//String delims = "[ ]+|\t";
+	private boolean parseLine(String cmdstring, String timeToUpdateTo){
+		//Break up the command from the arguments
 		String[] tokens = cmdstring.split(" ");
 		this.argList.clear(); //TODO remove this
 		this.cmd = tokens[0];
@@ -91,7 +95,11 @@ public class CmdInterface {
 		for(int i = 1; i < tokens.length; i++){
 			this.argList.add(tokens[i]);
 		}
-		if(updateToCurrentTime) ct.updateTimeToCurrent();
+		if(timeToUpdateTo == null) {
+			ct.updateTimeToCurrent();
+		} else {
+			ct.time(timeToUpdateTo);
+		}
 		return execute(timestamp, cmd, argList);
 		
 	}
@@ -100,8 +108,34 @@ public class CmdInterface {
 	 * parseFile(): Private helper method that takes a string containing a file name full of commands to parse.
 	 * @param filename - Name of text file to read commands from.
 	 */
-	private void parseFile(String filename){
-		
+	private void parseFile(String fileName){
+
+        // This will reference one line at a time
+        String line = null;
+
+        try {
+            // FileReader reads text files in the default encoding.
+            FileReader fileReader = new FileReader(fileName);
+
+            // Always wrap FileReader in BufferedReader.
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            while((line = bufferedReader.readLine()) != null) {
+            	//Separate the time out from the command
+            	String[] tokens = line.split("\t");
+            	this.parseLine(tokens[1], tokens[0]);
+            }   
+
+            // Always close files.
+            bufferedReader.close();         
+        }
+        catch(FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + fileName + "'");                
+        }
+        catch(IOException ex) {
+            System.out.println("Error reading file '" + fileName + "'");                  
+            ex.printStackTrace();
+        }
 	}
 	
 	/**

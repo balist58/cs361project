@@ -164,7 +164,7 @@ public class ChronoTimerControl {
 
 		if (enabled) {
 			String[] timeParts = timeString.split(":");
-			String[] secondParts = timeParts[2].split(".");
+			String[] secondParts = timeParts[2].split("\\.");
 			int hour = Integer.parseInt(timeParts[0]);
 			int minute = Integer.parseInt(timeParts[1]);
 			int second = Integer.parseInt(secondParts[0]);
