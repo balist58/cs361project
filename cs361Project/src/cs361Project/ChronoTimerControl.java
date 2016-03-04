@@ -170,7 +170,7 @@ public class ChronoTimerControl {
 			int second = Integer.parseInt(secondParts[0]);
 			int millisecond = Integer.parseInt(secondParts[1]);
 			if((hour >= 0 && hour < 24) && (minute >= 0 && minute < 60) &&
-					(second >=0 && second < 60) && (millisecond >=0 && millisecond < 1000)){
+					(second >=0 && second < 60) && (millisecond >=0 && millisecond < 100)){
 				time.set(Calendar.HOUR_OF_DAY, hour);
 				time.set(Calendar.MINUTE, minute);
 				time.set(Calendar.SECOND, second);

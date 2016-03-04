@@ -39,8 +39,8 @@ public class Run{
 		public int getNumber(){return number;}
 		public String getStart(){return startTime != null ? simple.format(startTime.getTime()) : "N/A";}
 		public String getEnd(){return endTime != null ? simple.format(endTime.getTime()) : "N/A";}
-		public void setStart(Calendar start){startTime = start;}
-		public void setEnd(Calendar end){endTime = end;}
+		public void setStart(Calendar start){startTime = (Calendar) start.clone();}
+		public void setEnd(Calendar end){endTime = (Calendar) end.clone();}
 		
 		/**
 		 * Runner.getElapsed returns the total length of time elapsed by the current Runner (in seconds);
