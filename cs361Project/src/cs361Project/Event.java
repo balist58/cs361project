@@ -33,19 +33,50 @@ public class Event {
 	}
 	
 	/**
+	 * Getters for Event's fields
+	 * @return the specified field
+	 */
+	public ArrayList<Run> getRuns(){return runs;}
+	public Run getCurrentRun(){return currentRun;}
+	public String getEventType(){return eventType;}
+	
+	/**
 	 * Event.newRun instantiates a new run object, sets it as the current run, and adds it to the runs database;
 	 * if there is already a currentRun, then the method does nothing
 	 */
-	public void newRun(){
-		//TODO:  Implement a system to instantiate new runs based on the eventType
+	public void newRun(int runCounter){
 		if(currentRun == null){
-			currentRun = new Run(runs.size() + 1);
-			runs.add(currentRun);
+			Run newRun;
+			switch(eventType){
+			case "IND":
+				newRun = new RunIND(runCounter);
+				currentRun = newRun;
+				runs.add(currentRun);
+				break;
+			case "PARIND":
+				newRun = new RunPARIND(runCounter);
+				currentRun = newRun;
+				runs.add(currentRun);
+				break;
+			//case "GRP":
+				//newRun = new RunGRP(runCounter);
+				//currentRun = newRun;
+				//runs.add(currentRun);
+				//break;
+			//case "PARGRP":
+				//newRun = new RunPARGRP(runCounter);
+				//currentRun = newRun;
+				//runs.add(currentRun);
+				//break;
+			default:
+				System.out.println("Error: Cannot start a new run; invalid event type!");
+			}
+
 		}
 	}
 	
 	/**
-	 * Event.endRun removes the "currentRun" pointer; the run still exists in the runs arrayList, but it can no longer
+	 * Event.endRun removes the "currentRun" pointer; the run still exists in the run log, but it can no longer
 	 * be interacted with through any of the methods in the Event class, save to pull data from the list
 	 * NOTE:  While redundant, this code can still run if there is no currentRun; it just makes no real change
 	 */
@@ -55,14 +86,15 @@ public class Event {
 	
 	//NOTE:  The remaining methods simply forward the command into the nested Run class and return accordingly;
 	//this only applies when the currentRun is actually pointing to a Run object - if null, they do nothing
-	public String printRun(){
-		if(currentRun != null) return currentRun.printRun();
+	public String printRun(Calendar time){
+		if(currentRun != null) return currentRun.printRun(time);
 		else return "There is no current run in progress.";}
 	public void num(int number){if(currentRun != null) currentRun.num(number);}
 	public void clr(int number){if(currentRun != null) currentRun.clr(number);}
 	public void swap(){if(currentRun != null) currentRun.swap();}
-	public void start(Calendar time){if(currentRun != null) currentRun.start(time);}
+	public void start(int channelNumber, Calendar time){if(currentRun != null) currentRun.start(channelNumber, time);}
 	public void cancel(){if(currentRun != null) currentRun.cancel();}
-	public void finish(Calendar time){if(currentRun != null) currentRun.finish(time);}
+	public void finish(int channelNumber, Calendar time){if(currentRun != null) currentRun.finish(channelNumber, time);}
 	public void dnf(){if(currentRun != null) currentRun.dnf();}
+	public String exportRun(Calendar time){if(currentRun != null) currentRun.exportRun(time);}
 }

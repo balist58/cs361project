@@ -206,6 +206,9 @@ public class CmdInterface {
 			case "PRINT":
 				ct.print();
 				break;
+			case "EXPORT":
+				ct.export();
+				break;
 			case "EXIT":
 				return false;
 			default : break;

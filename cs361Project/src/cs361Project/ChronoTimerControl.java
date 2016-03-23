@@ -33,6 +33,12 @@ public class ChronoTimerControl {
 		}
 		
 		/**
+		 * Getters for the channel fields
+		 */
+		public boolean getEnabled(){return enabled;}
+		public String getSensor(){return sensor;}
+		
+		/**
 		 * Control.Channel.conn changes the sensor that is connected to the device
 		 * @param sen - a String representing which sensor is being used
 		 */
@@ -54,31 +60,29 @@ public class ChronoTimerControl {
 		 * if a gate is plugged in, it sends a start() command to the specified Event at the specified time;
 		 * if a pad or eye is plugged in, it sends a finish() command to the specified Event at the specified time
 		 */
-		public void trig(Event event, Calendar time){
+		public void trig(Event event, int channelNumber, Calendar time){
 			if(enabled && (sensor != null)){
-				if(sensor.equals("GATE")) event.start(time);
-				else if(sensor.equals("EYE") || sensor.equals("PAD")) event.finish(time);
+				if(sensor.equals("GATE")) event.start(channelNumber, time);
+				else if(sensor.equals("EYE") || sensor.equals("PAD")) event.finish(channelNumber, time);
 			}
 		}
 	}
 	
 	/**
 	 * Controller fields - an array representing the channels connected to the ChronoTimer; the current system time;
-	 * a pointer to the current event object, which we'll be using to forward commands regarding runs; a list
-	 * of all of the Events that have been run since the system was turned on (or reset); the system state (on/off)
+	 * a pointer to the current event object, which we'll be using to forward commands regarding runs; a boolean that
+	 * will flip when a run is in progress (to lock certain commands); the current system on/off state; and a running
+	 * total count of all runs that have been made since the system was turned on/reset
 	 */
 	private Channel[] channels;
-	private ArrayList<Event> eventList;
+	private final int NUMCHANNELS = 12; //note this number of channels is subject to change depending on hardware specs
 	private Event event;
 	private Calendar time;
-	private boolean runInProgress;
-
-	//private LocalDateTime time2;
-	//private Clock clock;
-	
-	
-	//NOTE:  *all* of the controller methods are set to not run unless the system is flagged as enabled; this
-	//is a virtualization representing the system being physically turned on
+	private ArrayList<Event> eventList;
+	private int runCounter;
+	private String export;
+	//NOTE:  *all* of the controller methods (except 'on') are set to not run unless the system is flagged as enabled;
+	//this is a virtualization representing the system being physically turned on
 	private boolean enabled;
 
 	
@@ -88,15 +92,15 @@ public class ChronoTimerControl {
 	 * and sets event data to null until the event type can be specified using the EVENT command
 	 */
 	public ChronoTimerControl(){
-		channels = new Channel[12]; //note this number of values is subject to change depending on hardware specs
+		channels = new Channel[NUMCHANNELS];
 		for(int i = 0; i < channels.length; ++i){
 			channels[i] = new Channel();
 		}
-		eventList = null;
 		event = null;
 		time = null;
 		enabled = false;
-		runInProgress = false;
+		eventList = new ArrayList<Event>();
+		runCounter = 0;
 	}
 	
 	/**
@@ -105,10 +109,10 @@ public class ChronoTimerControl {
 	 */
 	public void on(){
 		if (!enabled) {
-			eventList = new ArrayList<Event>();
 			time = new GregorianCalendar();
 			enabled = true;
-			runInProgress = false;
+			eventList = new ArrayList<Event>();
+			runCounter = 0;
 		}
 	}
 	
@@ -117,11 +121,11 @@ public class ChronoTimerControl {
 	 */
 	public void off(){
 		if (enabled) {
-			eventList = null;
 			event = null;
 			time = null;
 			enabled = false;
-			runInProgress = false;
+			eventList = null;
+			runCounter = 0;
 		}
 	}
 	
@@ -134,10 +138,10 @@ public class ChronoTimerControl {
 			for (int i = 0; i < channels.length; ++i) {
 				channels[i] = new Channel();
 			}
-			eventList.clear();
 			event = null;
 			time = new GregorianCalendar();
-			runInProgress = false;
+			eventList.clear();
+			runCounter = 0;
 		}
 	}
 	
@@ -151,17 +155,6 @@ public class ChronoTimerControl {
 	 * @param time - a String, which must be of the format "HH:mm:ss.S", or this method will crash
 	 */
 	public void time(String timeString){
-
-		//String delims = (":|\\.");
-		
-		//String[] timeParts = timeString.split(delims);
-		//time.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
-		//time.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
-		//time.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
-	    // time.set(Calendar.MILLISECOND, Integer.parseInt(timeParts[3]));
-		
-		//System.out.println(time.getTime());
-
 		if (enabled) {
 			String[] timeParts = timeString.split(":");
 			String[] secondParts = timeParts[2].split("\\.");
@@ -180,14 +173,19 @@ public class ChronoTimerControl {
 	}
 	
 	/**
-	 * Controller.event instantiates a new event, and makes it into the current event in the controller
-	 * @param type
+	 * Controller.event instantiates a new event, and makes it into the current event in the controller; it will
+	 * also automatically instantiate a new run of the chosen event type
+	 * @param type - specifies which of the race events is being initialized
 	 */
 	public void event(String type){
-		if (enabled && runInProgress) {
-			event = new Event(type);
-			eventList.add(event);
-			event.newRun();
+		if(enabled){
+			if(event != null && event.getCurrentRun() != null) System.out.println("Error: Cannot change event types while a run is in progress!");
+			else{
+				event = new Event(type.toUpperCase());
+				++runCounter;
+				event.newRun(runCounter);
+				eventList.add(event);
+			}
 		}
 	}
 	
@@ -197,35 +195,153 @@ public class ChronoTimerControl {
 	 * @param chan - specifies with which channel in the channels array the method is to interact
 	 * @param sen - a String representing what sensor is plugged in, for conn() (one of: GATE, PAD, EYE)
 	 */
-	public void tog(int chan){if(enabled)channels[chan-1].tog();}
-	public void conn(String sen, int chan){if(enabled) channels[chan-1].conn(sen);}
-	public void disc(int chan){if(enabled) channels[chan-1].disc();}
-	public void trig(int chan){if(enabled && event != null) channels[chan-1].trig(event, time);}
+	public void tog(int chan){
+		if(enabled){
+			if(channels == null) System.out.println("Error: Cannot toggle; channels have not been initialized!");
+			else if(chan < 0 || chan > channels.length) System.out.println("Error: Cannot toggle; specified channel is out of bounds");
+			else if(channels[chan-1] == null) System.out.println("Error: Cannot toggle; channel " + chan + " has not been initialized!");
+			else channels[chan-1].tog();
+		}
+	}
+	public void conn(String sen, int chan){
+		if(enabled){
+			if(channels == null) System.out.println("Error: Cannot connect; channels have not been initialized!");
+			else if(chan < 0 || chan > channels.length) System.out.println("Error: Cannot connect; specified channel is out of bounds");
+			else if(channels[chan-1] == null) System.out.println("Error: Cannot connect; channel " + chan + " has not been initialized!");
+			else if(channels[chan-1].getSensor() != null) System.out.println("Error: Cannot connect; channel " + chan + " already has a device connected!");
+			else channels[chan-1].conn(sen);
+		}
+	}
+	public void disc(int chan){
+		if(enabled){
+			if(channels == null) System.out.println("Error: Cannot disconnect; channels have not been initialized!");
+			else if(chan < 0 || chan > channels.length) System.out.println("Error: Cannot disconnect; specified channel is out of bounds");
+			else if(channels[chan-1] == null) System.out.println("Error: Cannot disconnect; channel " + chan + " has not been initialized!");
+			else if(channels[chan-1].getSensor() == null) System.out.println("Error: Cannot disconnect; channel " + chan + " has no device connected!");
+			else channels[chan-1].disc();
+		}
+	}
+	public void trig(int chan){
+		if(enabled){
+			if(event == null) System.out.println("Error: Cannot trigger; no event has been initialized!");
+			else if(event.getCurrentRun() == null) System.out.println("Error: Cannot trigger; no run is in progress!");
+			else if(channels == null) System.out.println("Error: Cannot trigger; channels have not been initialized!");
+			else if(chan < 0 || chan > channels.length) System.out.println("Error: Cannot trigger; specified channel is out of bounds");
+			else if(channels[chan-1] == null) System.out.println("Error: Cannot trigger; channel " + chan + " has not been initialized!");
+			else if(!channels[chan-1].getEnabled()) System.out.println("Error: Cannot trigger; channel " + chan + " is disabled!");
+			else channels[chan-1].trig(event, chan, time);
+		}
+	}
 	
 	/**
 	 * The following commands get forwarded to the current event; if there is no current event, they do nothing
 	 * @param number - the number of the runner, only needed for the Event.Run.num() and Event.Run.clr() commands
 	 */
-	public void newRun(){if(enabled && !runInProgress) { runInProgress = true; }}
-	public void endRun(){if(enabled && runInProgress && event != null) { runInProgress = false; event.endRun(); }}
-	public void num(int number){if(enabled && event != null) event.num(number);}
-	public void clr(int number){if(enabled && event != null) event.clr(number);}
-	public void swap(){if(enabled && event != null) event.swap();}
-	public void start(){if(enabled && event != null) event.start(time);}
-	public void cancel(){if(enabled && event != null) event.cancel();}
-	public void dnf(){if(enabled && event != null) event.dnf();}
-	public void finish(){if(enabled && event != null) event.finish(time);}
+	public void newRun(){
+		if(enabled){
+			if(event == null) System.out.println("Error: Cannot start run; there is no current event!");
+			if(event.getCurrentRun() != null) System.out.println("Error: Please close the current run before starting a new one!");
+			else{
+				++runCounter;
+				event.newRun(runCounter);
+			}
+		}
+	}
+	public void endRun(){
+		if(enabled){
+			if(event == null) System.out.println("Error: Cannot end run; there is no current event!");
+			else if(event.getCurrentRun() == null) System.out.println("Error: Cannot end run; there is no run in progress!");
+			else event.endRun();
+		}
+	}
+	public void num(int number){
+		if(enabled){
+			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot add runner; there is no run in progress!");
+			else event.num(number);
+		}
+	}
+	public void clr(int number){
+		if(enabled){
+			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot clear runner; there is no run in progress!");
+			else event.clr(number);
+		}
+	}
+	public void swap(){
+		if(enabled){
+			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot swap runners; there is no run in progress!");
+			else event.swap();
+		}
+	}
+	public void start(){
+		if(enabled){
+			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot start; there is no run in progress!");
+			else event.start(0, time);
+		}
+	}
+	public void cancel(){
+		if(enabled){
+			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot cancel; there is no run in progress!");
+			else event.cancel();
+		}
+	}
+	public void dnf(){
+		if(enabled){
+			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot set as DNF; there is no run in progress!");
+			else event.dnf();
+		}
+	}
+	public void finish(){
+		if(enabled){
+			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot finish; there is no run in progress!");
+			else event.finish(0, time);
+		}
+	}
 	
 	/**
 	 * Controller.print prompts the currentEvent's currentRun for a full log of its status; this is returned back
 	 * in the form of a String, which is then printed to the console
 	 */
-	//TODO:  Change the print() method to output to a different stream once a proper GUI is implemented
 	public void print(){
 		if(event != null) {
-			System.out.print(event.printRun());
+			System.out.print(event.printRun(time));
 		} else {
 			System.out.println("No event to print");
 		}
+	}
+	/**
+	 * Controller.print(runNumber) is an overloaded version of print, that searches for the specified run number
+	 * in the ChronoTimer's event log, and once retrieved, prints the information from that run to console
+	 * @param runNumber - the run number to print out information from
+	 */
+	public void print(int runNumber){
+		Run toPrint = null;
+		for(Event e : eventList){
+			for(Run r : e.getRuns()){
+				if(r.getRunNumber() == runNumber) toPrint = r;
+			}
+		}
+		if(toPrint != null) toPrint.printRun(time);
+		else System.out.println("Error:  Cannot print run " +runNumber + ", run not found");
+	}
+	
+	/**
+	 * Controller.export(runNumber) searches for the specified run number in the ChronoTimer's event log; once it
+	 * finds the specified run, it runs a subtype-dependent method inside of the run to convert that run's data
+	 * into a JSON-formatted string.
+	 */
+	public void export(){
+		if(event != null) export = event.exportRun(time);
+		else  System.out.println("There is no current run to export!");
+	}
+	public void export(int runNumber){
+		//TODO:  Implement EXPORT function!
+		Run toExport = null;
+		for(Event e : eventList){
+			for(Run r : e.getRuns()){
+				if(r.getRunNumber() == runNumber) toExport = r;
+			}
+		}
+		if(toExport != null) toExport.exportRun(time);
+		else System.out.println("Error:  Cannot export run " + runNumber + ", run not found!");
 	}
 }
