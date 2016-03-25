@@ -197,4 +197,17 @@ public class RunIND extends Run{
 		ex += "\n]\n}";
 		return ex;
 	}
+	//private Stack<Runner> waitingRunners;
+	//private Deque<Runner> activeRunners;
+	//private Deque<Runner> finishedRunners;
+	
+	public Deque<Runner> getActive()
+	{
+		return activeRunners;
+	}
+	
+	public Deque<Runner> getFinished()
+	{
+		return finishedRunners;
+	}
 }

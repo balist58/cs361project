@@ -37,7 +37,7 @@ public class Event {
 	 * @return the specified field
 	 */
 	public ArrayList<Run> getRuns(){return runs;}
-	public Run getCurrentRun(){return currentRun;}
+	public Run getCurrentRun(){	return currentRun;}
 	public String getEventType(){return eventType;}
 	
 	/**

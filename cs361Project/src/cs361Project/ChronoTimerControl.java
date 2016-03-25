@@ -54,6 +54,7 @@ public class ChronoTimerControl {
 		 */
 		public void tog(){enabled = !enabled;}
 		
+		//TODO: Verify sensors act in this manner. Should any sensor be able to trigger a start or stop based on runs and channel it is conencted to??
 		/**
 		 * Control.Channel.trig makes a context-dependent action, depending on what devices is plugged in;
 		 * if the current sensor is set to null, or the channel is not enabled, it does nothing;
@@ -114,6 +115,90 @@ public class ChronoTimerControl {
 			eventList = new ArrayList<Event>();
 			runCounter = 0;
 		}
+	}
+	
+	/**
+	 *Getter method that returns the value of enabled.
+	 *@return true - Control is On
+	 *@return false - Control is Off 
+	 */
+	public boolean isOn()
+	{
+		if(enabled)
+			return true;
+		else
+			return false;
+	}
+		
+	/**
+	 *Getter method that returns the current time.
+	 *@return Time - current time
+	 *@return null - No time 
+	 */
+	public Calendar getTime()
+	{
+		return time;
+	}
+	
+	/**
+	 *Getter method that returns the event. 
+	 *@return Event - The current event
+	 *@return null - No event
+	 */
+	public String getEvent()
+	{
+		if(event == null)
+			return null;
+		else
+			return event.getEventType();
+	}
+	
+	/**
+	 * Getter method that returns the current run number.
+	 * */
+	public int getRunNumber()
+	{
+		return runCounter;
+	}
+	
+	/**
+	 * Get status of the channels.
+	 * @return
+	 */
+	public boolean getChanStatus(int channel)
+	{
+		return channels[channel-1].enabled;
+	}
+	
+	/**
+	 * Getter method to return type of sensor connected to the channel.
+	 * @param channel - Channel to query
+	 * @return String - String containing sensor name.
+	 */
+	public String getChanSensor(int channel)
+	{
+		return channels[channel-1].sensor;
+	}
+	
+	/**
+	 * Getter method to return a finished runner.
+	 * @return Runner - a finished runner.
+	 */
+	public Runner getFinishedRunner()
+	{
+		Runner fin = event.getCurrentRun().getFinished().getLast();
+	
+		return fin;
+	}
+	
+	/**
+	 * Getter method to return an active runner.
+	 * @return Runner - an active runner.
+	 */
+	public Runner getActiveRunner()
+	{
+		Runner act = event.getCurrentRun().getActive().getLast();
+		return act;
 	}
 	
 	/**
@@ -240,7 +325,7 @@ public class ChronoTimerControl {
 	public void newRun(){
 		if(enabled){
 			if(event == null) System.out.println("Error: Cannot start run; there is no current event!");
-			if(event.getCurrentRun() != null) System.out.println("Error: Please close the current run before starting a new one!");
+			if(event != null && event.getCurrentRun() != null) System.out.println("Error: Please close the current run before starting a new one!");
 			else{
 				++runCounter;
 				event.newRun(runCounter);

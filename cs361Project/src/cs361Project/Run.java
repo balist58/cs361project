@@ -10,6 +10,7 @@
 package cs361Project;
 
 import java.util.Calendar;
+import java.util.Deque;
 
 public class Run{
 	/**
@@ -44,4 +45,6 @@ public class Run{
 	public void finish(int channel, Calendar time){}
 	public void dnf(){}
 	public String exportRun(Calendar time){return null;}
+	public Deque<Runner> getFinished(){return null;};
+	public Deque<Runner> getActive(){return null;};
 }
