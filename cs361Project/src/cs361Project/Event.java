@@ -96,5 +96,12 @@ public class Event {
 	public void cancel(){if(currentRun != null) currentRun.cancel();}
 	public void finish(int channelNumber, Calendar time){if(currentRun != null) currentRun.finish(channelNumber, time);}
 	public void dnf(){if(currentRun != null) currentRun.dnf();}
-	public String exportRun(Calendar time){if(currentRun != null) currentRun.exportRun(time);}
+	public String exportRun(Calendar time)
+	{
+		String ex = "";
+		if(currentRun != null)
+			ex = currentRun.exportRun(time);
+		return ex;
+	}
+	
 }

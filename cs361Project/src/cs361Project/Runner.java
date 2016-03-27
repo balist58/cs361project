@@ -28,8 +28,19 @@ public class Runner {
 	public Calendar getStartTime(){return startTime;}
 	public String getEnd(){return endTime != null ? simple.format(endTime.getTime()) : "N/A";}
 	public Calendar getEndTime(){return endTime;}
-	public void setStart(Calendar start){startTime = (Calendar) start.clone();}
-	public void setEnd(Calendar end){endTime = (Calendar) end.clone();}
+	public void setStart(Calendar start){
+		if(start == null)
+			startTime = null;
+		else
+			startTime = (Calendar) start.clone();
+		}
+	
+	public void setEnd(Calendar end){
+		if(end == null)
+			endTime = null;
+		else
+			endTime = (Calendar) end.clone();
+		}
 	
 	/**
 	 * Runner.getTotalTime returns the total length of time elapsed by the current Runner (in seconds);

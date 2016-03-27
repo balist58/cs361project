@@ -11,6 +11,7 @@ package cs361Project;
 
 import java.util.Calendar;
 import java.util.Deque;
+import java.util.Stack;
 
 public class Run{
 	/**
@@ -47,4 +48,5 @@ public class Run{
 	public String exportRun(Calendar time){return null;}
 	public Deque<Runner> getFinished(){return null;};
 	public Deque<Runner> getActive(){return null;};
+	public Stack<Runner> getwaitingRunners(){return null;};
 }

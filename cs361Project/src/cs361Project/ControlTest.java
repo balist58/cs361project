@@ -163,57 +163,139 @@ public class ControlTest
 	@Test
 	public void testNewRun()
 	{
+		me.on();
+		me.conn("GATE", 1);
+		me.conn("EYE",2);
+		me.event("IND");
+		me.tog(1);
+		me.tog(2);
+		me.num(1);
+		me.trig(1);
+		me.trig(2);
+		me.endRun();
 		
+		me.newRun();
+		assertEquals(2,me.getRunNumber());
+		me.num(2);
+		me.trig(1);
+		me.trig(2);
 	}
 	
 	@Test
 	public void testEndRun()
 	{
+		me.on();
+		me.conn("GATE", 1);
+		me.conn("EYE",2);
+		me.event("IND");
+		me.tog(1);
+		me.tog(2);
+		me.num(1);
+		me.trig(1);
+		me.trig(2);
+		me.endRun();
 		
+		assertNull(me.getRun());
 	}
 	
 	@Test
 	public void testNum()
 	{
+		me.on();
+		me.conn("GATE", 1);
+		me.conn("EYE",2);
+		me.event("IND");
+		me.tog(1);
+		me.tog(2);
+		me.num(1);
 		
+		assertEquals(1,me.getNextRunner().getNumber());
 	}
 	
 	@Test
 	public void testClr()
 	{
+		me.on();
+		me.conn("GATE", 1);
+		me.conn("EYE",2);
+		me.event("IND");
+		me.tog(1);
+		me.tog(2);
+		me.num(1);
+		me.clr(1);
 		
+		
+		//should be null because only 1 runner added.
+		assertNull(me.getNextRunner());
+
 	}
 	
-	@Test
-	public void testSwap()
-	{
-	
-	}
 	
 	@Test
 	public void testStart()
 	{
-		
+		me.on();
+		me.conn("GATE", 1);
+		me.conn("EYE",2);
+		me.event("IND");
+		me.tog(1);
+		me.tog(2);
+		me.num(1);
+		me.start();
+		assertEquals(1,me.getActiveRunner().getNumber());
+		me.trig(2);
+		assertEquals(1,me.getFinishedRunner().getNumber());		
 	}
 	
 	@Test
 	public void testCancel()
 	{
-		
+		me.on();
+		me.conn("GATE", 1);
+		me.conn("EYE",2);
+		me.event("IND");
+		me.tog(1);
+		me.tog(2);
+		me.num(1);
+		me.trig(1);
+		assertEquals(1,me.getActiveRunner().getNumber());
+		me.cancel();
+		assertEquals(1,me.getNextRunner().getNumber());		
 	}
 	
 	@Test
 	public void testDnf()
 	{
-		
+		me.on();
+		me.conn("GATE", 1);
+		me.conn("EYE",2);
+		me.event("IND");
+		me.tog(1);
+		me.tog(2);
+		me.num(1);
+		me.trig(1);
+		assertEquals(1,me.getActiveRunner().getNumber());
+		me.dnf();
+		assertEquals(1,me.getFinishedRunner().getNumber());	
 	}
 	
 	@Test
 	public void testFinish()
 	{
-		
+		me.on();
+		me.conn("GATE", 1);
+		me.conn("EYE",2);
+		me.event("IND");
+		me.tog(1);
+		me.tog(2);
+		me.num(1);
+		me.start();
+		assertEquals(1,me.getActiveRunner().getNumber());
+		me.finish();
+		assertEquals(1,me.getFinishedRunner().getNumber());		
 	}
 	
+	//TODO: Find way to test print and export functions.
 	@Test
 	public void testPrint()
 	{

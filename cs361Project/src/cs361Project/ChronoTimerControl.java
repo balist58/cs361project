@@ -153,6 +153,11 @@ public class ChronoTimerControl {
 			return event.getEventType();
 	}
 	
+	public Run getRun()
+	{
+		return event.getCurrentRun();
+	}
+	
 	/**
 	 * Getter method that returns the current run number.
 	 * */
@@ -189,6 +194,15 @@ public class ChronoTimerControl {
 		Runner fin = event.getCurrentRun().getFinished().getLast();
 	
 		return fin;
+	}
+	
+	public Runner getNextRunner()
+	{
+		if(event.getCurrentRun().getwaitingRunners().isEmpty()){
+			return null;
+		}
+		else
+			return event.getCurrentRun().getwaitingRunners().firstElement();
 	}
 	
 	/**
@@ -418,15 +432,25 @@ public class ChronoTimerControl {
 		if(event != null) export = event.exportRun(time);
 		else  System.out.println("There is no current run to export!");
 	}
-	public void export(int runNumber){
+	public String export(int runNumber){
 		//TODO:  Implement EXPORT function!
+		String exp = "";
 		Run toExport = null;
 		for(Event e : eventList){
 			for(Run r : e.getRuns()){
 				if(r.getRunNumber() == runNumber) toExport = r;
 			}
 		}
-		if(toExport != null) toExport.exportRun(time);
-		else System.out.println("Error:  Cannot export run " + runNumber + ", run not found!");
+		if(toExport != null)
+			{
+				exp = toExport.exportRun(time);
+			}
+		else
+		{
+			System.out.println("Error:  Cannot export run " + runNumber + ", run not found!");
+			exp = null;
+		}
+		
+		return exp;
 	}
 }

@@ -210,4 +210,9 @@ public class RunIND extends Run{
 	{
 		return finishedRunners;
 	}
+	
+	public Stack<Runner> getwaitingRunners()
+	{
+		return waitingRunners;
+	}
 }
