@@ -298,27 +298,25 @@ public class RunPARIND extends Run{
 		for(Runner r : activeRunners[0]){
 			ex += "\n\"Number\": ";
 			ex += r.getNumber();
-			ex += ",\n\"StartTime\": ";
-			ex += r.getStartTime().getTimeInMillis();
+			ex += ",\n\"ElapsedTime\": ";
+			ex += r.getElapsed(time);
 			if(!(r == activeRunners[0].peekLast())) ex+= "\n},";
 		}
 		ex += "\n],\n\"ActiveRunners1\": [\n{";
 		for(Runner r : activeRunners[1]){
 			ex += "\n\"Number\": ";
 			ex += r.getNumber();
-			ex += ",\n\"StartTime\": ";
-			ex += r.getStartTime().getTimeInMillis();
+			ex += ",\n\"ElapsedTime\": ";
+			ex += r.getElapsed(time);
 			if(!(r == activeRunners[0].peekLast())) ex+= "\n},";
 		}
 		ex += "\n],\n\"FinishedRunners\": [\n{";
 		for(Runner r : finishedRunners){
 			ex += "\n\"Number\": ";
 			ex += r.getNumber();
-			ex += ",\n\"StartTime\": ";
-			ex += r.getStartTime().getTimeInMillis();
-			ex += ",\n\"EndTime\": ";
+			ex += ",\n\"ElapsedTime\": ";
 			if(r.getEndTime() == null) ex += "DNF";
-			else ex += r.getEndTime().getTimeInMillis();
+			else ex += r.getTotalTime();
 			if(!(r == finishedRunners.peekLast())) ex += "\n},";
 		}
 		ex += "\n]\n}";

@@ -179,19 +179,17 @@ public class RunIND extends Run{
 		for(Runner r : activeRunners){
 			ex += "\n\"Number\": ";
 			ex += r.getNumber();
-			ex += ",\n\"StartTime\": ";
-			ex += r.getStartTime().getTimeInMillis();
+			ex += ",\n\"ElapsedTime\": ";
+			ex += r.getElapsed(time);
 			if(!(r == activeRunners.peekLast())) ex += "\n},";
 		}
 		ex += "\n],\n\"FinishedRunners\": [\n{";
 		for(Runner r : finishedRunners){
 			ex += "\n\"Number\": ";
 			ex += r.getNumber();
-			ex += ",\n\"StartTime\": ";
-			ex += r.getStartTime().getTimeInMillis();
-			ex += ",\n\"EndTime\": ";
+			ex += ",\n\"ElapsedTime\": ";
 			if(r.getEndTime() == null) ex += "DNF";
-			else ex += r.getEndTime().getTimeInMillis();
+			else ex += r.getTotalTime();
 			if(!(r == finishedRunners.peekLast())) ex += "\n},";
 		}
 		ex += "\n]\n}";

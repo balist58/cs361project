@@ -433,7 +433,6 @@ public class ChronoTimerControl {
 		else  System.out.println("There is no current run to export!");
 	}
 	public String export(int runNumber){
-		//TODO:  Implement EXPORT function!
 		String exp = "";
 		Run toExport = null;
 		for(Event e : eventList){
