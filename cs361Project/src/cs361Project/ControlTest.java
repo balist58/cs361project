@@ -29,6 +29,7 @@ public class ControlTest
 	{
 		me.on();
 		me.event("IND");
+		me.newRun();
 		assertEquals(1,me.getRunNumber());
 		me.reset();
 		assertEquals(0,me.getRunNumber());
@@ -71,6 +72,7 @@ public class ControlTest
 		me.on();
 		assertEquals(null,me.getEvent());
 		me.event("ind");
+		me.newRun();
 		assertEquals("IND",me.getEvent());
 	}
 	
@@ -149,6 +151,7 @@ public class ControlTest
 		me.conn("GATE", 1);
 		me.conn("EYE",2);
 		me.event("IND");
+		me.newRun();
 		me.tog(1);
 		me.tog(2);
 		me.num(1);
@@ -167,6 +170,7 @@ public class ControlTest
 		me.conn("GATE", 1);
 		me.conn("EYE",2);
 		me.event("IND");
+		me.newRun();
 		me.tog(1);
 		me.tog(2);
 		me.num(1);
@@ -188,6 +192,7 @@ public class ControlTest
 		me.conn("GATE", 1);
 		me.conn("EYE",2);
 		me.event("IND");
+		me.newRun();
 		me.tog(1);
 		me.tog(2);
 		me.num(1);
@@ -205,6 +210,7 @@ public class ControlTest
 		me.conn("GATE", 1);
 		me.conn("EYE",2);
 		me.event("IND");
+		me.newRun();
 		me.tog(1);
 		me.tog(2);
 		me.num(1);
@@ -219,6 +225,7 @@ public class ControlTest
 		me.conn("GATE", 1);
 		me.conn("EYE",2);
 		me.event("IND");
+		me.newRun();
 		me.tog(1);
 		me.tog(2);
 		me.num(1);
@@ -238,6 +245,7 @@ public class ControlTest
 		me.conn("GATE", 1);
 		me.conn("EYE",2);
 		me.event("IND");
+		me.newRun();
 		me.tog(1);
 		me.tog(2);
 		me.num(1);
@@ -254,6 +262,7 @@ public class ControlTest
 		me.conn("GATE", 1);
 		me.conn("EYE",2);
 		me.event("IND");
+		me.newRun();
 		me.tog(1);
 		me.tog(2);
 		me.num(1);
@@ -270,6 +279,7 @@ public class ControlTest
 		me.conn("GATE", 1);
 		me.conn("EYE",2);
 		me.event("IND");
+		me.newRun();
 		me.tog(1);
 		me.tog(2);
 		me.num(1);
@@ -286,6 +296,7 @@ public class ControlTest
 		me.conn("GATE", 1);
 		me.conn("EYE",2);
 		me.event("IND");
+		me.newRun();
 		me.tog(1);
 		me.tog(2);
 		me.num(1);

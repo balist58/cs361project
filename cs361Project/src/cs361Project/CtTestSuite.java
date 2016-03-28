@@ -7,7 +7,8 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	ControlTest.class,
-	InitializationTest.class
+	InitializationTest.class,
+	IndividualRunTest.class
 })
 public class CtTestSuite {
 }

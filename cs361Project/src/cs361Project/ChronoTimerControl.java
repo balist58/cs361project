@@ -198,18 +198,17 @@ public class ChronoTimerControl {
 	 */
 	public Runner getFinishedRunner()
 	{
-		Runner fin = event.getCurrentRun().getFinished().getLast();
-	
-		return fin;
+
+		if(event.getCurrentRun().getFinished().isEmpty()) return null;
+		
+		return event.getCurrentRun().getFinished().getLast();
 	}
 	
 	public Runner getNextRunner()
 	{
-		if(event.getCurrentRun().getwaitingRunners().isEmpty()){
-			return null;
-		}
-		else
-			return event.getCurrentRun().getwaitingRunners().firstElement();
+		if(event.getCurrentRun().getwaitingRunners().isEmpty()) return null;
+		
+		return event.getCurrentRun().getwaitingRunners().peek();
 	}
 	
 	/**
@@ -218,8 +217,9 @@ public class ChronoTimerControl {
 	 */
 	public Runner getActiveRunner()
 	{
-		Runner act = event.getCurrentRun().getActive().getLast();
-		return act;
+		if(event.getCurrentRun().getActive().isEmpty()) return null;
+		
+		return event.getCurrentRun().getActive().getLast();
 	}
 	
 	/**
@@ -288,8 +288,8 @@ public class ChronoTimerControl {
 			if(event != null && event.getCurrentRun() != null) System.out.println("Error: Cannot change event types while a run is in progress!");
 			else{
 				event = new Event(type.toUpperCase());
-				++runCounter;
-				event.newRun(runCounter);
+				//++runCounter;
+				//event.newRun(runCounter);
 				eventList.add(event);
 			}
 		}
