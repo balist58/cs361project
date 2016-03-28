@@ -83,10 +83,10 @@ public class CmdInterface {
 	}
 	
 	/**
-	 * parseLine(): Private helper method that takes a string and parses into the appropriate command parts.
+	 * parseLine(): Helper method that takes a string and parses into the appropriate command parts. Public for testing.
 	 * @param cmdstring - String containing the user entered command line to parse.
 	 */
-	private boolean parseLine(String cmdstring, String timeToUpdateTo){
+	public boolean parseLine(String cmdstring, String timeToUpdateTo){
 		//Break up the command from the arguments
 		String[] tokens = cmdstring.split(" ");
 		this.argList.clear(); //TODO remove this
@@ -207,7 +207,11 @@ public class CmdInterface {
 				ct.print();
 				break;
 			case "EXPORT":
-				ct.export();
+				if(argList.isEmpty()) {
+					ct.export();					
+				} else {
+					ct.export(Integer.parseInt(argList.get(0)));
+				}
 				break;
 			case "EXIT":
 				return false;

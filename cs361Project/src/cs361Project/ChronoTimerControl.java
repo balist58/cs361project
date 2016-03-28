@@ -124,10 +124,7 @@ public class ChronoTimerControl {
 	 */
 	public boolean isOn()
 	{
-		if(enabled)
-			return true;
-		else
-			return false;
+		return enabled;
 	}
 		
 	/**
@@ -155,7 +152,7 @@ public class ChronoTimerControl {
 	
 	public Run getRun()
 	{
-		return event.getCurrentRun();
+		return event == null ? null : event.getCurrentRun();
 	}
 	
 	/**
@@ -170,9 +167,14 @@ public class ChronoTimerControl {
 	 * Get status of the channels.
 	 * @return
 	 */
-	public boolean getChanStatus(int channel)
+	public Boolean getChanStatus(int channel)
 	{
-		return channels[channel-1].enabled;
+		if(channel <= NUMCHANNELS) {
+			return channels[channel-1].enabled;
+		} else {
+			System.out.println("Channel " + channel + " doesn't exist.");
+			return null;
+		}
 	}
 	
 	/**
@@ -182,7 +184,12 @@ public class ChronoTimerControl {
 	 */
 	public String getChanSensor(int channel)
 	{
-		return channels[channel-1].sensor;
+		if(channel <= NUMCHANNELS) {
+			return channels[channel-1].sensor;
+		} else {
+			System.out.println("Channel " + channel + " doesn't exist.");
+			return null;
+		}
 	}
 	
 	/**
@@ -441,9 +448,9 @@ public class ChronoTimerControl {
 			}
 		}
 		if(toExport != null)
-			{
-				exp = toExport.exportRun(time);
-			}
+		{
+			exp = toExport.exportRun(time);
+		}
 		else
 		{
 			System.out.println("Error:  Cannot export run " + runNumber + ", run not found!");
