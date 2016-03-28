@@ -8,7 +8,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
 	ControlTest.class,
 	InitializationTest.class,
-	IndividualRunTest.class
+	IndividualRunTest.class,
+	ParallelIndividualRunTest.class
 })
 public class CtTestSuite {
 }

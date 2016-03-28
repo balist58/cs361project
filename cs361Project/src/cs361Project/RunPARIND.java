@@ -253,15 +253,15 @@ public class RunPARIND extends Run{
 	 * @param channel - the calling channel/sensor number
 	 */
 	private void startRegister(int channel){
-		if(channelMap[channel-1]== -1){
+		if(channelMap[channel-1] == -1){
 			channelMap[channel-1] = startCounter;
-			startCounter = (startCounter++)%2;
+			startCounter = (++startCounter)%2;
 		}
 	}
 	private void finishRegister(int channel){
 		if(channelMap[channel-1] == -1){
 			channelMap[channel-1] = finishCounter;
-			finishCounter = (finishCounter++)%2;
+			finishCounter = (++finishCounter)%2;
 		}
 	}
 	
@@ -321,5 +321,23 @@ public class RunPARIND extends Run{
 		}
 		ex += "\n]\n}";
 		return ex;
+	}
+	
+	public Deque<Runner> getActive()
+	{
+		Deque<Runner> res = new LinkedList<Runner>();
+		res.addAll(activeRunners[0]);
+		res.addAll(activeRunners[1]);
+		return res;
+	}
+	
+	public Deque<Runner> getFinished()
+	{
+		return finishedRunners;
+	}
+	
+	public Stack<Runner> getwaitingRunners()
+	{
+		return waitingRunners;
 	}
 }
