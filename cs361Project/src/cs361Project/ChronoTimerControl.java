@@ -261,7 +261,7 @@ public class ChronoTimerControl {
 	 * @param time - a String, which must be of the format "HH:mm:ss.S", or this method will crash
 	 */
 	public void time(String timeString){
-		if (enabled) {
+		if (enabled && timeString.matches("^\\d{2}:\\d{2}:\\d{2}.\\d{1,2}")) {
 			String[] timeParts = timeString.split(":");
 			String[] secondParts = timeParts[2].split("\\.");
 			int hour = Integer.parseInt(timeParts[0]);
@@ -457,6 +457,7 @@ public class ChronoTimerControl {
 			exp = null;
 		}
 		
+		System.out.println(exp);
 		return exp;
 	}
 }

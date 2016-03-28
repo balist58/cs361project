@@ -116,6 +116,8 @@ public class ParallelIndividualRunTest
 		assertEquals(0,ct.getTime().get(12));
 		assertEquals(43,ct.getTime().get(13));
 		assertEquals(0,ct.getTime().get(14));
+		
+		ct.export(1);
 	}
 }
 
