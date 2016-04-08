@@ -55,17 +55,23 @@ public class ChronoTimerControl{
 			String cmd = tokens[0].toUpperCase();                             //Set the command itself to a String called "cmd"
 			for(int i = 1; i < tokens.length; ++i) cmdArgs.add(tokens[i]);    //Arguments, if any, go into an ArrayList called "cmdArgs"
 		
-			//If the controller is currently off, only accept an "ON" command
-			if(!this.isEnabled() && cmd.equals("ON")){
-				this.setEnabled(true);
+			//If the controller is currently off, only accept the "ON" command, or commands relating to connecting sensors
+			if(!this.isEnabled()){
+				switch(cmd){
+				case "ON":
+					this.setEnabled(true);
+					break;
+				case "CONN":
+					if(cmdArgs.size() == 2) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))-1).conn(cmdArgs.get(1));
+					break;
+				case "DISC":
+					if(cmdArgs.size() == 1) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))-1).disc();
+					break;
+			    default: System.out.println("Error: Unable to execute command; the system is not on!");
+				}
 				return true;
 			}
-			//If the controller is off and the command is not "ON", no action is performed
-			else if(!this.isEnabled()){
-				System.out.println("Error: Unable to execute command; the system is not on!");
-				return true;
-			}
-			//However, if the controller is on, then run the method corresponding to the command String 
+			//However, if the controller is on, then run the corresponding call for any command (except "ON", which is meaningless)
 			else{
 				switch(cmd){
 				case "OFF":

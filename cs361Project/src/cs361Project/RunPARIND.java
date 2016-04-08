@@ -13,7 +13,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Stack;
 
-public class RunPARIND extends Run{
+public class RunPARIND implements Run{
 	/**
 	 * Fields for the Run class - a stack for runners with no start time; a queue that holds the
 	 * runners that have a start time but no end time; and a queue to hold runners that have 
@@ -21,6 +21,7 @@ public class RunPARIND extends Run{
 	 * In addition, there is a field denoting the current active queue for the PARIND event type,
 	 * as well as tools for setting up the channel sensors to match up to the two parallel run queues
 	 */
+	private int runNumber;
 	private Stack<Runner> waitingRunners;
 	private Deque<Runner>[] activeRunners;
 	private Deque<Runner> finishedRunners;
@@ -39,7 +40,7 @@ public class RunPARIND extends Run{
 	 */
 	@SuppressWarnings("unchecked")
 	public RunPARIND(int number){
-		super(number);
+		runNumber = number;
 		lastUsed = 0;
 		waitingRunners = new Stack<Runner>();
 		activeRunners = new Deque[2];
@@ -53,6 +54,22 @@ public class RunPARIND extends Run{
 		startCounter = 0;
 		finishCounter = 0;
 	}
+	
+	/**
+	 * Getters for the RunPARIND fields
+	 */
+	public int getRunNumber(){return runNumber;}
+	public Deque<Runner> getActive(){
+		Deque<Runner> res = new LinkedList<Runner>();
+		res.addAll(activeRunners[0]);
+		res.addAll(activeRunners[1]);
+		return res;
+	}
+	public Deque<Runner> getFinished(){return finishedRunners;}
+	public Stack<Runner> getwaitingRunners(){return waitingRunners;}
+    //isWaiting and isActive return whether their respective queues are *not* empty
+	public boolean isWaiting(){return !this.getwaitingRunners().isEmpty();}
+	public boolean isActive(){return !this.getActive().isEmpty();}
 	
 	/**
 	 * Event.Run.print collects and returns a printable form of the current status of the run
@@ -322,22 +339,5 @@ public class RunPARIND extends Run{
 		ex += "\n]\n}";
 		return ex;
 	}
-	
-	public Deque<Runner> getActive()
-	{
-		Deque<Runner> res = new LinkedList<Runner>();
-		res.addAll(activeRunners[0]);
-		res.addAll(activeRunners[1]);
-		return res;
-	}
-	
-	public Deque<Runner> getFinished()
-	{
-		return finishedRunners;
-	}
-	
-	public Stack<Runner> getwaitingRunners()
-	{
-		return waitingRunners;
-	}
+
 }

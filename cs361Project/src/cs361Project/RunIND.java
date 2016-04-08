@@ -13,12 +13,13 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Stack;
 
-public class RunIND extends Run{
+public class RunIND implements Run{
 	/**
 	 * Fields for the Run class - a stack for runners with no start time; a queue that holds the
 	 * runners that have a start time but no end time; and a queue to hold runners that have 
 	 * both start and end times - all kept separate for the purposes of the event log
 	 */
+	private int runNumber;
 	private Stack<Runner> waitingRunners;
 	private Deque<Runner> activeRunners;
 	private Deque<Runner> finishedRunners;
@@ -28,11 +29,22 @@ public class RunIND extends Run{
 	 * @param number - the runNumber for this run, set by its parent event during run instantiation
 	 */
 	public RunIND(int number){
-		super(number);
+		runNumber = number;
 		waitingRunners = new Stack<Runner>();
 		activeRunners = new LinkedList<Runner>();
 		finishedRunners = new LinkedList<Runner>();
 	}
+	
+	/**
+	 * Getters for the RunIND fields
+	 */
+	public int getRunNumber(){return runNumber;}
+	public Deque<Runner> getActive(){return activeRunners;}
+	public Deque<Runner> getFinished(){return finishedRunners;}
+	public Stack<Runner> getwaitingRunners(){return waitingRunners;}
+    //isWaiting and isActive return whether their respective queues are *not* empty
+	public boolean isWaiting(){return !this.getwaitingRunners().isEmpty();}
+	public boolean isActive(){return !this.getActive().isEmpty();}
 	
 	/**
 	 * Event.Run.print collects and returns a printable form of the current status of the run
@@ -195,22 +207,5 @@ public class RunIND extends Run{
 		ex += "\n]\n}";
 		return ex;
 	}
-	//private Stack<Runner> waitingRunners;
-	//private Deque<Runner> activeRunners;
-	//private Deque<Runner> finishedRunners;
 	
-	public Deque<Runner> getActive()
-	{
-		return activeRunners;
-	}
-	
-	public Deque<Runner> getFinished()
-	{
-		return finishedRunners;
-	}
-	
-	public Stack<Runner> getwaitingRunners()
-	{
-		return waitingRunners;
-	}
 }

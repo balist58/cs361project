@@ -163,7 +163,7 @@ public class ChronoTimerSystem {
 	public void setEvent(String type){
 		if(this.getRun() != null) System.out.println("Error: Cannot change event types while a run is in progress!");
 		else if(type.equalsIgnoreCase("IND") || type.equalsIgnoreCase("PARIND") || type.equalsIgnoreCase("GRP") || type.equalsIgnoreCase("PARGRP")){
-			eventType = type;
+			eventType = type.toUpperCase();
 		}
 		else System.out.println("Error: Cannot set event type; invalid event type!");
 	}
@@ -209,7 +209,15 @@ public class ChronoTimerSystem {
 	 * only if there is an active run in progress - if there is not, it prints and error and does nothing
 	 */
 	public void endRun(){
-		if(this.isActive()) activeRun = null;
+		if(this.isActive()){
+			//If there are still active or waiting runners, end their runs (as a DNF)
+			while(this.getRun().isActive()) this.getRun().dnf();
+			while(this.getRun().isWaiting()){
+				this.getRun().start(0, null);
+				this.getRun().dnf();
+			}
+			activeRun = null;
+		}
 		else System.out.println("Error: Cannot end run; there is no run in progress!");
 	}
 

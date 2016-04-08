@@ -15,12 +15,14 @@ import java.util.Calendar;
 
 public class Runner {
 	private int number;
-	private Calendar startTime = null;
-	private Calendar endTime = null;
+	private Calendar startTime;
+	private Calendar endTime;
 	private DateFormat simple = new SimpleDateFormat("HH:mm:ss.SS");
 	
 	public Runner(int num){
 		number = num;
+		startTime = null;
+		endTime = null;
 	}
 	
 	public int getNumber(){return number;}
@@ -28,6 +30,7 @@ public class Runner {
 	public Calendar getStartTime(){return startTime;}
 	public String getEnd(){return endTime != null ? simple.format(endTime.getTime()) : "N/A";}
 	public Calendar getEndTime(){return endTime;}
+	public void setNumber(int newNumber){number = newNumber;}
 	public void setStart(Calendar start){
 		if(start == null)
 			startTime = null;
