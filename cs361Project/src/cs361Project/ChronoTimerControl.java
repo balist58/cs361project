@@ -11,453 +11,142 @@
 package cs361Project;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
-
-public class ChronoTimerControl {
-	private class Channel{
-		/**
-		 * Channel fields - a boolean representing whether the channel has been toggled on, and a String
-		 * which contains a String representing which type of sensor is being used
-		 */
-		private boolean enabled;
-		private String sensor;
-		
-		/**
-		 * The constructor sets the channel as disabled by default, with no sensor plugged in
-		 */
-		public Channel(){
-			enabled = false;
-			sensor = null;
-		}
-		
-		/**
-		 * Getters for the channel fields
-		 */
-		public boolean getEnabled(){return enabled;}
-		public String getSensor(){return sensor;}
-		
-		/**
-		 * Control.Channel.conn changes the sensor that is connected to the device
-		 * @param sen - a String representing which sensor is being used
-		 */
-		public void conn(String sen){sensor = sen.toUpperCase();}
-		
-		/**
-		 * Control.Channel.disc changes the connected sensor back to null
-		 */
-		public void disc(){sensor = null;}
-		
-		/**
-		 * Control.Channel.tog switches the enabled state from off to on, or from on to off
-		 */
-		public void tog(){enabled = !enabled;}
-		
-		//TODO: Verify sensors act in this manner. Should any sensor be able to trigger a start or stop based on runs and channel it is conencted to??
-		/**
-		 * Control.Channel.trig makes a context-dependent action, depending on what devices is plugged in;
-		 * if the current sensor is set to null, or the channel is not enabled, it does nothing;
-		 * if a gate is plugged in, it sends a start() command to the specified Event at the specified time;
-		 * if a pad or eye is plugged in, it sends a finish() command to the specified Event at the specified time
-		 */
-		public void trig(Event event, int channelNumber, Calendar time){
-			if(enabled && (sensor != null)){
-				if(sensor.equals("GATE")) event.start(channelNumber, time);
-				else if(sensor.equals("EYE") || sensor.equals("PAD")) event.finish(channelNumber, time);
-			}
-		}
-	}
-	
+public class ChronoTimerControl{
 	/**
-	 * Controller fields - an array representing the channels connected to the ChronoTimer; the current system time;
-	 * a pointer to the current event object, which we'll be using to forward commands regarding runs; a boolean that
-	 * will flip when a run is in progress (to lock certain commands); the current system on/off state; and a running
-	 * total count of all runs that have been made since the system was turned on/reset
+	 * Controller fields - a pointer to the ChronoTimer system, and the system's "on/off switch" which restricts commands
 	 */
-	private Channel[] channels;
-	private final int NUMCHANNELS = 12; //note this number of channels is subject to change depending on hardware specs
-	private Event event;
-	private Calendar time;
-	private ArrayList<Event> eventList;
-	private int runCounter;
-	private String export;
-	//NOTE:  *all* of the controller methods (except 'on') are set to not run unless the system is flagged as enabled;
-	//this is a virtualization representing the system being physically turned on
-	private boolean enabled;
-
-	
+	private ChronoTimerSystem system;  //references the ChronoTimer system to which the controller relays commands
+	private boolean enabled;           //controls whether or not commands can be made
 	
 	/**
-	 * The Controller constructor initializes the channel array with new default Channels
-	 * and sets event data to null until the event type can be specified using the EVENT command
+	 * The Controller constructor initializes the System, but leaves the interface in a disabled state
 	 */
 	public ChronoTimerControl(){
-		channels = new Channel[NUMCHANNELS];
-		for(int i = 0; i < channels.length; ++i){
-			channels[i] = new Channel();
-		}
-		event = null;
-		time = null;
+		system = new ChronoTimerSystem();
 		enabled = false;
-		eventList = new ArrayList<Event>();
-		runCounter = 0;
 	}
 	
 	/**
-	 * Controller.on switches the controller to an enabled state, and initializes the other fields,
-	 * with the exception of the "event" field, which must be initialized via event() call
+	 * Simple getters and setters for the controller fields
+	 * 
 	 */
-	public void on(){
-		if (!enabled) {
-			time = new GregorianCalendar();
-			enabled = true;
-			eventList = new ArrayList<Event>();
-			runCounter = 0;
+	public ChronoTimerSystem getSystem(){return system;}
+	public boolean isEnabled(){return enabled;}
+	public void setEnabled(boolean setTo){enabled = setTo;}
+	public void setSystem(ChronoTimerSystem newSystem){system = newSystem;}
+	
+	/**
+	 * Controller.execute takes a command String of the form [<COMMAND> <ARG1(opt)> <ARG2(opt)>], and converts it into a
+	 * method call to either the ChronoTimer System, one of the Channels, or the current active Run based on the leading command
+	 * @param String cmdString - a String composed of the command and args, separated by spaces.  Any other string will be invalid.
+	 * @return boolean - only returns false when the "EXIT" command was called, to be relayed back to the calling object
+	 */
+	public boolean execute(String cmdString){
+		//Escape out if the string is null, to avoid null pointers
+		if(cmdString == null){
+			System.out.println("ERROR: Unable to execute command; no command was entered!");
+			return true;
 		}
-	}
-	
-	/**
-	 *Getter method that returns the value of enabled.
-	 *@return true - Control is On
-	 *@return false - Control is Off 
-	 */
-	public boolean isOn()
-	{
-		return enabled;
-	}
+		else{
+			//Parse the command string into a String for the command, and an ArrayList for any arguments
+			ArrayList<String> cmdArgs = new ArrayList<String>();
+			String[] tokens = cmdString.split(" ");
+			String cmd = tokens[0].toUpperCase();                             //Set the command itself to a String called "cmd"
+			for(int i = 1; i < tokens.length; ++i) cmdArgs.add(tokens[i]);    //Arguments, if any, go into an ArrayList called "cmdArgs"
 		
-	/**
-	 *Getter method that returns the current time.
-	 *@return Time - current time
-	 *@return null - No time 
-	 */
-	public Calendar getTime()
-	{
-		return time;
-	}
-	
-	/**
-	 *Getter method that returns the event. 
-	 *@return Event - The current event
-	 *@return null - No event
-	 */
-	public String getEvent()
-	{
-		if(event == null)
-			return null;
-		else
-			return event.getEventType();
-	}
-	
-	public Run getRun()
-	{
-		return event == null ? null : event.getCurrentRun();
-	}
-	
-	/**
-	 * Getter method that returns the current run number.
-	 * */
-	public int getRunNumber()
-	{
-		return runCounter;
-	}
-	
-	/**
-	 * Get status of the channels.
-	 * @return
-	 */
-	public Boolean getChanStatus(int channel)
-	{
-		if(channel <= NUMCHANNELS) {
-			return channels[channel-1].enabled;
-		} else {
-			System.out.println("Channel " + channel + " doesn't exist.");
-			return null;
+			//If the controller is currently off, only accept an "ON" command
+			if(!this.isEnabled() && cmd.equals("ON")){
+				this.setEnabled(true);
+				return true;
+			}
+			//If the controller is off and the command is not "ON", no action is performed
+			else if(!this.isEnabled()){
+				System.out.println("Error: Unable to execute command; the system is not on!");
+				return true;
+			}
+			//However, if the controller is on, then run the method corresponding to the command String 
+			else{
+				switch(cmd){
+				case "OFF":
+					this.setEnabled(false);
+					break;
+				case "RESET":
+					this.getSystem().reset();
+					break;
+				case "TIME":
+					if(cmdArgs.size() == 1) this.getSystem().setTime(cmdArgs.get(0));
+					break;
+				case "EVENT" :
+					if(cmdArgs.size() == 1) this.getSystem().setEvent(cmdArgs.get(0));
+					break;
+				case "NEWRUN":
+					this.getSystem().newRun();
+					break;
+				case "ENDRUN":
+					this.getSystem().endRun();
+					break;
+				case "NUM":
+					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute NUM; there is no active run!");
+					else if(cmdArgs.size() == 1) this.getSystem().getRun().num(Integer.parseInt(cmdArgs.get(0)));
+					break;
+				case "CLR":
+					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute CLR; there is no active run!");
+					else if(cmdArgs.size() == 1) this.getSystem().getRun().clr(Integer.parseInt(cmdArgs.get(0)));
+					break;
+				case "SWAP":
+					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute SWAP; there is no active run!");
+					else this.getSystem().getRun().swap();
+					break;
+				case "START":
+					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute START; there is no active run!");
+					else if(cmdArgs.isEmpty()) this.getSystem().getRun().start(0, this.getSystem().getTime());
+					else if(cmdArgs.size() == 1) this.getSystem().getRun().start(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
+					break;
+				case "CANCEL":
+					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute CANCEL; there is no active run!");
+					else this.getSystem().getRun().cancel();
+					break;
+				case "DNF":
+					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute DNF; there is no active run!");
+					else this.getSystem().getRun().dnf();
+					break;
+				case "FINISH":
+					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute FINISH; there is no active run!");
+					else if(cmdArgs.isEmpty()) this.getSystem().getRun().finish(0, this.getSystem().getTime());
+					else if(cmdArgs.size() == 1) this.getSystem().getRun().finish(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
+					break;
+				case "TOG": case "TOGGLE":
+					if(cmdArgs.size() == 1) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))-1).tog();
+					break;
+				case "CONN":
+					if(cmdArgs.size() == 2) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))-1).conn(cmdArgs.get(1));
+					break;
+				case "DISC":
+					if(cmdArgs.size() == 1) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))-1).disc();
+					break;
+				case "TRIG":
+					if(cmdArgs.size() == 1){
+						//the Channel.trig() method returns a command String, which is to be executed upon the method returning
+						String toRun = this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))-1).trig(Integer.parseInt(cmdArgs.get(0)));
+						execute(toRun);
+					}
+					break;
+				case "PRINT":
+					if(cmdArgs.isEmpty()) this.getSystem().print();
+					else if(cmdArgs.size() == 1) this.getSystem().print(Integer.parseInt(cmdArgs.get(0)));
+					break;
+				case "EXPORT":
+					if(cmdArgs.isEmpty()) this.getSystem().export();
+					else if(cmdArgs.size() == 1) this.getSystem().export(Integer.parseInt(cmdArgs.get(0)));
+					break;
+				case "EXIT":
+					return false;
+				default : break;
+				}//END OF SWITCH
+				return true;
+			}
 		}
 	}
-	
-	/**
-	 * Getter method to return type of sensor connected to the channel.
-	 * @param channel - Channel to query
-	 * @return String - String containing sensor name.
-	 */
-	public String getChanSensor(int channel)
-	{
-		if(channel <= NUMCHANNELS) {
-			return channels[channel-1].sensor;
-		} else {
-			System.out.println("Channel " + channel + " doesn't exist.");
-			return null;
-		}
-	}
-	
-	/**
-	 * Getter method to return a finished runner.
-	 * @return Runner - a finished runner.
-	 */
-	public Runner getFinishedRunner()
-	{
 
-		if(event.getCurrentRun().getFinished().isEmpty()) return null;
-		
-		return event.getCurrentRun().getFinished().getLast();
-	}
-	
-	public Runner getNextRunner()
-	{
-		if(event.getCurrentRun().getwaitingRunners().isEmpty()) return null;
-		
-		return event.getCurrentRun().getwaitingRunners().peek();
-	}
-	
-	/**
-	 * Getter method to return an active runner.
-	 * @return Runner - an active runner.
-	 */
-	public Runner getActiveRunner()
-	{
-		if(event.getCurrentRun().getActive().isEmpty()) return null;
-		
-		return event.getCurrentRun().getActive().getLast();
-	}
-	
-	/**
-	 * Controller.off is the converse of on(); it flips the enabled field to false, and wipes all fields
-	 */
-	public void off(){
-		if (enabled) {
-			event = null;
-			time = null;
-			enabled = false;
-			eventList = null;
-			runCounter = 0;
-		}
-	}
-	
-	/**
-	 * Controller.reset sets the channel states and eventList back to defaults, removes the current event,
-	 * and sets the system time back to its default (the current system time)
-	 */
-	public void reset(){
-		if (enabled) {
-			for (int i = 0; i < channels.length; ++i) {
-				channels[i] = new Channel();
-			}
-			event = null;
-			time = new GregorianCalendar();
-			eventList.clear();
-			runCounter = 0;
-		}
-	}
-	
-	public void updateTimeToCurrent() {
-		time = new GregorianCalendar();
-	}
-	
-	/**
-	 * Controller.time sets the system timer to the time declared in the specified time parameter; the time
-	 * must be a valid one on a 24-hour clock, or the method will do nothing
-	 * @param time - a String, which must be of the format "HH:mm:ss.S", or this method will crash
-	 */
-	public void time(String timeString){
-		if (enabled && timeString.matches("^\\d{2}:\\d{2}:\\d{2}.\\d{1,2}")) {
-			String[] timeParts = timeString.split(":");
-			String[] secondParts = timeParts[2].split("\\.");
-			int hour = Integer.parseInt(timeParts[0]);
-			int minute = Integer.parseInt(timeParts[1]);
-			int second = Integer.parseInt(secondParts[0]);
-			int millisecond = Integer.parseInt(secondParts[1]);
-			if((hour >= 0 && hour < 24) && (minute >= 0 && minute < 60) &&
-					(second >=0 && second < 60) && (millisecond >=0 && millisecond < 100)){
-				time.set(Calendar.HOUR_OF_DAY, hour);
-				time.set(Calendar.MINUTE, minute);
-				time.set(Calendar.SECOND, second);
-				time.set(Calendar.MILLISECOND, millisecond);
-			}
-		}
-	}
-	
-	/**
-	 * Controller.event instantiates a new event, and makes it into the current event in the controller; it will
-	 * also automatically instantiate a new run of the chosen event type
-	 * @param type - specifies which of the race events is being initialized
-	 */
-	public void event(String type){
-		if(enabled){
-			if(event != null && event.getCurrentRun() != null) System.out.println("Error: Cannot change event types while a run is in progress!");
-			else{
-				event = new Event(type.toUpperCase());
-				//++runCounter;
-				//event.newRun(runCounter);
-				eventList.add(event);
-			}
-		}
-	}
-	
-	/**
-	 * The following commands get forwarded to the corresponding Channel in channels; only the trig() method
-	 * requires additional input - it specifies the current event, and will do nothing if there is none
-	 * @param chan - specifies with which channel in the channels array the method is to interact
-	 * @param sen - a String representing what sensor is plugged in, for conn() (one of: GATE, PAD, EYE)
-	 */
-	public void tog(int chan){
-		if(enabled){
-			if(channels == null) System.out.println("Error: Cannot toggle; channels have not been initialized!");
-			else if(chan < 0 || chan > channels.length) System.out.println("Error: Cannot toggle; specified channel is out of bounds");
-			else if(channels[chan-1] == null) System.out.println("Error: Cannot toggle; channel " + chan + " has not been initialized!");
-			else channels[chan-1].tog();
-		}
-	}
-	public void conn(String sen, int chan){
-		if(enabled){
-			if(channels == null) System.out.println("Error: Cannot connect; channels have not been initialized!");
-			else if(chan < 0 || chan > channels.length) System.out.println("Error: Cannot connect; specified channel is out of bounds");
-			else if(channels[chan-1] == null) System.out.println("Error: Cannot connect; channel " + chan + " has not been initialized!");
-			else if(channels[chan-1].getSensor() != null) System.out.println("Error: Cannot connect; channel " + chan + " already has a device connected!");
-			else channels[chan-1].conn(sen);
-		}
-	}
-	public void disc(int chan){
-		if(enabled){
-			if(channels == null) System.out.println("Error: Cannot disconnect; channels have not been initialized!");
-			else if(chan < 0 || chan > channels.length) System.out.println("Error: Cannot disconnect; specified channel is out of bounds");
-			else if(channels[chan-1] == null) System.out.println("Error: Cannot disconnect; channel " + chan + " has not been initialized!");
-			else if(channels[chan-1].getSensor() == null) System.out.println("Error: Cannot disconnect; channel " + chan + " has no device connected!");
-			else channels[chan-1].disc();
-		}
-	}
-	public void trig(int chan){
-		if(enabled){
-			if(event == null) System.out.println("Error: Cannot trigger; no event has been initialized!");
-			else if(event.getCurrentRun() == null) System.out.println("Error: Cannot trigger; no run is in progress!");
-			else if(channels == null) System.out.println("Error: Cannot trigger; channels have not been initialized!");
-			else if(chan < 0 || chan > channels.length) System.out.println("Error: Cannot trigger; specified channel is out of bounds");
-			else if(channels[chan-1] == null) System.out.println("Error: Cannot trigger; channel " + chan + " has not been initialized!");
-			else if(!channels[chan-1].getEnabled()) System.out.println("Error: Cannot trigger; channel " + chan + " is disabled!");
-			else channels[chan-1].trig(event, chan, time);
-		}
-	}
-	
-	/**
-	 * The following commands get forwarded to the current event; if there is no current event, they do nothing
-	 * @param number - the number of the runner, only needed for the Event.Run.num() and Event.Run.clr() commands
-	 */
-	public void newRun(){
-		if(enabled){
-			if(event == null) System.out.println("Error: Cannot start run; there is no current event!");
-			if(event != null && event.getCurrentRun() != null) System.out.println("Error: Please close the current run before starting a new one!");
-			else{
-				++runCounter;
-				event.newRun(runCounter);
-			}
-		}
-	}
-	public void endRun(){
-		if(enabled){
-			if(event == null) System.out.println("Error: Cannot end run; there is no current event!");
-			else if(event.getCurrentRun() == null) System.out.println("Error: Cannot end run; there is no run in progress!");
-			else event.endRun();
-		}
-	}
-	public void num(int number){
-		if(enabled){
-			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot add runner; there is no run in progress!");
-			else event.num(number);
-		}
-	}
-	public void clr(int number){
-		if(enabled){
-			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot clear runner; there is no run in progress!");
-			else event.clr(number);
-		}
-	}
-	public void swap(){
-		if(enabled){
-			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot swap runners; there is no run in progress!");
-			else event.swap();
-		}
-	}
-	public void start(){
-		if(enabled){
-			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot start; there is no run in progress!");
-			else event.start(0, time);
-		}
-	}
-	public void cancel(){
-		if(enabled){
-			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot cancel; there is no run in progress!");
-			else event.cancel();
-		}
-	}
-	public void dnf(){
-		if(enabled){
-			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot set as DNF; there is no run in progress!");
-			else event.dnf();
-		}
-	}
-	public void finish(){
-		if(enabled){
-			if(event == null || event.getCurrentRun() == null) System.out.println("Error: Cannot finish; there is no run in progress!");
-			else event.finish(0, time);
-		}
-	}
-	
-	/**
-	 * Controller.print prompts the currentEvent's currentRun for a full log of its status; this is returned back
-	 * in the form of a String, which is then printed to the console
-	 */
-	public void print(){
-		if(event != null) {
-			System.out.print(event.printRun(time));
-		} else {
-			System.out.println("No event to print");
-		}
-	}
-	/**
-	 * Controller.print(runNumber) is an overloaded version of print, that searches for the specified run number
-	 * in the ChronoTimer's event log, and once retrieved, prints the information from that run to console
-	 * @param runNumber - the run number to print out information from
-	 */
-	public void print(int runNumber){
-		Run toPrint = null;
-		for(Event e : eventList){
-			for(Run r : e.getRuns()){
-				if(r.getRunNumber() == runNumber) toPrint = r;
-			}
-		}
-		if(toPrint != null) toPrint.printRun(time);
-		else System.out.println("Error:  Cannot print run " +runNumber + ", run not found");
-	}
-	
-	/**
-	 * Controller.export(runNumber) searches for the specified run number in the ChronoTimer's event log; once it
-	 * finds the specified run, it runs a subtype-dependent method inside of the run to convert that run's data
-	 * into a JSON-formatted string.
-	 */
-	public void export(){
-		if(event != null) export = event.exportRun(time);
-		else  System.out.println("There is no current run to export!");
-	}
-	public String export(int runNumber){
-		String exp = "";
-		Run toExport = null;
-		for(Event e : eventList){
-			for(Run r : e.getRuns()){
-				if(r.getRunNumber() == runNumber) toExport = r;
-			}
-		}
-		if(toExport != null)
-		{
-			exp = toExport.exportRun(time);
-		}
-		else
-		{
-			System.out.println("Error:  Cannot export run " + runNumber + ", run not found!");
-			exp = null;
-		}
-		
-		System.out.println(exp);
-		return exp;
-	}
 }

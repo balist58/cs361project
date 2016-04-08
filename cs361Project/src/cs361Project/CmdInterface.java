@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -17,13 +16,11 @@ import java.util.Scanner;
  */
 public class CmdInterface {
 	
-	//<TIMESTAMP> 	<CMD> <ARGUMENT LIST>	<EOL>
-	private String timestamp;
-	private String cmd;
-	private ArrayList<String> argList;
-	private int inputType;
-	ChronoTimerControl ct;
-	
+	/**
+	 * CMD interface fields
+	 */
+	private int inputType;            //simple method of controlling from which type of input commands are being read
+	private ChronoTimerControl ct;    //reference to the Controller object to which the interface is relaying commands
 	
 	/**
 	 * Constructor: Creates an instance of CmdInterface with an input type and the active ChronoTimer.
@@ -31,11 +28,17 @@ public class CmdInterface {
 	 * @param ct - Chronotimer object that is currently in use.
 	 */
 	public CmdInterface(int inputType,ChronoTimerControl ct){
-		
 		this.inputType = inputType;
 		this.ct = ct;
-		this.argList = new ArrayList<String>();
 	}
+	
+	/**
+	 * Simple getters and setters for the interface class
+	 */
+	public int getInputType(){return inputType;}
+	public ChronoTimerControl getCT(){return ct;}
+	public void setInputType(int type){inputType = type;}
+	public void setCT(ChronoTimerControl controller){ct = controller;}
 	
 	/**
 	 * go(): Starts the command gathering/parsing process.
@@ -64,7 +67,7 @@ public class CmdInterface {
 		
 		do {
 			cmdstring = sin.nextLine();	
-		} while(parseLine(cmdstring, null));
+		} while(this.getCT().execute(cmdstring));
 		
 		sin.close();
 	}
@@ -80,28 +83,6 @@ public class CmdInterface {
 		sin.close();
 		
 		parseFile(filename);
-	}
-	
-	/**
-	 * parseLine(): Helper method that takes a string and parses into the appropriate command parts. Public for testing.
-	 * @param cmdstring - String containing the user entered command line to parse.
-	 */
-	public boolean parseLine(String cmdstring, String timeToUpdateTo){
-		//Break up the command from the arguments
-		String[] tokens = cmdstring.split(" ");
-		this.argList.clear(); //TODO remove this
-		this.cmd = tokens[0];
-		
-		for(int i = 1; i < tokens.length; i++){
-			this.argList.add(tokens[i]);
-		}
-		if(timeToUpdateTo == null) {
-			ct.updateTimeToCurrent();
-		} else {
-			ct.time(timeToUpdateTo);
-		}
-		return execute(timestamp, cmd, argList);
-		
 	}
 	
 	/**
@@ -123,7 +104,8 @@ public class CmdInterface {
             while((line = bufferedReader.readLine()) != null) {
             	//Separate the time out from the command
             	String[] tokens = line.split("\t");
-            	this.parseLine(tokens[1], tokens[0]);
+            	this.getCT().execute("TIME " + tokens[0]);
+            	this.getCT().execute(tokens[1]);
             }   
 
             // Always close files.
@@ -137,88 +119,4 @@ public class CmdInterface {
             ex.printStackTrace();
         }
 	}
-	
-	/**
-	 * execute(): Private helper method that executes the given command within the passed ChronoTimerControl object.
-	 * @param timestamp - Timestamp parsed from command line.
-	 * @param cmd - command literal parsed from command line
-	 * @param argList - List of arguments to pass to command.
-	 * @param ct - ChronoTimerControl object to execute commands from.
-	 */
-	private boolean execute(String timestamp, String cmd, ArrayList<String> argList){
-		
-		switch(cmd.toUpperCase())
-		{
-			case "ON":
-				ct.on();
-				break;
-			case "OFF":
-				ct.off();
-				break;
-			case "RESET":
-				ct.reset();
-				break;
-			case "TIME":
-				ct.time(argList.get(0));
-				break;
-			case "EVENT" :
-				ct.event(argList.get(0));
-				break;
-			case "NEWRUN":
-				ct.newRun();
-				break;
-			case "ENDRUN":
-				ct.endRun();
-				break;
-			case "NUM":
-				ct.num(Integer.parseInt(argList.get(0)));
-				break;
-			case "CLR":
-				ct.clr(Integer.parseInt(argList.get(0)));
-				break;
-			case "SWAP":
-				ct.swap();
-				break;
-			case "START":
-				ct.start();
-				break;
-			case "CANCEL":
-				ct.cancel();
-				break;
-			case "DNF":
-				ct.dnf();
-				break;
-			case "FINISH":
-				ct.finish();
-				break;
-			case "TOG": case "TOGGLE":
-				ct.tog(Integer.parseInt(argList.get(0)));
-				break;
-			case "CONN":
-				ct.conn(argList.get(0),Integer.parseInt(argList.get(1)));
-				break;
-			case "DISC":
-				ct.disc(Integer.parseInt(argList.get(0)));
-				break;
-			case "TRIG":
-				ct.trig(Integer.parseInt(argList.get(0)));
-				break;
-			case "PRINT":
-				ct.print();
-				break;
-			case "EXPORT":
-				if(argList.isEmpty()) {
-					ct.export();					
-				} else {
-					ct.export(Integer.parseInt(argList.get(0)));
-				}
-				break;
-			case "EXIT":
-				return false;
-			default : break;
-				
-		}
-		return true;
-	}
-	
 }
