@@ -82,6 +82,7 @@ public class ChronoTimerControl{
 					break;
 				case "TIME":
 					if(cmdArgs.size() == 1) this.getSystem().setTime(cmdArgs.get(0));
+					else this.getSystem().setTime();
 					break;
 				case "EVENT" :
 					if(cmdArgs.size() == 1) this.getSystem().setEvent(cmdArgs.get(0));

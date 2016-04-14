@@ -193,6 +193,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnFin2 = new JButton("");
 		btnFin2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("TRIG 2");
 				ct.execute("PRINT");
 			}
@@ -201,6 +202,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnFin4 = new JButton("");
 		btnFin4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("TRIG 4");
 			}
 		});
@@ -208,6 +210,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnFin6 = new JButton("");
 		btnFin6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("TRIG 6");
 			}
 		});
@@ -215,6 +218,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnFin8 = new JButton("");
 		btnFin8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("TRIG 8");
 			}
 		});
@@ -421,7 +425,7 @@ public class ChronoTimerGUI extends JFrame {
 				
 				if(dispMessage.equals(enterRun) && !runnerNum.equals("")){
 					ct.execute("NUM " + runnerNum);
-					taDisplay.setText("Runner number " + runnerNum + " entered!");
+					runnerNum = "";
 					taDisplay.setText("USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Choose Race Type");
 				}
 			}
@@ -580,6 +584,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbTog1 = new JRadioButton("");
 		rbTog1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("TOG 1");
 			}
 		});
@@ -587,6 +592,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbTog3 = new JRadioButton("");
 		rbTog3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("tog 3");
 				
 			}
@@ -595,6 +601,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbTog5 = new JRadioButton("");
 		rbTog5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("tog 5");
 			}
 		});
@@ -602,6 +609,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbTog7 = new JRadioButton("");
 		rbTog7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("tog 7");
 			}
 		});
@@ -609,6 +617,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnStart1 = new JButton("");
 		btnStart1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("TRIG 1");
 			}
 		});
@@ -616,6 +625,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnStart3 = new JButton("");
 		btnStart3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("TRIG 3");
 			}
 		});
@@ -623,6 +633,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnStart5 = new JButton("");
 		btnStart5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("TRIG 5");
 			}
 		});
@@ -630,6 +641,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnStart7 = new JButton("");
 		btnStart7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
 				ct.execute("TRIG 7");
 			}
 		});
