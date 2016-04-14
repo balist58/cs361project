@@ -134,7 +134,7 @@ public class ChronoTimerControl{
 				case "TRIG":
 					if(cmdArgs.size() == 1){
 						//the Channel.trig() method returns a command String, which is to be executed upon the method returning
-						String toRun = this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))-1).trig(Integer.parseInt(cmdArgs.get(0)));
+						String toRun = this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).trig(Integer.parseInt(cmdArgs.get(0)));
 						execute(toRun);
 					}
 					break;
