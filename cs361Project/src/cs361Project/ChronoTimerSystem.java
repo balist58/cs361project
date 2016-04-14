@@ -39,7 +39,7 @@ public class ChronoTimerSystem {
 		activeRun = null;
 		time = new GregorianCalendar();
 		runList = new ArrayList<Run>();
-		runCounter = 0;
+		runCounter = 1;
 	}
 	
 	/**
@@ -51,7 +51,7 @@ public class ChronoTimerSystem {
 		activeRun = null;
 		time = new GregorianCalendar();
 		runList.clear();
-		runCounter = 0;
+		runCounter = 1;
 	}
 	
 	/*********************
@@ -176,7 +176,6 @@ public class ChronoTimerSystem {
 	public void newRun(){
 		if(!this.isActive()){
 			Run newRun;
-			++runCounter;
 			switch(eventType){
 			case "IND":
 				newRun = new RunIND(this.getRunCount());
@@ -217,6 +216,7 @@ public class ChronoTimerSystem {
 				this.getRun().dnf();
 			}
 			activeRun = null;
+			++runCounter;
 		}
 		else System.out.println("Error: Cannot end run; there is no run in progress!");
 	}
