@@ -1,7 +1,6 @@
 package cs361Project;
 
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.GroupLayout;
@@ -26,6 +25,9 @@ import org.omg.CORBA.TRANSACTION_MODE;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.border.BevelBorder;
 
 public class ChronoTimerGUI extends JFrame {
 
@@ -52,11 +54,6 @@ public class ChronoTimerGUI extends JFrame {
 	private JLabel lblChan;
 	private JComboBox cmbxSensor;
 	private JLabel lblSensor;
-	private BasicArrowButton btnLeft;
-	private BasicArrowButton btnRight;
-	private BasicArrowButton btnUp;
-	private JButton btnFunction;
-	private BasicArrowButton btnDown;
 	private JPanel panelFinish;
 	private JLabel lblFinish;
 	private JLabel lblTogEven;
@@ -89,7 +86,6 @@ public class ChronoTimerGUI extends JFrame {
 	private JLabel lbl3;
 	private JLabel lbl5;
 	private JLabel lbl7;
-	private JTextArea taDisplay;
 	private JLabel lblTitle;
 	private JPanel panelPrinter;
 	private JButton btnNewButton;
@@ -107,8 +103,22 @@ public class ChronoTimerGUI extends JFrame {
 	private JButton btnCalcStar;
 	private JButton btnCalc0;
 	private JButton btnCalcPound;
+	private JButton btnNewrun;
+	private JButton btnEndrun;
+	private JButton btnDnf;
+	private JButton btnCancel;
+	private JButton btnInd;
+	private JButton btnParind;
+	private JButton btnGrp;
+	private JButton btnPargrp;
+	private JButton btnSwap;
+	private JButton btnExport;
+	private JButton btnEnterNumber;
+	private JScrollPane scrollPane;
+	private JTextArea taDisplay;
 	
 	private String runnerNum="";
+	private boolean enableKeys;
 
 	/**
 	 * Launch the application.
@@ -127,15 +137,18 @@ public class ChronoTimerGUI extends JFrame {
 	}
 
 	/**
-	 * Create the frame.
+	 * Create the frame and initialize all components.
 	 */
 	public ChronoTimerGUI() {
 		
-		
+		//TODO: Implement Printer.
+		//TODO: Find a way to display correct information on the display.
+		//create CT control object to manipulate the system
 		ChronoTimerControl ct = new ChronoTimerControl();
-
+		
+		enableKeys = false;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 837, 520);
+		setBounds(100, 100, 837, 536);
 		mainFrame = new JPanel();
 		setContentPane(mainFrame);
 		
@@ -193,15 +206,26 @@ public class ChronoTimerGUI extends JFrame {
 		btnFin2 = new JButton("");
 		btnFin2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(ct.getSystem().isActive()){
+					ct.execute("TIME");
+					ct.execute("TRIG 2");
+					taDisplay.setText(ct.getSystem().export());
+				}
 				ct.execute("TIME");
 				ct.execute("TRIG 2");
 				ct.execute("PRINT");
+
 			}
 		});
 		
 		btnFin4 = new JButton("");
 		btnFin4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(ct.getSystem().isActive()){
+					ct.execute("TIME");
+					ct.execute("TRIG 4");
+					taDisplay.setText(ct.getSystem().export());
+				}
 				ct.execute("TIME");
 				ct.execute("TRIG 4");
 			}
@@ -210,6 +234,11 @@ public class ChronoTimerGUI extends JFrame {
 		btnFin6 = new JButton("");
 		btnFin6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(ct.getSystem().isActive()){
+				ct.execute("TIME");
+					ct.execute("TRIG 6");
+					taDisplay.setText(ct.getSystem().export());
+				}
 				ct.execute("TIME");
 				ct.execute("TRIG 6");
 			}
@@ -218,6 +247,11 @@ public class ChronoTimerGUI extends JFrame {
 		btnFin8 = new JButton("");
 		btnFin8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(ct.getSystem().isActive()){
+					ct.execute("TIME");
+					ct.execute("TRIG 8");
+					taDisplay.setText(ct.getSystem().export());
+				}
 				ct.execute("TIME");
 				ct.execute("TRIG 8");
 			}
@@ -236,15 +270,6 @@ public class ChronoTimerGUI extends JFrame {
 		lbl8.setFont(new Font("Tahoma", Font.BOLD, 12));
 		
 		btnPower = new JButton("Power");
-		
-		taDisplay = new JTextArea();
-		taDisplay.setWrapStyleWord(true);
-		taDisplay.setLineWrap(true);
-		taDisplay.setEditable(false);
-		taDisplay.setBackground(Color.WHITE);
-		taDisplay.setFont(new Font("Miriam Fixed", Font.BOLD, 13));
-		
-		
 		btnPower.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(!ct.isEnabled())
@@ -252,7 +277,7 @@ public class ChronoTimerGUI extends JFrame {
 					ct.execute("ON");
 					
 					if(ct.isEnabled() && !ct.getSystem().isActive()){
-						taDisplay.setText("USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Choose Race Type");
+						taDisplay.setText("CHOOSE YOUR COMMAND");
 					}
 				}
 				else{
@@ -263,8 +288,7 @@ public class ChronoTimerGUI extends JFrame {
 			}
 		});
 		btnPower.setFont(new Font("Tahoma", Font.BOLD, 18));
-		
-		
+
 		panelChannel = new JPanel();
 		
 		panelPrinter = new JPanel();
@@ -276,10 +300,8 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc1 = new JButton("1");
 		btnCalc1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun)){
+			
+				if(enableKeys){
 					runnerNum += "1";
 				}				
 			}
@@ -290,10 +312,8 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc2 = new JButton("2");
 		btnCalc2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
 				
-				if(dispMessage.equals(enterRun)){
+				if(enableKeys){
 					runnerNum += "2";
 				}
 			}
@@ -304,10 +324,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc3 = new JButton("3");
 		btnCalc3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun)){
+				if(enableKeys){
 					runnerNum += "3";
 				}
 			}
@@ -318,10 +335,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc4 = new JButton("4");
 		btnCalc4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun)){
+				if(enableKeys){
 					runnerNum += "4";
 				}
 			}
@@ -332,10 +346,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc5 = new JButton("5");
 		btnCalc5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun)){
+				if(enableKeys){
 					runnerNum += "5";
 				}
 			}
@@ -346,10 +357,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc6 = new JButton("6");
 		btnCalc6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun)){
+				if(enableKeys){
 					runnerNum += "6";
 				}
 			}
@@ -360,10 +368,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc7 = new JButton("7");
 		btnCalc7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun)){
+				if(enableKeys){
 					runnerNum += "7";
 				}
 			}
@@ -374,10 +379,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc8 = new JButton("8");
 		btnCalc8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun)){
+				if(enableKeys){
 					runnerNum += "8";
 				}
 			}
@@ -388,10 +390,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc9 = new JButton("9");
 		btnCalc9.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun)){
+				if(enableKeys){
 					runnerNum += "9";
 				}
 			}
@@ -406,10 +405,7 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalc0 = new JButton("0");
 		btnCalc0.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun)){
+				if(enableKeys){
 					runnerNum += "0";
 				}
 			}
@@ -420,11 +416,12 @@ public class ChronoTimerGUI extends JFrame {
 		btnCalcPound = new JButton("#");
 		btnCalcPound.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(dispMessage.equals(enterRun) && !runnerNum.equals("")){
+
+				if(enableKeys && !runnerNum.equals("")){
 					ct.execute("NUM " + runnerNum);
+					enableKeys = false;
+					runnerNum = "";
+					taDisplay.setText("");
 					runnerNum = "";
 					taDisplay.setText("USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Choose Race Type");
 				}
@@ -703,9 +700,7 @@ public class ChronoTimerGUI extends JFrame {
 						.addComponent(btnFin2, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 23, Short.MAX_VALUE))
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
-		panelFinishbtn.setLayout(gl_panelFinishbtn);
-		
-		
+		panelFinishbtn.setLayout(gl_panelFinishbtn);	
 		GroupLayout gl_panelFinish = new GroupLayout(panelFinish);
 		gl_panelFinish.setHorizontalGroup(
 			gl_panelFinish.createParallelGroup(Alignment.LEADING)
@@ -755,207 +750,215 @@ public class ChronoTimerGUI extends JFrame {
 		lblSensor = new JLabel("Sensor to Connect");
 		lblSensor.setFont(new Font("Tahoma", Font.BOLD, 12));
 		
-		btnFunction = new JButton("FUNCTION");
-		btnFunction.addActionListener(new ActionListener() {
+		btnNewrun = new JButton("NewRun");
+		btnNewrun.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String newMessage1 = "USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Choose Race Type";
-				String newMessage2 = "USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Enter Runner";
-				String chooseRace1 = "USE UP OR DOWN ARROWS TO CHOOSE RACE\n\n IND";
-				String chooseRace2 = "USE UP OR DOWN ARROWS TO CHOOSE RACE\n\n PARIND";
-				String chooseRace3 = "USE UP OR DOWN ARROWS TO CHOOSE RACE\n\n GRP";
+				ct.execute("NEWRUN");
+			}
+		});
+		btnNewrun.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnEndrun = new JButton("EndRun");
+		btnEndrun.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("ENDRUN");
+			}
+		});
+		btnEndrun.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnDnf = new JButton("DNF");
+		btnDnf.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("DNF");
+			}
+		});
+		btnDnf.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("CANCEL");
+			}
+		});
+		btnCancel.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnInd = new JButton("IND");
+		btnInd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EVENT IND");
+			}
+		});
+		btnInd.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnParind = new JButton("PARIND");
+		btnParind.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EVENT PARIND");
+			}
+		});
+		btnParind.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnGrp = new JButton("GRP");
+		btnGrp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EVENT GRP");
+			}
+		});
+		btnGrp.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnPargrp = new JButton("PAGRP");
+		btnPargrp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EVENT PARGRP");
+			}
+		});
+		btnPargrp.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnSwap = new JButton("Swap");
+		btnSwap.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("SWAP");
+			}
+		});
+		btnSwap.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnExport = new JButton("Export");
+		btnExport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EXPORT");
+			}
+		});
+		btnExport.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		btnEnterNumber = new JButton("Enter Number");
+		btnEnterNumber.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-
 				
-				
-				//Choose Race
-				if(dispMessage.equals(newMessage1)){
-					taDisplay.setText(chooseRace1);
-				}
-				
-				//Enter Runner
-				else if(dispMessage.equals(newMessage2)){
+				if(ct.getSystem().isActive()){
 					taDisplay.setText(enterRun);
-				}	
-				
-				else if(dispMessage.equals(chooseRace1)){
-					ct.execute("EVENT IND");
-					ct.execute("NEWRUN");
-					taDisplay.setText(newMessage1);
-				}
-				else if(dispMessage.equals(chooseRace2)){
-					ct.execute("EVENT PARIND");
-					ct.execute("NEWRUN");
-					taDisplay.setText(newMessage1);
-				}
-				else if(dispMessage.equals(chooseRace3)){
-					ct.execute("EVENT GRP");
-					ct.execute("NEWRUN");
-					taDisplay.setText(newMessage1);
-				}
+					enableKeys = true;
+				}			
 			}
 		});
-		btnFunction.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnEnterNumber.setFont(new Font("Tahoma", Font.BOLD, 11));
 		
-		btnLeft = new BasicArrowButton(BasicArrowButton.WEST);
-		btnLeft.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String newMessage1 = "USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Choose Race Type";
-				String newMessage2 = "USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Enter Runner";
-				
-				if(dispMessage.equals(newMessage1)){
-					taDisplay.setText(newMessage2);
-				}
-				else if(dispMessage.equals(newMessage2)){
-					taDisplay.setText(newMessage1);
-				}
-			}
-		});
-		
-		btnRight = new BasicArrowButton(BasicArrowButton.EAST);
-		btnRight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String newMessage1 = "USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Choose Race Type";
-				String newMessage2 = "USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Enter Runner";
-				
-				if(dispMessage.equals(newMessage1)){
-					taDisplay.setText(newMessage2);
-				}
-				else if(dispMessage.equals(newMessage2)){
-					taDisplay.setText(newMessage1);
-				}
-	
-			}
-		});
-		
-		btnUp = new BasicArrowButton(BasicArrowButton.NORTH);
-		btnUp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String chooseRace1 = "USE UP OR DOWN ARROWS TO CHOOSE RACE\n\n IND";
-				String chooseRace2 = "USE UP OR DOWN ARROWS TO CHOOSE RACE\n\n PARIND";
-				String chooseRace3 = "USE UP OR DOWN ARROWS TO CHOOSE RACE\n\n GRP";
-				
-				//choose race type
-				if(dispMessage.equals(chooseRace1)){
-					taDisplay.setText(chooseRace2);
-				}
-				else if(dispMessage.equals(chooseRace2)){
-					taDisplay.setText(chooseRace3);
-				}
-				else if(dispMessage.equals(chooseRace3)){
-					taDisplay.setText(chooseRace1);
-				}
-			}
-		});
-		
-		btnDown = new BasicArrowButton(BasicArrowButton.SOUTH);
-		btnDown.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String dispMessage = taDisplay.getText();
-				String chooseRace1 = "USE UP OR DOWN ARROWS TO CHOOSE RACE\n\n IND";
-				String chooseRace2 = "USE UP OR DOWN ARROWS TO CHOOSE RACE\n\n PARIND";
-				String chooseRace3 = "USE UP OR DOWN ARROWS TO CHOOSE RACE\n\n GRP";
-				
-				//choose race type
-				if(dispMessage.equals(chooseRace1)){
-					taDisplay.setText(chooseRace3);
-				}
-				else if(dispMessage.equals(chooseRace2)){
-					taDisplay.setText(chooseRace1);
-				}
-				else if(dispMessage.equals(chooseRace3)){
-					taDisplay.setText(chooseRace2);
-				}
-			}
-		});
+		scrollPane = new JScrollPane();
 
 		GroupLayout gl_mainFrame = new GroupLayout(mainFrame);
 		gl_mainFrame.setHorizontalGroup(
 			gl_mainFrame.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_mainFrame.createSequentialGroup()
-					.addContainerGap()
 					.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
-						.addComponent(btnPower, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panelChannel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(cmbxSensor, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblSensor)
 						.addGroup(gl_mainFrame.createSequentialGroup()
-							.addComponent(btnLeft, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)
-							.addGap(61)
-							.addComponent(btnRight, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE))
-						.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
-							.addComponent(btnUp, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)
-							.addComponent(btnFunction)
-							.addComponent(btnDown, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)))
+							.addContainerGap()
+							.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
+								.addComponent(panelChannel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(cmbxSensor, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblSensor)
+								.addGroup(gl_mainFrame.createSequentialGroup()
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
+										.addComponent(btnDnf, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+										.addComponent(btnNewrun, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
+										.addComponent(btnCancel, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+										.addComponent(btnEndrun)))
+								.addGroup(gl_mainFrame.createSequentialGroup()
+									.addComponent(btnInd, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnParind, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_mainFrame.createSequentialGroup()
+									.addComponent(btnGrp, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnPargrp, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_mainFrame.createSequentialGroup()
+									.addComponent(btnSwap, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnExport, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))))
+						.addGroup(gl_mainFrame.createSequentialGroup()
+							.addGap(29)
+							.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
+								.addComponent(btnPower, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnEnterNumber))))
 					.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_mainFrame.createSequentialGroup()
+							.addGap(139)
+							.addComponent(lblTitle, GroupLayout.PREFERRED_SIZE, 187, GroupLayout.PREFERRED_SIZE))
 						.addGroup(gl_mainFrame.createSequentialGroup()
 							.addGap(58)
 							.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
+								.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 332, GroupLayout.PREFERRED_SIZE)
 								.addComponent(panelFinish, GroupLayout.PREFERRED_SIZE, 339, GroupLayout.PREFERRED_SIZE)
-								.addComponent(panelStart, GroupLayout.PREFERRED_SIZE, 339, GroupLayout.PREFERRED_SIZE)
-								.addComponent(taDisplay, GroupLayout.PREFERRED_SIZE, 340, GroupLayout.PREFERRED_SIZE)))
-						.addGroup(gl_mainFrame.createSequentialGroup()
-							.addGap(139)
-							.addComponent(lblTitle, GroupLayout.PREFERRED_SIZE, 187, GroupLayout.PREFERRED_SIZE)))
+								.addComponent(panelStart, GroupLayout.PREFERRED_SIZE, 339, GroupLayout.PREFERRED_SIZE))))
 					.addGap(18)
 					.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
 						.addComponent(panelPrinter, GroupLayout.PREFERRED_SIZE, 209, GroupLayout.PREFERRED_SIZE)
 						.addComponent(panelCalculator, GroupLayout.PREFERRED_SIZE, 213, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(14, Short.MAX_VALUE))
+					.addContainerGap(15, Short.MAX_VALUE))
 		);
 		gl_mainFrame.setVerticalGroup(
 			gl_mainFrame.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_mainFrame.createSequentialGroup()
-					.addContainerGap(31, Short.MAX_VALUE)
-					.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING, false)
-						.addGroup(gl_mainFrame.createSequentialGroup()
-							.addComponent(btnPower, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED))
-						.addGroup(gl_mainFrame.createSequentialGroup()
-							.addComponent(lblTitle)
-							.addGap(18)))
-					.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING, false)
-						.addGroup(gl_mainFrame.createSequentialGroup()
-							.addComponent(panelStart, GroupLayout.PREFERRED_SIZE, 101, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(panelFinish, GroupLayout.PREFERRED_SIZE, 101, GroupLayout.PREFERRED_SIZE))
-						.addGroup(gl_mainFrame.createSequentialGroup()
-							.addGap(21)
-							.addComponent(btnFunction)
-							.addGap(18)
-							.addComponent(btnUp, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-							.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
-								.addGroup(gl_mainFrame.createSequentialGroup()
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(btnDown, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-									.addPreferredGap(ComponentPlacement.UNRELATED))
-								.addGroup(Alignment.LEADING, gl_mainFrame.createSequentialGroup()
-									.addGap(7)
-									.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
-										.addComponent(btnLeft, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-										.addComponent(btnRight, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
-									.addPreferredGap(ComponentPlacement.RELATED, 45, Short.MAX_VALUE)))
-							.addComponent(lblSensor)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(cmbxSensor, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-					.addGap(18)
-					.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
-						.addComponent(taDisplay, GroupLayout.PREFERRED_SIZE, 137, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panelChannel, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap())
-				.addGroup(gl_mainFrame.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(panelPrinter, GroupLayout.PREFERRED_SIZE, 204, GroupLayout.PREFERRED_SIZE)
-					.addGap(18)
-					.addComponent(panelCalculator, GroupLayout.PREFERRED_SIZE, 221, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(28, Short.MAX_VALUE))
+					.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
+						.addGroup(gl_mainFrame.createSequentialGroup()
+							.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
+								.addComponent(lblTitle)
+								.addComponent(btnPower, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE))
+							.addGap(18)
+							.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_mainFrame.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+									.addComponent(panelStart, GroupLayout.PREFERRED_SIZE, 101, GroupLayout.PREFERRED_SIZE)
+									.addGap(18)
+									.addComponent(panelFinish, GroupLayout.PREFERRED_SIZE, 101, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_mainFrame.createSequentialGroup()
+									.addGap(3)
+									.addComponent(btnEnterNumber)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.BASELINE)
+										.addComponent(btnNewrun)
+										.addComponent(btnEndrun))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.BASELINE)
+										.addComponent(btnDnf)
+										.addComponent(btnCancel))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.BASELINE)
+										.addComponent(btnInd)
+										.addComponent(btnParind))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.BASELINE)
+										.addComponent(btnGrp)
+										.addComponent(btnPargrp))
+									.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.BASELINE)
+										.addComponent(btnSwap)
+										.addComponent(btnExport))
+									.addGap(18)
+									.addComponent(lblSensor)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(cmbxSensor, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+							.addGap(18)
+							.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING, false)
+								.addComponent(scrollPane)
+								.addComponent(panelChannel, GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)))
+						.addGroup(gl_mainFrame.createSequentialGroup()
+							.addComponent(panelPrinter, GroupLayout.PREFERRED_SIZE, 204, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(panelCalculator, GroupLayout.PREFERRED_SIZE, 221, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap())
 		);
 		
+		taDisplay = new JTextArea();
+		taDisplay.setFont(new Font("Miriam Fixed", Font.BOLD, 13));
+		taDisplay.setForeground(Color.GREEN);
+		taDisplay.setBackground(Color.DARK_GRAY);
+		taDisplay.setEditable(false);
+		taDisplay.setLineWrap(true);
+		scrollPane.setViewportView(taDisplay);
 		
-
 		GroupLayout gl_panelPrinter = new GroupLayout(panelPrinter);
 		gl_panelPrinter.setHorizontalGroup(
 			gl_panelPrinter.createParallelGroup(Alignment.LEADING)
@@ -979,8 +982,6 @@ public class ChronoTimerGUI extends JFrame {
 					.addContainerGap(33, Short.MAX_VALUE))
 		);
 		panelPrinter.setLayout(gl_panelPrinter);
-		
-		
 		lblChan.setFont(new Font("Tahoma", Font.BOLD, 12));
 		GroupLayout gl_panelChannel = new GroupLayout(panelChannel);
 		gl_panelChannel.setHorizontalGroup(
@@ -1057,10 +1058,6 @@ public class ChronoTimerGUI extends JFrame {
 					.addContainerGap(12, Short.MAX_VALUE))
 		);
 		panelChannel.setLayout(gl_panelChannel);
-		
-		
-		
-		
 		GroupLayout gl_panelStart = new GroupLayout(panelStart);
 		gl_panelStart.setHorizontalGroup(
 			gl_panelStart.createParallelGroup(Alignment.LEADING)
@@ -1158,10 +1155,12 @@ public class ChronoTimerGUI extends JFrame {
 		);
 		panelStartbtn.setLayout(gl_panelStartbtn);
 		panelStart.setLayout(gl_panelStart);
-		mainFrame.setLayout(gl_mainFrame);
-		
+		mainFrame.setLayout(gl_mainFrame);	
 	}
 	
+	/**
+	 * Helper function to reset all fields.
+	 **/
 	private void resetFields(){
 		taDisplay.setText("");
 		rbChan1.setSelected(false);
