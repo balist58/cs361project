@@ -211,10 +211,6 @@ public class ChronoTimerGUI extends JFrame {
 					ct.execute("TRIG 2");
 					taDisplay.setText(ct.getSystem().export());
 				}
-				ct.execute("TIME");
-				ct.execute("TRIG 2");
-				ct.execute("PRINT");
-
 			}
 		});
 		
@@ -226,8 +222,6 @@ public class ChronoTimerGUI extends JFrame {
 					ct.execute("TRIG 4");
 					taDisplay.setText(ct.getSystem().export());
 				}
-				ct.execute("TIME");
-				ct.execute("TRIG 4");
 			}
 		});
 		
@@ -252,8 +246,6 @@ public class ChronoTimerGUI extends JFrame {
 					ct.execute("TRIG 8");
 					taDisplay.setText(ct.getSystem().export());
 				}
-				ct.execute("TIME");
-				ct.execute("TRIG 8");
 			}
 		});
 		
@@ -423,7 +415,6 @@ public class ChronoTimerGUI extends JFrame {
 					runnerNum = "";
 					taDisplay.setText("");
 					runnerNum = "";
-					taDisplay.setText("USE RIGHT OR LEFT ARROWS TO DISPLAY OPTIONS\n\n Choose Race Type");
 				}
 			}
 		});
