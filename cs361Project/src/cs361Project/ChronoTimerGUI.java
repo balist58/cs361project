@@ -1,4 +1,10 @@
 package cs361Project;
+/**
+ * ChronoTimerGUI.Java
+ * GUI for the Chronotimer system.
+ * 
+ * @author Matt Balistreri
+ */
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
@@ -30,7 +36,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.BevelBorder;
 
 public class ChronoTimerGUI extends JFrame {
-
+	
 	private JPanel mainFrame;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	private JButton btnPower;
@@ -88,8 +94,7 @@ public class ChronoTimerGUI extends JFrame {
 	private JLabel lbl7;
 	private JLabel lblTitle;
 	private JPanel panelPrinter;
-	private JButton btnNewButton;
-	private JTextArea taPrinter;
+	private JButton btnPrint;
 	private JButton btnCalc1;
 	private JButton btnCalc2;
 	private JPanel panelCalculator;
@@ -117,8 +122,12 @@ public class ChronoTimerGUI extends JFrame {
 	private JScrollPane scrollPane;
 	private JTextArea taDisplay;
 	
+	private boolean printerOn=false;
 	private String runnerNum="";
+	private String printerText="";
 	private boolean enableKeys;
+	private JScrollPane spPrinter;
+	private JTextArea taPrinter;
 
 	/**
 	 * Launch the application.
@@ -143,500 +152,210 @@ public class ChronoTimerGUI extends JFrame {
 		
 		//TODO: Implement Printer.
 		//TODO: Find a way to display correct information on the display.
-		//create CT control object to manipulate the system
-		ChronoTimerControl ct = new ChronoTimerControl();
 		
+		
+		//create CT control object to manipulate the system
+		ChronoTimerControl ct = new ChronoTimerControl();	
 		enableKeys = false;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 837, 536);
 		mainFrame = new JPanel();
 		setContentPane(mainFrame);
-		
 		cmbxSensor = new JComboBox();
+		cmbxSensor.setEnabled(false);
 		cmbxSensor.setFont(new Font("Tahoma", Font.BOLD, 12));
 		cmbxSensor.setMaximumRowCount(3);
 		cmbxSensor.setModel(new DefaultComboBoxModel(new String[] {"Gate", "Eye", "Pad"}));
-		
 		lblTitle = new JLabel("CHRONOTIMER 1009");
 		lblTitle.setFont(new Font("Tahoma", Font.ITALIC, 18));
-		
 		JPanel panelStart = new JPanel();
-		
 		panelFinish = new JPanel();
-		
 		panelTogEven = new JPanel();
-		
 		rbTogEven2 = new JRadioButton("");
-		rbTogEven2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("tog 2");
-			}
-		});
-		
+		rbTogEven2.setEnabled(false);
 		rbTogEven4 = new JRadioButton("");
-		rbTogEven4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("tog 4");
-			}
-		});
-		
+		rbTogEven4.setEnabled(false);
 		rbTogEven6 = new JRadioButton("");
-		rbTogEven6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("tog 6");
-			}
-		});
-		
+		rbTogEven6.setEnabled(false);
 		rbTogEven8 = new JRadioButton("");
-		rbTogEven8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("tog 8");
-			}
-		});
-		
-		
+		rbTogEven8.setEnabled(false);
 		lblFinish = new JLabel("Finish");
 		lblFinish.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblTogEven = new JLabel("Enable/Disable");
 		lblTogEven.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		panelFinishbtn = new JPanel();
-		
 		btnFin2 = new JButton("");
-		btnFin2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(ct.getSystem().isActive()){
-					ct.execute("TIME");
-					ct.execute("TRIG 2");
-					taDisplay.setText(ct.getSystem().export());
-				}
-			}
-		});
-		
+		btnFin2.setEnabled(false);
 		btnFin4 = new JButton("");
-		btnFin4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(ct.getSystem().isActive()){
-					ct.execute("TIME");
-					ct.execute("TRIG 4");
-					taDisplay.setText(ct.getSystem().export());
-				}
-			}
-		});
-		
+		btnFin4.setEnabled(false);
 		btnFin6 = new JButton("");
-		btnFin6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(ct.getSystem().isActive()){
-				ct.execute("TIME");
-					ct.execute("TRIG 6");
-					taDisplay.setText(ct.getSystem().export());
-				}
-				ct.execute("TIME");
-				ct.execute("TRIG 6");
-			}
-		});
-		
+		btnFin6.setEnabled(false);
 		btnFin8 = new JButton("");
-		btnFin8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(ct.getSystem().isActive()){
-					ct.execute("TIME");
-					ct.execute("TRIG 8");
-					taDisplay.setText(ct.getSystem().export());
-				}
-			}
-		});
-		
+		btnFin8.setEnabled(false);
 		lbl2 = new JLabel("2");
 		lbl2.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lbl4 = new JLabel("4");
 		lbl4.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lbl6 = new JLabel("6");
 		lbl6.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lbl8 = new JLabel("8");
 		lbl8.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		btnPower = new JButton("Power");
-		btnPower.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!ct.isEnabled())
-				{
-					ct.execute("ON");
-					
-					if(ct.isEnabled() && !ct.getSystem().isActive()){
-						taDisplay.setText("CHOOSE YOUR COMMAND");
-					}
-				}
-				else{
-					ct.execute("RESET");
-					ct.execute("OFF");
-					resetFields();
-				}
-			}
-		});
 		btnPower.setFont(new Font("Tahoma", Font.BOLD, 18));
-
 		panelChannel = new JPanel();
-		
 		panelPrinter = new JPanel();
-		
 		panelCalculator = new JPanel();
-		
 		panelCalculator.setLayout(new GridLayout(4, 3, 0, 0));
-		
 		btnCalc1 = new JButton("1");
-		btnCalc1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			
-				if(enableKeys){
-					runnerNum += "1";
-				}				
-			}
-		});
 		btnCalc1.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc1);
-		
 		btnCalc2 = new JButton("2");
-		btnCalc2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				if(enableKeys){
-					runnerNum += "2";
-				}
-			}
-		});
 		btnCalc2.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc2);
-		
 		btnCalc3 = new JButton("3");
-		btnCalc3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(enableKeys){
-					runnerNum += "3";
-				}
-			}
-		});
 		btnCalc3.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc3);
-		
 		btnCalc4 = new JButton("4");
-		btnCalc4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(enableKeys){
-					runnerNum += "4";
-				}
-			}
-		});
 		btnCalc4.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc4);
-		
 		btnCalc5 = new JButton("5");
-		btnCalc5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(enableKeys){
-					runnerNum += "5";
-				}
-			}
-		});
 		btnCalc5.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc5);
-		
 		btnCalc6 = new JButton("6");
-		btnCalc6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(enableKeys){
-					runnerNum += "6";
-				}
-			}
-		});
 		btnCalc6.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc6);
-		
 		btnCalc7 = new JButton("7");
-		btnCalc7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(enableKeys){
-					runnerNum += "7";
-				}
-			}
-		});
 		btnCalc7.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc7);
-		
 		btnCalc8 = new JButton("8");
-		btnCalc8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(enableKeys){
-					runnerNum += "8";
-				}
-			}
-		});
 		btnCalc8.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc8);
-		
 		btnCalc9 = new JButton("9");
-		btnCalc9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(enableKeys){
-					runnerNum += "9";
-				}
-			}
-		});
 		btnCalc9.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc9);
-		
 		btnCalcStar = new JButton("*");
 		btnCalcStar.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalcStar);
-		
 		btnCalc0 = new JButton("0");
-		btnCalc0.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(enableKeys){
-					runnerNum += "0";
-				}
-			}
-		});
 		btnCalc0.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panelCalculator.add(btnCalc0);
-		
 		btnCalcPound = new JButton("#");
-		btnCalcPound.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if(enableKeys && !runnerNum.equals("")){
-					ct.execute("NUM " + runnerNum);
-					enableKeys = false;
-					runnerNum = "";
-					taDisplay.setText("");
-					runnerNum = "";
-				}
-			}
-		});
 		btnCalcPound.setFont(new Font("Tahoma", Font.BOLD, 18));
-		panelCalculator.add(btnCalcPound);
-		
-		btnNewButton = new JButton("Printer Pwr");
-		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
+		panelCalculator.add(btnCalcPound);	
+		btnPrint = new JButton("Printer Pwr");
+		btnPrint.setEnabled(false);
+		btnPrint.setFont(new Font("Tahoma", Font.BOLD, 12));	
 		rbChan1 = new JRadioButton("");
-		rbChan1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(rbChan1.isSelected()){
-					ct.execute("CONN 1 " + cmbxSensor.getSelectedItem().toString());
-				}
-				else
-					ct.execute("DISC 1");
-			}
-		});
-		
+		rbChan1.setEnabled(false);
 		rbChan3 = new JRadioButton("");
-		rbChan3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(rbChan1.isSelected()){
-					ct.execute("CONN 3 " + cmbxSensor.getSelectedItem().toString());
-				}
-				else
-					ct.execute("DISC 3");
-			}
-		});
-		
+		rbChan3.setEnabled(false);
 		rbChan5 = new JRadioButton("");
-		rbChan5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(rbChan1.isSelected()){
-					ct.execute("CONN 5 " + cmbxSensor.getSelectedItem().toString());
-				}
-				else
-					ct.execute("DISC 5");
-			}
-		});
-		
+		rbChan5.setEnabled(false);
 		rbChan7 = new JRadioButton("");
-		rbChan7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(rbChan1.isSelected()){
-					ct.execute("CONN 7 " + cmbxSensor.getSelectedItem().toString());
-				}
-				else
-					ct.execute("DISC 7");
-			}
-		});
-		
+		rbChan7.setEnabled(false);
 		rbChan2 = new JRadioButton("");
-		rbChan2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(rbChan1.isSelected()){
-					ct.execute("CONN 2 " + cmbxSensor.getSelectedItem().toString());
-				}
-				else
-					ct.execute("DISC 2");
-			}
-		});
-		
+		rbChan2.setEnabled(false);	
 		rbChan4 = new JRadioButton("");
-		rbChan4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(rbChan1.isSelected()){
-					ct.execute("CONN 4 " + cmbxSensor.getSelectedItem().toString());
-				}
-				else
-					ct.execute("DISC 4");
-			}
-		});
-		
+		rbChan4.setEnabled(false);	
 		rbChan6 = new JRadioButton("");
-		rbChan6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(rbChan1.isSelected()){
-					ct.execute("CONN 6 " + cmbxSensor.getSelectedItem().toString());
-				}
-				else
-					ct.execute("DISC 6");
-			}
-		});
-		
+		rbChan6.setEnabled(false);
 		rbChan8 = new JRadioButton("");
-		rbChan8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(rbChan1.isSelected()){
-					ct.execute("CONN 8 " + cmbxSensor.getSelectedItem().toString());
-				}
-				else
-					ct.execute("DISC 8");
-			}
-		});
-		
-		
-		
+		rbChan8.setEnabled(false);
 		lblNewLabel = new JLabel("1");
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblChan3 = new JLabel("3");
 		lblChan3.setHorizontalAlignment(SwingConstants.CENTER);
 		lblChan3.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblChan5 = new JLabel("5");
 		lblChan5.setHorizontalAlignment(SwingConstants.CENTER);
 		lblChan5.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblChan7 = new JLabel("7");
 		lblChan7.setHorizontalAlignment(SwingConstants.CENTER);
 		lblChan7.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblChan2 = new JLabel("2");
 		lblChan2.setHorizontalAlignment(SwingConstants.CENTER);
 		lblChan2.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblChan4 = new JLabel("4");
 		lblChan4.setHorizontalAlignment(SwingConstants.CENTER);
 		lblChan4.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblChan6 = new JLabel("6");
 		lblChan6.setHorizontalAlignment(SwingConstants.CENTER);
 		lblChan6.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblChan8 = new JLabel("8");
 		lblChan8.setHorizontalAlignment(SwingConstants.CENTER);
 		lblChan8.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblChan = new JLabel("CHAN");
-		
 		lbl1 = new JLabel("1");
 		lbl1.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lbl3 = new JLabel("3");
 		lbl3.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lbl5 = new JLabel("5");
 		lbl5.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lbl7 = new JLabel("7");
 		lbl7.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblStart = new JLabel("Start");
 		lblStart.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		lblTogOdd = new JLabel("Enable/Disable");
 		lblTogOdd.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
 		panelStartbtn = new JPanel();
 		JPanel panelTogOdd = new JPanel();
-		
 		rbTog1 = new JRadioButton("");
-		rbTog1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("TIME");
-				ct.execute("TOG 1");
-			}
-		});
-		
+		rbTog1.setEnabled(false);
 		rbTog3 = new JRadioButton("");
-		rbTog3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("TIME");
-				ct.execute("tog 3");
-				
-			}
-		});
-		
+		rbTog3.setEnabled(false);
 		rbTog5 = new JRadioButton("");
-		rbTog5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("TIME");
-				ct.execute("tog 5");
-			}
-		});
-		
+		rbTog5.setEnabled(false);
 		rbTog7 = new JRadioButton("");
-		rbTog7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("TIME");
-				ct.execute("tog 7");
-			}
-		});
-		
+		rbTog7.setEnabled(false);
 		btnStart1 = new JButton("");
-		btnStart1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("TIME");
-				ct.execute("TRIG 1");
-			}
-		});
-		
+		btnStart1.setEnabled(false);
 		btnStart3 = new JButton("");
-		btnStart3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("TIME");
-				ct.execute("TRIG 3");
-			}
-		});
-		
+		btnStart3.setEnabled(false);
 		btnStart5 = new JButton("");
-		btnStart5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("TIME");
-				ct.execute("TRIG 5");
-			}
-		});
-		
+		btnStart5.setEnabled(false);	
 		btnStart7 = new JButton("");
-		btnStart7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("TIME");
-				ct.execute("TRIG 7");
-			}
-		});
+		btnStart7.setEnabled(false);
+		lblSensor = new JLabel("Sensor to Connect");
+		lblSensor.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnNewrun = new JButton("NewRun");
+		btnNewrun.setEnabled(false);
+		btnNewrun.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnEndrun = new JButton("EndRun");
+		btnEndrun.setEnabled(false);
+		btnEndrun.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnDnf = new JButton("DNF");
+		btnDnf.setEnabled(false);
+		btnDnf.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnCancel = new JButton("Cancel");
+		btnCancel.setEnabled(false);
+		btnCancel.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnInd = new JButton("IND");
+		btnInd.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnInd.setEnabled(false);
+		btnParind = new JButton("PARIND");
+		btnParind.setEnabled(false);
+		btnParind.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnGrp = new JButton("GRP");
+		btnGrp.setEnabled(false);
+		btnGrp.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnPargrp = new JButton("PAGRP");
+		btnPargrp.setEnabled(false);
+		btnPargrp.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnSwap = new JButton("Swap");
+		btnSwap.setEnabled(false);
+		btnSwap.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnExport = new JButton("Export");
+		btnExport.setEnabled(false);
+		btnExport.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnEnterNumber = new JButton("Enter Number");
+		btnEnterNumber.setEnabled(false);
+		btnEnterNumber.setFont(new Font("Tahoma", Font.BOLD, 11));
+		scrollPane = new JScrollPane();
 		
-		taPrinter = new JTextArea();
-		taPrinter.setEditable(false);
-		
+	/**
+	 * Adjust layout	
+	 */
 		GroupLayout gl_panelTogEven = new GroupLayout(panelTogEven);
 		gl_panelTogEven.setHorizontalGroup(
 			gl_panelTogEven.createParallelGroup(Alignment.LEADING)
@@ -663,8 +382,6 @@ public class ChronoTimerGUI extends JFrame {
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		panelTogEven.setLayout(gl_panelTogEven);
-		
-		
 		GroupLayout gl_panelFinishbtn = new GroupLayout(panelFinishbtn);
 		gl_panelFinishbtn.setHorizontalGroup(
 			gl_panelFinishbtn.createParallelGroup(Alignment.LEADING)
@@ -737,105 +454,6 @@ public class ChronoTimerGUI extends JFrame {
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		panelFinish.setLayout(gl_panelFinish);
-		
-		lblSensor = new JLabel("Sensor to Connect");
-		lblSensor.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
-		btnNewrun = new JButton("NewRun");
-		btnNewrun.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("NEWRUN");
-			}
-		});
-		btnNewrun.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnEndrun = new JButton("EndRun");
-		btnEndrun.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("ENDRUN");
-			}
-		});
-		btnEndrun.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnDnf = new JButton("DNF");
-		btnDnf.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("DNF");
-			}
-		});
-		btnDnf.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnCancel = new JButton("Cancel");
-		btnCancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("CANCEL");
-			}
-		});
-		btnCancel.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnInd = new JButton("IND");
-		btnInd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("EVENT IND");
-			}
-		});
-		btnInd.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnParind = new JButton("PARIND");
-		btnParind.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("EVENT PARIND");
-			}
-		});
-		btnParind.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnGrp = new JButton("GRP");
-		btnGrp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("EVENT GRP");
-			}
-		});
-		btnGrp.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnPargrp = new JButton("PAGRP");
-		btnPargrp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("EVENT PARGRP");
-			}
-		});
-		btnPargrp.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnSwap = new JButton("Swap");
-		btnSwap.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("SWAP");
-			}
-		});
-		btnSwap.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnExport = new JButton("Export");
-		btnExport.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("EXPORT");
-			}
-		});
-		btnExport.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		btnEnterNumber = new JButton("Enter Number");
-		btnEnterNumber.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
-				
-				if(ct.getSystem().isActive()){
-					taDisplay.setText(enterRun);
-					enableKeys = true;
-				}			
-			}
-		});
-		btnEnterNumber.setFont(new Font("Tahoma", Font.BOLD, 11));
-		
-		scrollPane = new JScrollPane();
-
 		GroupLayout gl_mainFrame = new GroupLayout(mainFrame);
 		gl_mainFrame.setHorizontalGroup(
 			gl_mainFrame.createParallelGroup(Alignment.LEADING)
@@ -950,6 +568,8 @@ public class ChronoTimerGUI extends JFrame {
 		taDisplay.setLineWrap(true);
 		scrollPane.setViewportView(taDisplay);
 		
+		spPrinter = new JScrollPane();
+		
 		GroupLayout gl_panelPrinter = new GroupLayout(panelPrinter);
 		gl_panelPrinter.setHorizontalGroup(
 			gl_panelPrinter.createParallelGroup(Alignment.LEADING)
@@ -957,21 +577,26 @@ public class ChronoTimerGUI extends JFrame {
 					.addGroup(gl_panelPrinter.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panelPrinter.createSequentialGroup()
 							.addGap(53)
-							.addComponent(btnNewButton))
+							.addComponent(btnPrint))
 						.addGroup(gl_panelPrinter.createSequentialGroup()
-							.addGap(36)
-							.addComponent(taPrinter, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)))
-					.addContainerGap(126, Short.MAX_VALUE))
+							.addGap(26)
+							.addComponent(spPrinter, GroupLayout.PREFERRED_SIZE, 157, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap(26, Short.MAX_VALUE))
 		);
 		gl_panelPrinter.setVerticalGroup(
 			gl_panelPrinter.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelPrinter.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+					.addComponent(btnPrint, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(taPrinter, GroupLayout.PREFERRED_SIZE, 102, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(33, Short.MAX_VALUE))
+					.addComponent(spPrinter, GroupLayout.PREFERRED_SIZE, 120, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(15, Short.MAX_VALUE))
 		);
+		
+		taPrinter = new JTextArea();
+		taPrinter.setEditable(false);
+		taPrinter.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		spPrinter.setViewportView(taPrinter);
 		panelPrinter.setLayout(gl_panelPrinter);
 		lblChan.setFont(new Font("Tahoma", Font.BOLD, 12));
 		GroupLayout gl_panelChannel = new GroupLayout(panelChannel);
@@ -1147,7 +772,447 @@ public class ChronoTimerGUI extends JFrame {
 		panelStartbtn.setLayout(gl_panelStartbtn);
 		panelStart.setLayout(gl_panelStart);
 		mainFrame.setLayout(gl_mainFrame);	
+		
+/**
+ * Add Action Listeners
+ */
+		rbTogEven2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("tog 2");
+			}
+		});
+		
+		rbTogEven4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("tog 4");
+			}
+		});
+		
+		rbTogEven6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("tog 6");
+			}
+		});
+		
+		rbTogEven8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("tog 8");
+			}
+		});
+		
+		btnFin2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(ct.getSystem().isActive()){
+					ct.execute("TIME");
+					ct.execute("TRIG 2");
+					taDisplay.setText(ct.getSystem().export());
+				}
+				if(printerOn){
+					printerText += " " + ct.getSystem().export() + ": ";
+					taPrinter.setText(printerText);
+				}
+			}
+		});
+		
+		btnFin4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(ct.getSystem().isActive()){
+					ct.execute("TIME");
+					ct.execute("TRIG 4");
+					taDisplay.setText(ct.getSystem().export());
+				}
+				if(printerOn){
+					printerText += " " + ct.getSystem().export() + ": ";
+					taPrinter.setText(printerText);
+				}
+			}
+		});
+		
+		btnFin6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(ct.getSystem().isActive()){
+					ct.execute("TIME");
+					ct.execute("TRIG 6");
+					taDisplay.setText(ct.getSystem().export());
+				}
+				if(printerOn){
+					printerText += " " + ct.getSystem().export() + ": ";
+					taPrinter.setText(printerText);
+				}
+			}
+		});
+		
+		btnFin8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(ct.getSystem().isActive()){
+					ct.execute("TIME");
+					ct.execute("TRIG 8");
+					taDisplay.setText(ct.getSystem().export());
+				}
+				if(printerOn){
+					printerText += " " + ct.getSystem().export() + ": ";
+					taPrinter.setText(printerText);
+				}
+			}
+		});
+		
+		btnPower.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(!ct.isEnabled())
+				{
+					ct.execute("ON");
+					enableFields();
+					if(ct.isEnabled() && !ct.getSystem().isActive()){
+						taDisplay.setText("CHOOSE YOUR COMMAND");
+					}
+				}
+				else{
+					ct.execute("RESET");
+					ct.execute("OFF");
+					resetFields();
+				}
+			}
+		});
+		
+		btnCalc1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			
+				if(enableKeys){
+					runnerNum += "1";
+				}				
+			}
+		});
+		
+		btnCalc2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if(enableKeys){
+					runnerNum += "2";
+				}
+			}
+		});
+		
+		btnCalc3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(enableKeys){
+					runnerNum += "3";
+				}
+			}
+		});
+		
+		btnCalc4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(enableKeys){
+					runnerNum += "4";
+				}
+			}
+		});
+		
+		btnCalc5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(enableKeys){
+					runnerNum += "5";
+				}
+			}
+		});
+		
+		btnCalc6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(enableKeys){
+					runnerNum += "6";
+				}
+			}
+		});
+		
+		rbTog1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
+				ct.execute("TOG 1");
+			}
+		});
+		
+		btnCalc7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(enableKeys){
+					runnerNum += "7";
+				}
+			}
+		});
+		
+		btnCalc8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(enableKeys){
+					runnerNum += "8";
+				}
+			}
+		});
+		
+		btnCalc9.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(enableKeys){
+					runnerNum += "9";
+				}
+			}
+		});
+		
+		btnCalcPound.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				if(enableKeys && !runnerNum.equals("")){
+					ct.execute("NUM " + runnerNum);
+					enableKeys = false;
+					runnerNum = "";
+					taDisplay.setText("");
+					runnerNum = "";
+				}
+			}
+		});
+		
+		btnCalc0.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(enableKeys){
+					runnerNum += "0";
+				}
+			}
+		});
+		
+		btnPrint.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(printerOn && ct.isEnabled()){
+					printerOn = false;
+					printerText = "";
+					taPrinter.setText("");
+				}
+				else if(ct.isEnabled()){
+					printerOn = true;
+					if(ct.getSystem().isActive()){
+						printerText += " " + ct.execute("EXPORT") + ": ";
+						taPrinter.setText(printerText);
+					}
+				}
+			}
+		});
+		
+		rbTog3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
+				ct.execute("tog 3");
+				
+			}
+		});
+		
+		rbTog5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
+				ct.execute("tog 5");
+			}
+		});
+		
+		rbChan1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rbChan1.isSelected()){
+					ct.execute("CONN 1 " + cmbxSensor.getSelectedItem().toString());
+				}
+				else
+					ct.execute("DISC 1");
+			}
+		});
+		
+		rbTog7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
+				ct.execute("tog 7");
+			}
+		});
+		
+		rbChan3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rbChan1.isSelected()){
+					ct.execute("CONN 3 " + cmbxSensor.getSelectedItem().toString());
+				}
+				else
+					ct.execute("DISC 3");
+			}
+		});
+		
+		btnStart1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
+				ct.execute("TRIG 1");
+				if(printerOn){
+					printerText += " " + ct.getSystem().export() + ": ";
+					taPrinter.setText(printerText);
+				}
+			}
+		});
+		
+		btnStart3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
+				ct.execute("TRIG 3");
+				if(printerOn){
+					printerText += " " + ct.getSystem().export() + ": ";
+					taPrinter.setText(printerText);
+				}
+			}
+		});
+		
+		rbChan5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rbChan1.isSelected()){
+					ct.execute("CONN 5 " + cmbxSensor.getSelectedItem().toString());
+				}
+				else
+					ct.execute("DISC 5");
+			}
+		});
+		
+		rbChan7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rbChan1.isSelected()){
+					ct.execute("CONN 7 " + cmbxSensor.getSelectedItem().toString());
+				}
+				else
+					ct.execute("DISC 7");
+			}
+		});
+		
+		btnStart5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
+				ct.execute("TRIG 5");
+				if(printerOn){
+					printerText += " " + ct.getSystem().export() + ": ";
+					taPrinter.setText(printerText);
+				}
+			}
+		});
+		
+		btnStart7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("TIME");
+				ct.execute("TRIG 7");
+				if(printerOn){
+					printerText += " " + ct.getSystem().export() + ": ";
+					taPrinter.setText(printerText);
+				}
+			}
+		});
+		
+		btnNewrun.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("NEWRUN");
+			}
+		});
+		
+		rbChan2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rbChan1.isSelected()){
+					ct.execute("CONN 2 " + cmbxSensor.getSelectedItem().toString());
+				}
+				else
+					ct.execute("DISC 2");
+			}
+		});
+		
+		btnEndrun.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("ENDRUN");
+				taDisplay.setText("Run Ended.\nChoose a Command.");
+			}
+		});
+		
+		btnDnf.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("DNF");
+			}
+		});
+		
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("CANCEL");
+			}
+		});
+		
+		btnInd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EVENT IND");
+			}
+		});
+		
+		btnParind.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EVENT PARIND");
+			}
+		});
+		
+		btnGrp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EVENT GRP");
+			}
+		});
+		
+		rbChan4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rbChan1.isSelected()){
+					ct.execute("CONN 4 " + cmbxSensor.getSelectedItem().toString());
+				}
+				else
+					ct.execute("DISC 4");
+			}
+		});
+		
+		btnPargrp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EVENT PARGRP");
+			}
+		});
+		
+		btnSwap.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("SWAP");
+			}
+		});
+		
+		btnExport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ct.execute("EXPORT");
+			}
+		});
+		
+		btnEnterNumber.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String enterRun = "USE NUMBER PAD TO ENTER RACER NUMBER.\n\n PRESS POUND TO CONFIRM";
+				
+				if(ct.getSystem().isActive()){
+					taDisplay.setText(enterRun);
+					enableKeys = true;
+				}			
+			}
+		});
+		
+		rbChan6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rbChan1.isSelected()){
+					ct.execute("CONN 6 " + cmbxSensor.getSelectedItem().toString());
+				}
+				else
+					ct.execute("DISC 6");
+			}
+		});
+		
+		rbChan8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rbChan1.isSelected()){
+					ct.execute("CONN 8 " + cmbxSensor.getSelectedItem().toString());
+				}
+				else
+					ct.execute("DISC 8");
+			}
+		});
 	}
+	
+	
 	
 	/**
 	 * Helper function to reset all fields.
@@ -1171,6 +1236,86 @@ public class ChronoTimerGUI extends JFrame {
 		rbTog5.setSelected(false);
 		rbTog7.setSelected(false);
 		taPrinter.setText("");
-		
+		printerOn = false;
+		enableKeys = false;
+		rbChan1.setEnabled(false);
+		rbChan2.setEnabled(false);
+		rbChan3.setEnabled(false);
+		rbChan4.setEnabled(false);
+		rbChan5.setEnabled(false);
+		rbChan6.setEnabled(false);
+		rbChan7.setEnabled(false);
+		rbChan8.setEnabled(false);
+		rbTogEven2.setEnabled(false);
+		rbTogEven4.setEnabled(false);
+		rbTogEven6.setEnabled(false);
+		rbTogEven8.setEnabled(false);
+		rbTog1.setEnabled(false);
+		rbTog3.setEnabled(false);
+		rbTog5.setEnabled(false);
+		rbTog7.setEnabled(false);
+		btnDnf.setEnabled(false);
+		btnNewrun.setEnabled(false);
+		btnCancel.setEnabled(false);
+		btnEndrun.setEnabled(false);
+		btnInd.setEnabled(false);
+		btnParind.setEnabled(false);
+		btnGrp.setEnabled(false);
+		btnSwap.setEnabled(false);
+		btnExport.setEnabled(false);
+		btnEnterNumber.setEnabled(false);
+		btnFin2.setEnabled(false);
+		btnFin4.setEnabled(false);
+		btnFin6.setEnabled(false);
+		btnFin8.setEnabled(false);
+		btnStart1.setEnabled(false);
+		btnStart3.setEnabled(false);
+		btnStart5.setEnabled(false);
+		btnStart7.setEnabled(false);
+		btnPrint.setEnabled(false);
+		cmbxSensor.setSelectedIndex(0);
+		cmbxSensor.setEnabled(false);
+	}
+	
+	/**
+	 * Helper method to enable all fields.
+	 */
+	private void enableFields(){
+		rbChan1.setEnabled(true);
+		rbChan2.setEnabled(true);
+		rbChan3.setEnabled(true);
+		rbChan4.setEnabled(true);
+		rbChan5.setEnabled(true);
+		rbChan6.setEnabled(true);
+		rbChan7.setEnabled(true);
+		rbChan8.setEnabled(true);
+		rbTogEven2.setEnabled(true);
+		rbTogEven4.setEnabled(true);
+		rbTogEven6.setEnabled(true);
+		rbTogEven8.setEnabled(true);
+		rbTog1.setEnabled(true);
+		rbTog3.setEnabled(true);
+		rbTog5.setEnabled(true);
+		rbTog7.setEnabled(true);
+		btnDnf.setEnabled(true);
+		btnNewrun.setEnabled(true);
+		btnCancel.setEnabled(true);
+		btnEndrun.setEnabled(true);
+		btnInd.setEnabled(true);
+		btnParind.setEnabled(true);
+		btnGrp.setEnabled(true);
+		btnSwap.setEnabled(true);
+		btnExport.setEnabled(true);
+		btnEnterNumber.setEnabled(true);
+		btnFin2.setEnabled(true);
+		btnFin4.setEnabled(true);
+		btnFin6.setEnabled(true);
+		btnFin8.setEnabled(true);
+		btnStart1.setEnabled(true);
+		btnStart3.setEnabled(true);
+		btnStart5.setEnabled(true);
+		btnStart7.setEnabled(true);
+		btnPrint.setEnabled(true);
+		cmbxSensor.setEnabled(true);
 	}
 }
