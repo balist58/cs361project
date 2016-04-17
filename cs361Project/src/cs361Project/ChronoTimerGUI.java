@@ -1011,7 +1011,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbChan1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(rbChan1.isSelected()){
-					ct.execute("CONN 1 " + cmbxSensor.getSelectedItem().toString());
+					ct.execute("CONN " + cmbxSensor.getSelectedItem().toString() + " 1");
 				}
 				else
 					ct.execute("DISC 1");
@@ -1028,7 +1028,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbChan3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(rbChan1.isSelected()){
-					ct.execute("CONN 3 " + cmbxSensor.getSelectedItem().toString());
+					ct.execute("CONN " + cmbxSensor.getSelectedItem().toString() + " 3");
 				}
 				else
 					ct.execute("DISC 3");
@@ -1060,7 +1060,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbChan5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(rbChan1.isSelected()){
-					ct.execute("CONN 5 " + cmbxSensor.getSelectedItem().toString());
+					ct.execute("CONN " + cmbxSensor.getSelectedItem().toString() + " 5");
 				}
 				else
 					ct.execute("DISC 5");
@@ -1070,7 +1070,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbChan7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(rbChan1.isSelected()){
-					ct.execute("CONN 7 " + cmbxSensor.getSelectedItem().toString());
+					ct.execute("CONN " + cmbxSensor.getSelectedItem().toString() + " 7");
 				}
 				else
 					ct.execute("DISC 7");
@@ -1108,7 +1108,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbChan2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(rbChan1.isSelected()){
-					ct.execute("CONN 2 " + cmbxSensor.getSelectedItem().toString());
+					ct.execute("CONN " + cmbxSensor.getSelectedItem().toString() + " 2");
 				}
 				else
 					ct.execute("DISC 2");
@@ -1155,7 +1155,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbChan4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(rbChan1.isSelected()){
-					ct.execute("CONN 4 " + cmbxSensor.getSelectedItem().toString());
+					ct.execute("CONN " + cmbxSensor.getSelectedItem().toString() + " 4");
 				}
 				else
 					ct.execute("DISC 4");
@@ -1194,7 +1194,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbChan6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(rbChan1.isSelected()){
-					ct.execute("CONN 6 " + cmbxSensor.getSelectedItem().toString());
+					ct.execute("CONN " + cmbxSensor.getSelectedItem().toString() + " 6");
 				}
 				else
 					ct.execute("DISC 6");
@@ -1204,7 +1204,7 @@ public class ChronoTimerGUI extends JFrame {
 		rbChan8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(rbChan1.isSelected()){
-					ct.execute("CONN 8 " + cmbxSensor.getSelectedItem().toString());
+					ct.execute("CONN " + cmbxSensor.getSelectedItem().toString() + " 8");
 				}
 				else
 					ct.execute("DISC 8");
