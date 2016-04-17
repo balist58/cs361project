@@ -40,7 +40,7 @@ public class RunGRP implements Run{
 	/**
 	 * Getters for the RunGRP fields
 	 */
-	public int getNumber(){return runNumber;}
+	public int getRunNumber(){return runNumber;}
 	public Calendar getCheckpoint(){return checkpoint;}
 	public LinkedList<Runner> getRunners(){return runners;}
 	public ArrayList<Runner> getFinished(){return finishedRunners;}

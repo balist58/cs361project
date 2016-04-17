@@ -1,283 +1,307 @@
 package cs361Project;
 
-
 import static org.junit.Assert.*;
 
 import java.util.Calendar;
 
 import org.junit.Test;
 
-public class IndividualRunTest 
-{
+public class IndividualRunTest {
 	ChronoTimerControl ct = new ChronoTimerControl();
-	CmdInterface ctrl = new CmdInterface(1,ct);
-	
+	CmdInterface ctrl = new CmdInterface(1, ct);
+	ChronoTimerSystem system = ct.getSystem();
+
 	/**
 	 * TC 2.1
 	 */
 	@Test
 	public void testStartAndFinishWithNoRun() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 1", "11:00:01.0");
-		ctrl.parseLine("CONN EYE 2", "11:00:02.0");
-		ctrl.parseLine("TOGGLE 1", "11:00:03.0");
-		ctrl.parseLine("TOGGLE 2", "11:00:04.0");
-		ctrl.parseLine("EVENT IND", "11:00:05.0");
-		ctrl.parseLine("NUM 444", "11:00:05.0");
-		
-		assertTrue(ct.isOn());
-		assertNull(ct.getRun());
 
-		ctrl.parseLine("START", "11:00:07.0");
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		ct.execute("TOGGLE 1");
+		ct.execute("TOGGLE 2");
+		ct.execute("EVENT IND");
+		ct.execute("NUM 444");
 
-		assertNull(ct.getRun());
-		
-		ctrl.parseLine("FINISH", "11:00:18.0");
-		
-		assertNull(ct.getRun());
-		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(0,ct.getTime().get(12));
-		assertEquals(18,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertTrue(ct.isEnabled());
+		assertNull(system.getRun());
+
+		system.setTime("11:00:07.0");
+		ct.execute("START");
+
+		assertNull(system.getRun());
+
+		system.setTime("11:00:18.0");
+		ct.execute("FINISH");
+
+		assertNull(system.getRun());
+
+		assertEquals(11, system.getTime().get(10));
+		assertEquals(0, system.getTime().get(12));
+		assertEquals(18, system.getTime().get(13));
+		assertEquals(0, system.getTime().get(14));
 	}
-	
+
 	/**
 	 * TC 2.2
 	 */
 	@Test
 	public void testStartWithoutRacers() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 1", "11:00:01.0");
-		ctrl.parseLine("CONN EYE 2", "11:00:02.0");
-		ctrl.parseLine("TOGGLE 1", "11:00:03.0");
-		ctrl.parseLine("TOGGLE 2", "11:00:04.0");
-		ctrl.parseLine("EVENT IND", "11:00:05.0");
-		ctrl.parseLine("NEWRUN", "11:00:06.0");
-		//No racers
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		ct.execute("TOGGLE 1");
+		ct.execute("TOGGLE 2");
+		ct.execute("EVENT IND");
+		ct.execute("NEWRUN");
+		// No racers
 		
-		assertTrue(ct.isOn());
-		assertEquals(1, ct.getRun().getRunNumber());
-		assertNull(ct.getNextRunner());
+		RunIND run = (RunIND) system.getRun();
 
-		ctrl.parseLine("START", "11:00:07.0");
+		assertTrue(ct.isEnabled());
+		assertEquals(1, run.getRunNumber());
+		assertEquals(1, system.getRun().getRunNumber());
 
-		assertNull(ct.getActiveRunner());
-		
-		ctrl.parseLine("FINISH", "11:00:18.0");
-		
-		assertNull(ct.getFinishedRunner());
-		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(0,ct.getTime().get(12));
-		assertEquals(18,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		system.setTime("11:00:07.0");
+		ct.execute("START");
+
+		assertTrue(run.getActive().isEmpty());
+
+		system.setTime("11:00:18.0");
+		ct.execute("FINISH");
+
+		assertTrue(run.getFinished().isEmpty());
+
+		assertEquals(11, system.getTime().get(10));
+		assertEquals(0, system.getTime().get(12));
+		assertEquals(18, system.getTime().get(13));
+		assertEquals(0, system.getTime().get(14));
 	}
-	
+
 	/**
 	 * TC 2.3
 	 */
 	@Test
 	public void testFinishWithoutStartedRacers() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 1", "11:00:01.0");
-		ctrl.parseLine("CONN EYE 2", "11:00:02.0");
-		ctrl.parseLine("TOGGLE 1", "11:00:03.0");
-		ctrl.parseLine("TOGGLE 2", "11:00:04.0");
-		ctrl.parseLine("EVENT IND", "11:00:05.0");
-		ctrl.parseLine("NEWRUN", "11:00:06.0");
-		ctrl.parseLine("NUM 444", "11:00:07.0");
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		ct.execute("TOGGLE 1");
+		ct.execute("TOGGLE 2");
+		ct.execute("EVENT IND");
+		ct.execute("NEWRUN");
+		ct.execute("NUM 444");
 		
-		assertTrue(ct.isOn());
-		assertEquals(1, ct.getRun().getRunNumber());
-		assertEquals(444, ct.getNextRunner().getNumber());
-		assertNull(ct.getActiveRunner());
-		assertNull(ct.getFinishedRunner());
-		
-		ctrl.parseLine("FINISH", "11:00:18.0");
+		RunIND run = (RunIND) system.getRun();
 
-		assertEquals(444, ct.getNextRunner().getNumber());
-		assertNull(ct.getActiveRunner());
-		assertNull(ct.getFinishedRunner()); //No runners were active so none finish
-		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(0,ct.getTime().get(12));
-		assertEquals(18,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertTrue(ct.isEnabled());
+		assertEquals(1, run.getRunNumber());
+		assertEquals(444, run.getwaitingRunners().peek().getNumber());
+		assertTrue(run.getActive().isEmpty());
+		assertTrue(run.getFinished().isEmpty());
+
+		system.setTime("11:00:18.0");
+		ct.execute("FINISH");
+
+		assertEquals(444, run.getwaitingRunners().peek().getNumber());
+		assertTrue(run.getActive().isEmpty());
+		assertTrue(run.getFinished().isEmpty()); // No runners were active so none finish
+
+		assertEquals(11, system.getTime().get(10));
+		assertEquals(0, system.getTime().get(12));
+		assertEquals(18, system.getTime().get(13));
+		assertEquals(0, system.getTime().get(14));
 	}
-	
+
 	/**
 	 * TC 2.4
 	 */
 	@Test
 	public void testDuplicateRacers() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 1", "11:00:01.0");
-		ctrl.parseLine("CONN EYE 2", "11:00:02.0");
-		ctrl.parseLine("TOGGLE 1", "11:00:03.0");
-		ctrl.parseLine("TOGGLE 2", "11:00:04.0");
-		ctrl.parseLine("EVENT IND", "11:00:05.0");
-		ctrl.parseLine("NEWRUN", "11:00:06.0");
-		ctrl.parseLine("NUM 444", "11:00:07.0");
-		ctrl.parseLine("NUM 444", "11:00:07.0");
-		ctrl.parseLine("NUM 444", "11:00:07.0"); //Try adding same number several times
-		
-		assertTrue(ct.isOn());
-		assertEquals(1, ct.getRun().getRunNumber());
-		assertEquals(444, ct.getNextRunner().getNumber());
-		assertNull(ct.getActiveRunner());
-		assertNull(ct.getFinishedRunner());
-		
-		ctrl.parseLine("START", "11:00:17.0");
-		ctrl.parseLine("NUM 444", "11:00:18.0"); //Try adding again
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		ct.execute("TOGGLE 1");
+		ct.execute("TOGGLE 2");
+		ct.execute("EVENT IND");
+		ct.execute("NEWRUN");
+		ct.execute("NUM 444");
+		ct.execute("NUM 444");
+		ct.execute("NUM 444"); // Try adding same number several times
 
-		assertNull(ct.getNextRunner()); //No other runners because the number already exists
-		assertEquals(444, ct.getActiveRunner().getNumber());
-		assertNull(ct.getFinishedRunner());
+		RunIND run = (RunIND) system.getRun();
 		
-		ctrl.parseLine("FINISH", "11:00:22.0");
-		ctrl.parseLine("NUM 444", "11:00:18.0"); //Try adding again
+		assertTrue(ct.isEnabled());
+		assertEquals(1, run.getRunNumber());
+		assertEquals(444, run.getwaitingRunners().peek().getNumber());
+		assertTrue(run.getActive().isEmpty());
+		assertTrue(run.getFinished().isEmpty());
+
+		system.setTime("11:00:17.0");
+		ct.execute("START");
+		ct.execute("NUM 444"); // Try adding again
 		
-		assertNull(ct.getNextRunner()); //No other runners because the number already exists
-		assertNull(ct.getActiveRunner());
-		assertEquals(444, ct.getFinishedRunner().getNumber());
-		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(0,ct.getTime().get(12));
-		assertEquals(18,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertTrue(run.getwaitingRunners().isEmpty()); // No other runners because the number already exists
+		assertEquals(444, run.getActive().peek().getNumber());
+		assertTrue(run.getFinished().isEmpty());
+
+		system.setTime("11:00:22.0");
+		ct.execute("FINISH");
+		ct.execute("NUM 444"); // Try adding again
+
+		assertTrue(run.getwaitingRunners().isEmpty()); // No other runners because the number already exists
+		assertTrue(run.getActive().isEmpty());
+		assertEquals(444, run.getFinished().peek().getNumber());
+
+		assertEquals(11, system.getTime().get(10));
+		assertEquals(0, system.getTime().get(12));
+		assertEquals(22, system.getTime().get(13));
+		assertEquals(0, system.getTime().get(14));
 	}
-	
+
 	/**
 	 * TC 2.5
 	 */
 	@Test
 	public void testCancel() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 1", "11:00:01.0");
-		ctrl.parseLine("CONN EYE 2", "11:00:02.0");
-		ctrl.parseLine("TOGGLE 1", "11:00:03.0");
-		ctrl.parseLine("TOGGLE 2", "11:00:04.0");
-		ctrl.parseLine("EVENT IND", "11:00:05.0");
-		ctrl.parseLine("NEWRUN", "11:00:06.0");
-		ctrl.parseLine("NUM 555", "11:00:07.0");
-		ctrl.parseLine("NUM 444", "11:00:07.0");
-		
-		assertTrue(ct.isOn());
-		assertEquals(1, ct.getRun().getRunNumber());
-		Runner num444 = ct.getNextRunner();
-		assertEquals(444, num444.getNumber());
-		
-		ctrl.parseLine("START", "11:00:17.0");
-		
-		assertEquals(555, ct.getNextRunner().getNumber());
-		assertSame(num444, ct.getActiveRunner());
-		assertEquals("11:00:17.00", num444.getStart());
-		
-		ctrl.parseLine("CANCEL", "11:00:22.0");
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		ct.execute("TOGGLE 1");
+		ct.execute("TOGGLE 2");
+		ct.execute("EVENT IND");
+		ct.execute("NEWRUN");
+		ct.execute("NUM 555");
+		ct.execute("NUM 444");
 
-		assertSame(num444, ct.getNextRunner());
-		assertNull(ct.getActiveRunner());
-		assertNull(ct.getFinishedRunner());
+		RunIND run = (RunIND) system.getRun();
+		assertTrue(ct.isEnabled());
+		assertEquals(1, system.getRun().getRunNumber());
+		Runner num444 = run.getwaitingRunners().peek();
+		assertEquals(444, num444.getNumber());
+
+		system.setTime("11:00:17.0");
+		ct.execute("START");
+
+		assertEquals(555, run.getwaitingRunners().peek().getNumber());
+		assertSame(num444, run.getActive().peek());
+		assertEquals("11:00:17.00", num444.getStart());
+
+		system.setTime("11:00:22.0");
+		ct.execute("CANCEL");
+
+		assertSame(num444, run.getwaitingRunners().peek());
+		assertTrue(run.getActive().isEmpty());
+		assertTrue(run.getFinished().isEmpty());
 		assertEquals("N/A", num444.getStart());
-		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(0,ct.getTime().get(12));
-		assertEquals(22,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+
+		assertEquals(11, system.getTime().get(10));
+		assertEquals(0, system.getTime().get(12));
+		assertEquals(22, system.getTime().get(13));
+		assertEquals(0, system.getTime().get(14));
 	}
-	
+
 	/**
 	 * TC 2.6
 	 */
 	@Test
 	public void testDNF() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 1", "11:00:01.0");
-		ctrl.parseLine("CONN EYE 2", "11:00:02.0");
-		ctrl.parseLine("TOGGLE 1", "11:00:03.0");
-		ctrl.parseLine("TOGGLE 2", "11:00:04.0");
-		ctrl.parseLine("EVENT IND", "11:00:05.0");
-		ctrl.parseLine("NEWRUN", "11:00:06.0");
-		ctrl.parseLine("NUM 444", "11:00:07.0");
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		ct.execute("TOGGLE 1");
+		ct.execute("TOGGLE 2");
+		ct.execute("EVENT IND");
+		ct.execute("NEWRUN");
+		ct.execute("NUM 444");
+
+		RunIND run = (RunIND) system.getRun();
 		
-		assertTrue(ct.isOn());
-		assertEquals(1, ct.getRun().getRunNumber());
-		assertEquals(444, ct.getNextRunner().getNumber());
-		
-		ctrl.parseLine("START", "11:00:17.0");
-		
-		assertEquals(444, ct.getActiveRunner().getNumber());
-		
-		ctrl.parseLine("DNF", "11:00:22.0");
-		
-		assertNull(ct.getNextRunner());
-		assertNull(ct.getActiveRunner());
-		assertEquals(444, ct.getFinishedRunner().getNumber());
-		assertEquals("11:00:17.00", ct.getFinishedRunner().getStart());
-		assertEquals("N/A", ct.getFinishedRunner().getEnd());
-		assertEquals("N/A", ct.getFinishedRunner().getTotalTime());
-		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(0,ct.getTime().get(12));
-		assertEquals(22,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertTrue(ct.isEnabled());
+		assertEquals(1, run.getRunNumber());
+		assertEquals(444, run.getwaitingRunners().peek().getNumber());
+
+		system.setTime("11:00:17.0");
+		ct.execute("START");
+
+		assertEquals(444, run.getActive().peek().getNumber());
+
+		system.setTime("11:00:22.0");
+		ct.execute("DNF");
+
+		assertTrue(run.getwaitingRunners().isEmpty());
+		assertTrue(run.getActive().isEmpty());
+		assertEquals(444, run.getFinished().peek().getNumber());
+		assertEquals("11:00:17.00", run.getFinished().peek().getStart());
+		assertEquals("N/A", run.getFinished().peek().getEnd());
+		assertEquals("N/A", run.getFinished().peek().getTotalTime());
+
+		assertEquals(11, system.getTime().get(10));
+		assertEquals(0, system.getTime().get(12));
+		assertEquals(22, system.getTime().get(13));
+		assertEquals(0, system.getTime().get(14));
 	}
-	
 
 	/**
 	 * TC 2.7
 	 */
 	@Test
 	public void testStartWithRacers() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 1", "11:00:01.0");
-		ctrl.parseLine("CONN EYE 2", "11:00:02.0");
-		ctrl.parseLine("TOGGLE 1", "11:00:03.0");
-		ctrl.parseLine("TOGGLE 2", "11:00:04.0");
-		ctrl.parseLine("EVENT IND", "11:00:05.0");
-		ctrl.parseLine("NEWRUN", "11:00:06.0");
-		ctrl.parseLine("NUM 555", "11:00:07.0");
-		ctrl.parseLine("NUM 444", "11:00:08.0");
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		ct.execute("TOGGLE 1");
+		ct.execute("TOGGLE 2");
+		ct.execute("EVENT IND");
+		ct.execute("NEWRUN");
+		ct.execute("NUM 555");
+		ct.execute("NUM 444");
+
+		RunIND run = (RunIND) system.getRun();
 		
-		assertTrue(ct.isOn());
-		assertEquals(1, ct.getRun().getRunNumber());
-		assertEquals(444, ct.getNextRunner().getNumber());
-		assertNull(ct.getActiveRunner());
-		assertNull(ct.getFinishedRunner());
+		assertTrue(ct.isEnabled());
+		assertEquals(1, run.getRunNumber());
+		assertEquals(444, run.getwaitingRunners().peek().getNumber());
+		assertTrue(run.getActive().isEmpty());
+		assertTrue(run.getFinished().isEmpty());
 
-		ctrl.parseLine("START", "11:00:10.0");
+		system.setTime("11:00:10.0");
+		ct.execute("START");
 
-		assertEquals(555, ct.getNextRunner().getNumber());
-		assertEquals(444, ct.getActiveRunner().getNumber());
-		assertNull(ct.getFinishedRunner());
-		
-		ctrl.parseLine("FINISH", "11:00:18.0");
-		ctrl.parseLine("START", "11:00:19.0");
+		assertEquals(555, run.getwaitingRunners().peek().getNumber());
+		assertEquals(444, run.getActive().peek().getNumber());
+		assertTrue(run.getFinished().isEmpty());
 
-		assertNull(ct.getNextRunner());
-		assertEquals(555, ct.getActiveRunner().getNumber());
-		assertEquals(444, ct.getFinishedRunner().getNumber());
-		assertEquals("8.0 seconds", ct.getFinishedRunner().getTotalTime());
+		system.setTime("11:00:18.0");
+		ct.execute("FINISH");
+		system.setTime("11:00:19.0");
+		ct.execute("START");
 
-		ctrl.parseLine("FINISH", "11:00:28.0");
+		assertTrue(run.getwaitingRunners().isEmpty());
+		assertEquals(555, run.getActive().peek().getNumber());
+		assertEquals(444, run.getFinished().peek().getNumber());
+		assertEquals("8.0 seconds", run.getFinished().peek().getTotalTime());
 
-		assertNull(ct.getNextRunner());
-		assertNull(ct.getActiveRunner());
-		assertEquals(555, ct.getFinishedRunner().getNumber());
-		assertEquals("9.0 seconds", ct.getFinishedRunner().getTotalTime());
-		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(0,ct.getTime().get(12));
-		assertEquals(28,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		system.setTime("11:00:28.0");
+		ct.execute("FINISH");
+
+		assertTrue(run.getwaitingRunners().isEmpty());
+		assertTrue(run.getActive().isEmpty());
+		assertEquals(555, run.getFinished().peekLast().getNumber());
+		assertEquals("9.0 seconds", run.getFinished().peekLast().getTotalTime());
+
+		assertEquals(11, system.getTime().get(10));
+		assertEquals(0, system.getTime().get(12));
+		assertEquals(28, system.getTime().get(13));
+		assertEquals(0, system.getTime().get(14));
 	}
 }
-

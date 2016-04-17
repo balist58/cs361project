@@ -156,9 +156,9 @@ public class ControlTest
 		me.tog(2);
 		me.num(1);
 		me.trig(1);
-		assertEquals(1,me.getActiveRunner().getNumber());
+		assertEquals(1,me.getActiveRunner().getRunNumber());
 		me.trig(2);
-		assertEquals(1,me.getFinishedRunner().getNumber());		
+		assertEquals(1,me.getFinishedRunner().getRunNumber());		
 		
 		
 	}
@@ -215,7 +215,7 @@ public class ControlTest
 		me.tog(2);
 		me.num(1);
 		
-		assertEquals(1,me.getNextRunner().getNumber());
+		assertEquals(1,me.getNextRunner().getRunNumber());
 	}
 	
 	@Test
@@ -250,9 +250,9 @@ public class ControlTest
 		me.tog(2);
 		me.num(1);
 		me.start();
-		assertEquals(1,me.getActiveRunner().getNumber());
+		assertEquals(1,me.getActiveRunner().getRunNumber());
 		me.trig(2);
-		assertEquals(1,me.getFinishedRunner().getNumber());		
+		assertEquals(1,me.getFinishedRunner().getRunNumber());		
 	}
 	
 	@Test
@@ -267,9 +267,9 @@ public class ControlTest
 		me.tog(2);
 		me.num(1);
 		me.trig(1);
-		assertEquals(1,me.getActiveRunner().getNumber());
+		assertEquals(1,me.getActiveRunner().getRunNumber());
 		me.cancel();
-		assertEquals(1,me.getNextRunner().getNumber());		
+		assertEquals(1,me.getNextRunner().getRunNumber());		
 	}
 	
 	@Test
@@ -284,9 +284,9 @@ public class ControlTest
 		me.tog(2);
 		me.num(1);
 		me.trig(1);
-		assertEquals(1,me.getActiveRunner().getNumber());
+		assertEquals(1,me.getActiveRunner().getRunNumber());
 		me.dnf();
-		assertEquals(1,me.getFinishedRunner().getNumber());	
+		assertEquals(1,me.getFinishedRunner().getRunNumber());	
 	}
 	
 	@Test
@@ -301,9 +301,9 @@ public class ControlTest
 		me.tog(2);
 		me.num(1);
 		me.start();
-		assertEquals(1,me.getActiveRunner().getNumber());
+		assertEquals(1,me.getActiveRunner().getRunNumber());
 		me.finish();
-		assertEquals(1,me.getFinishedRunner().getNumber());		
+		assertEquals(1,me.getFinishedRunner().getRunNumber());		
 	}
 	
 	//TODO: Find way to test print and export functions.

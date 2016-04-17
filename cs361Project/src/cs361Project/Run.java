@@ -26,4 +26,5 @@ public interface Run{
 	public String exportRun(Calendar time);
 	public boolean isActive();
 	public boolean isWaiting();
+	public int getRunNumber();
 }
