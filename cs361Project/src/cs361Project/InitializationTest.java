@@ -11,22 +11,25 @@ public class InitializationTest
 {
 	ChronoTimerControl ct = new ChronoTimerControl();
 	CmdInterface ctrl = new CmdInterface(1,ct);
-	
+	ChronoTimerSystem system = ct.getSystem();
 	
 	/**
 	 * TC 1.1
 	 */
 	@Test
 	public void testCommandsWhenOff() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 1", "11:00:00.0");
-		ctrl.parseLine("TIME 12:01:01:0", "11:00:00.0");
-		ctrl.parseLine("CONN EYE 2", "11:00:00.0");
+		ct.execute("OFF");
+		ct.execute("CONN GATE 1");
+		ct.execute("TIME 12:01:01:0");
+		ct.execute("CONN EYE 2");
 		
-		assertFalse(ct.isOn());
-		assertNotEquals("GATE", ct.getChanSensor(1));
-		assertNotEquals("EYE", ct.getChanSensor(2));
-		assertNull(ct.getTime());
+		assertFalse(ct.isEnabled());
+		assertEquals("GATE", system.getChannel(1).getSensor());
+		assertEquals("EYE", system.getChannel(2).getSensor());
+		assertNotEquals(12,system.getTime().get(10));
+		assertNotEquals(1,system.getTime().get(12));
+		assertNotEquals(1,system.getTime().get(13));
+		assertNotEquals(0,system.getTime().get(14));
 	}
 	
 	/**
@@ -34,32 +37,34 @@ public class InitializationTest
 	 */
 	@Test
 	public void testOnWhenOn() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 1", "11:00:01.0");
-		ctrl.parseLine("CONN EYE 2", "11:00:02.0");
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		system.setTime("11:00:02.0");
 		
-		assertTrue(ct.isOn());
-		assertEquals("GATE", ct.getChanSensor(1));
-		assertEquals("EYE", ct.getChanSensor(2));
+		assertTrue(ct.isEnabled());
+		assertEquals("GATE", system.getChannel(1).getSensor());
+		assertEquals("EYE", system.getChannel(2).getSensor());
 		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(0,ct.getTime().get(12));
-		assertEquals(2,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(0,system.getTime().get(12));
+		assertEquals(2,system.getTime().get(13));
+		assertEquals(0,system.getTime().get(14));
 		
-		Calendar time = ct.getTime();
-		ctrl.parseLine("ON", "11:00:03.0");
+		Calendar time = system.getTime();
+		ct.execute("ON");
+		system.setTime("11:00:03.0");
 		
-		assertTrue(ct.isOn());
-		assertEquals("GATE", ct.getChanSensor(1));
-		assertEquals("EYE", ct.getChanSensor(2));
+		assertTrue(ct.isEnabled());
+		assertEquals("GATE", system.getChannel(1).getSensor());
+		assertEquals("EYE", system.getChannel(2).getSensor());
 		
-		assertSame(time, ct.getTime());
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(0,ct.getTime().get(12));
-		assertEquals(3,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertSame(time, system.getTime());
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(0,system.getTime().get(12));
+		assertEquals(3,system.getTime().get(13));
+		assertEquals(0,system.getTime().get(14));
 	}
 	
 	/**
@@ -67,16 +72,13 @@ public class InitializationTest
 	 */
 	@Test
 	public void testStartRaceWithNoEvent() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
+		ct.execute("OFF");
+		ct.execute("ON");
 		
-		try {
-			ctrl.parseLine("NEWRUN", "11:00:03.0");
-			assertTrue(false); //If the previous line succeeds
-		} catch (Exception ex) { }
-		
-		assertNull(ct.getEvent());
-		assertNull(ct.getRun());
+		ct.execute("NEWRUN");
+
+		assertEquals("IND", system.getEvent());
+		assertNotNull(system.getRun());
 	}
 	
 	/**
@@ -84,17 +86,17 @@ public class InitializationTest
 	 */
 	@Test
 	public void testStartTwoRuns() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("EVENT IND", "11:00:03.0");
-		ctrl.parseLine("NEWRUN", "11:00:04.0");
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("EVENT IND");
+		ct.execute("NEWRUN");
 		
-		assertEquals("IND", ct.getEvent());
-		Run r = ct.getRun();
+		assertEquals("IND", system.getEvent());
+		Run r = system.getRun();
 		
-		ctrl.parseLine("NEWRUN", "11:00:05.0");
+		ct.execute("NEWRUN");
 		
-		assertSame(r, ct.getRun());
+		assertSame(r, system.getRun());
 		
 	}
 	
@@ -103,56 +105,56 @@ public class InitializationTest
 	 */
 	@Test
 	public void testSetInvalidTime() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("TIME 11:12:03.2", "11:00:03.0");
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("TIME 11:12:03.2");
 		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(12,ct.getTime().get(12));
-		assertEquals(3,ct.getTime().get(13));
-		assertEquals(2,ct.getTime().get(14));
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(12,system.getTime().get(12));
+		assertEquals(3,system.getTime().get(13));
+		assertEquals(2,system.getTime().get(14));
 
-		ctrl.parseLine("TIME 24:12:03.2", "11:12:04.0");
+		ct.execute("TIME 24:12:03.2");
 		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(12,ct.getTime().get(12));
-		assertEquals(4,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(12,system.getTime().get(12));
+		assertEquals(3,system.getTime().get(13));
+		assertEquals(2,system.getTime().get(14));
 
-		ctrl.parseLine("TIME 11:60:03.2", "11:12:05.0");
+		ct.execute("TIME 11:60:03.2");
 		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(12,ct.getTime().get(12));
-		assertEquals(5,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(12,system.getTime().get(12));
+		assertEquals(3,system.getTime().get(13));
+		assertEquals(2,system.getTime().get(14));
 
-		ctrl.parseLine("TIME 11:12:60.2", "11:12:05.0");
+		ct.execute("TIME 11:12:60.2");
 		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(12,ct.getTime().get(12));
-		assertEquals(5,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(12,system.getTime().get(12));
+		assertEquals(3,system.getTime().get(13));
+		assertEquals(2,system.getTime().get(14));
 
-		ctrl.parseLine("TIME 11:12:03.100", "11:12:05.0");
+		ct.execute("TIME 11:12:03.100");
 		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(12,ct.getTime().get(12));
-		assertEquals(5,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(12,system.getTime().get(12));
+		assertEquals(3,system.getTime().get(13));
+		assertEquals(2,system.getTime().get(14));
 
-		ctrl.parseLine("TIME 11:12:03.100", "11:12:05.0");
+		ct.execute("TIME 11:12:03.100");
 		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(12,ct.getTime().get(12));
-		assertEquals(5,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(12,system.getTime().get(12));
+		assertEquals(3,system.getTime().get(13));
+		assertEquals(2,system.getTime().get(14));
 
-		ctrl.parseLine("TIME 337:99:1234.12340", "11:12:05.0");
+		ct.execute("TIME 337:99:1234.12340");
 		
-		assertEquals(11,ct.getTime().get(10));
-		assertEquals(12,ct.getTime().get(12));
-		assertEquals(5,ct.getTime().get(13));
-		assertEquals(0,ct.getTime().get(14));
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(12,system.getTime().get(12));
+		assertEquals(3,system.getTime().get(13));
+		assertEquals(2,system.getTime().get(14));
 		
 	}
 	
@@ -161,15 +163,14 @@ public class InitializationTest
 	 */
 	@Test
 	public void testWrongChannel() {
-		ctrl.parseLine("OFF", "11:00:00.0");
-		ctrl.parseLine("ON", "11:00:00.0");
-		ctrl.parseLine("CONN GATE 13", "11:00:01.0");
-		ctrl.parseLine("TOGGLE 13", "11:00:01.0");
-		ctrl.parseLine("TRIG 13", "11:00:01.0");
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 13");
+		ct.execute("TOGGLE 13");
+		ct.execute("TRIG 13");
 
-		assertTrue(ct.isOn());
-		assertNull(ct.getChanSensor(13));
-		assertNull(ct.getChanStatus(13));
+		assertTrue(ct.isEnabled());
+		assertNull(system.getChannel(13));
 	}
 }
 

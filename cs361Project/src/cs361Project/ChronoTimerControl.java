@@ -62,10 +62,14 @@ public class ChronoTimerControl{
 					this.setEnabled(true);
 					break;
 				case "CONN":
-					if(cmdArgs.size() == 2) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).conn(cmdArgs.get(1)); //NOTE: Removed -1 from get(0)-1
+					if(cmdArgs.size() == 2 && this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(1))) != null) {
+						this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(1))).conn(cmdArgs.get(0)); //NOTE: Removed -1 from get(0)-1
+					}
 					break;
 				case "DISC":
-					if(cmdArgs.size() == 1) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).disc();
+					if(cmdArgs.size() == 1 && this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))) != null) {
+						this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).disc();
+					}
 					break;
 			    default: System.out.println("Error: Unable to execute command; the system is not on!");
 				}
@@ -124,16 +128,22 @@ public class ChronoTimerControl{
 					else if(cmdArgs.size() == 1) this.getSystem().getRun().finish(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
 					break;
 				case "TOG": case "TOGGLE":
-					if(cmdArgs.size() == 1) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).tog(); //NOTE: removed -1  from .get(0 -1 
+					if(cmdArgs.size() == 1 && this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))) != null) {
+						this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).tog(); //NOTE: removed -1  from .get(0 -1 
+					}
 					break;
 				case "CONN":
-					if(cmdArgs.size() == 2) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(1))).conn(cmdArgs.get(0));
+					if(cmdArgs.size() == 2 && this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(1))) != null) {
+						this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(1))).conn(cmdArgs.get(0));
+					}
 					break;
 				case "DISC":
-					if(cmdArgs.size() == 1) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).disc();
+					if(cmdArgs.size() == 1 && this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))) != null) {
+						this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).disc();
+					}
 					break;
 				case "TRIG":
-					if(cmdArgs.size() == 1){
+					if(cmdArgs.size() == 1 && this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))) != null){
 						//the Channel.trig() method returns a command String, which is to be executed upon the method returning
 						String toRun = this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).trig(Integer.parseInt(cmdArgs.get(0)));
 						execute(toRun);
