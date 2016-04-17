@@ -127,7 +127,7 @@ public class ChronoTimerControl{
 					if(cmdArgs.size() == 1) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).tog(); //NOTE: removed -1  from .get(0 -1 
 					break;
 				case "CONN":
-					if(cmdArgs.size() == 2) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).conn(cmdArgs.get(1));
+					if(cmdArgs.size() == 2) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(1))).conn(cmdArgs.get(0));
 					break;
 				case "DISC":
 					if(cmdArgs.size() == 1) this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).disc();
