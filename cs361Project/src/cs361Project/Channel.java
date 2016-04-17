@@ -10,6 +10,9 @@
 
 package cs361Project;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class Channel {
 	/**
 	 * Channel fields - a boolean representing whether the channel has been toggled on, and a String
@@ -17,6 +20,7 @@ public class Channel {
 	 */
 	private boolean enabled;  //represents whether the channel has been disabled
 	private String sensor;    //represents which sensor is currently plugged into the channel
+	private static ArrayList<String> sensorTypes = new ArrayList<String>(Arrays.asList("EYE", "GATE", "PAD")); 
 	
 	/**
 	 * The constructor sets the channel as disabled by default, with no sensor plugged in
@@ -36,7 +40,7 @@ public class Channel {
 	 * Control.Channel.conn changes the sensor that is connected to the device
 	 * @param sen - a String representing which sensor is being used
 	 */
-	public void conn(String sen){sensor = sen.toUpperCase();}
+	public void conn(String sen){if(sensorTypes.contains(sen.toUpperCase())) sensor = sen.toUpperCase();}
 	
 	/**
 	 * Control.Channel.disc changes the connected sensor back to null

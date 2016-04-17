@@ -11,37 +11,38 @@ import org.junit.Test;
 public class ControlTest 
 {
 	ChronoTimerControl me = new ChronoTimerControl();
+	ChronoTimerSystem system = me.getSystem();
 	
 	@Test
 	public void testOnOff()
 	{
 		
-		assertEquals(false,me.isOn());
-		me.on();
-		assertEquals(true,me.isOn());
-		assertEquals(0,me.getRunNumber());
-		me.off();
-		assertEquals(false,me.isOn());
+		assertEquals(false,me.isEnabled());
+		me.setEnabled(true);
+		assertEquals(true,me.isEnabled());
+		assertNull(system.getRun());
+		me.setEnabled(false);
+		assertEquals(false,me.isEnabled());
 	}
 	
 	@Test
 	public void testReset()
 	{
-		me.on();
-		me.event("IND");
-		me.newRun();
-		assertEquals(1,me.getRunNumber());
-		me.reset();
-		assertEquals(0,me.getRunNumber());
-		assertEquals(true,me.isOn());
+		me.setEnabled(true);
+		system.setEvent("IND");
+		system.newRun();
+		assertEquals(1,system.getRun().getRunNumber());
+		system.reset();
+		assertNull(system.getRun());
+		assertEquals(true,me.isEnabled());
 	}
 	
 	@Test
 	public void TestUpdateTimetoCurrent()
 	{
 		Calendar test = new GregorianCalendar();
-		me.updateTimeToCurrent();
-		assertEquals(test,me.getTime());
+		system.setTime();
+		assertEquals(test,system.getTime());
 		
 	}
 	
@@ -49,53 +50,58 @@ public class ControlTest
 	public void testTime()
 	{
 		
-		me.off();
-		assertEquals(null,me.getTime());
-		me.on();
+		me.setEnabled(false);
+		assertNotNull(system.getTime());
+		me.setEnabled(true);
+		system.setTime();
 		Calendar test = new GregorianCalendar();
-		assertEquals(test,me.getTime());
+		assertEquals(test,system.getTime());
 		
-		me.time("09:13:22.0");
-		assertEquals(9,me.getTime().get(10));
-		assertEquals(13,me.getTime().get(12));
-		assertEquals(22,me.getTime().get(13));
-		assertEquals(0,me.getTime().get(14));
+		system.setTime("09:13:22.0");
+		assertEquals(9,system.getTime().get(10));
+		assertEquals(13,system.getTime().get(12));
+		assertEquals(22,system.getTime().get(13));
+		assertEquals(0,system.getTime().get(14));
 		
-		me.off();
-		assertEquals(null,me.getTime());
+		me.setEnabled(false);
+		assertNotNull(system.getTime());
 	}
 	
 	@Test
 	public void testEvent()
 	{
-		assertEquals(null,me.getEvent());
-		me.on();
-		assertEquals(null,me.getEvent());
-		me.event("ind");
-		me.newRun();
-		assertEquals("IND",me.getEvent());
+		assertEquals("IND",system.getEvent());
+		me.setEnabled(true);
+		assertEquals("IND",system.getEvent());
+		system.setEvent("GRP");
+		system.newRun();
+		assertEquals("GRP",system.getEvent());
+		system.endRun();
+		system.setEvent("PARIND");
+		system.newRun();
+		assertEquals("PARIND",system.getEvent());
 	}
 	
 	@Test
 	public void testTog()
 	{
-		me.off();
-		me.on();
+		me.setEnabled(false);
+		me.setEnabled(true);
 		
 		for(int i = 1; i <= 12; i++ ){
-		assertEquals(false,me.getChanStatus(i));
+		assertEquals(false,system.getChannel(i).isEnabled());
 		}
 		
 		for(int j = 1; j <= 12; j++)
 		{
-			me.tog(j);
-			assertEquals(true,me.getChanStatus(j));
+			system.getChannel(j).tog();
+			assertEquals(true,system.getChannel(j).isEnabled());
 		}
 		
 		for(int j = 1; j <= 12; j++)
 		{
-			me.tog(j);
-			assertEquals(false,me.getChanStatus(j));
+			system.getChannel(j).tog();
+			assertEquals(false,system.getChannel(j).isEnabled());
 		}
 		
 	}
@@ -103,62 +109,64 @@ public class ControlTest
 	@Test
 	public void testConn()
 	{
-		//sensor in channel is null if not connected.
-		me.on();
+		me.setEnabled(true);
 		
 		for(int i = 1; i <= 12; i++ ){
-			assertEquals(null,me.getChanSensor(i));
-			}
+			assertEquals(null,system.getChannel(i).getSensor());
+		}
 		
-		me.tog(1);
-		me.conn("gate", 1);
-		me.conn("eye", 2);
-		me.conn("pad", 3);
+		system.getChannel(1).tog();
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		me.execute("CONN PAD 3");
 		
-		assertEquals("GATE",me.getChanSensor(1));
-		assertEquals("EYE",me.getChanSensor(2));
-		assertEquals("PAD",me.getChanSensor(3));
-		
-		me.conn("asdf", 1);
-		assertEquals("GATE",me.getChanSensor(1));
-		me.conn("gate", 13);
+		assertEquals("GATE", system.getChannel(1).getSensor());
+		assertEquals("EYE", system.getChannel(2).getSensor());
+		assertEquals("PAD", system.getChannel(3).getSensor());
+
+		me.execute("CONN ASDF 1");
+		assertEquals("GATE",system.getChannel(1).getSensor());
+
+		me.execute("CONN GATE 13");
+		assertNull(system.getChannel(13));
 	}
 	
 	@Test
 	public void testDisc()
 	{
-		me.on();
-		me.disc(1);
+		me.setEnabled(true);
+		system.getChannel(1).disc();
 		for(int i = 1; i <= 12; i++)
 		{
-			me.conn("gate", i);
+			me.execute("CONN GATE " + i);
 		}
 		
 		for(int i = 1; i <=12; i++){
-			me.disc(i);
+			system.getChannel(i).disc();
 		}
 		
 		for(int i = 1; i <=12; i++)
 		{
-			assertEquals(null,me.getChanSensor(i));
+			assertEquals(null,system.getChannel(i).getSensor());
 		}
 	}
 	
 	@Test
 	public void testTrig()
 	{
-		me.on();
-		me.conn("GATE", 1);
-		me.conn("EYE",2);
-		me.event("IND");
-		me.newRun();
-		me.tog(1);
-		me.tog(2);
-		me.num(1);
-		me.trig(1);
-		assertEquals(1,me.getActiveRunner().getRunNumber());
-		me.trig(2);
-		assertEquals(1,me.getFinishedRunner().getRunNumber());		
+		me.setEnabled(true);
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		system.setEvent("IND");
+		system.newRun();
+		system.getChannel(1).tog();
+		system.getChannel(2).tog();
+		me.execute("NUM 1");
+		me.execute("TRIG 1");
+		RunIND run = (RunIND) system.getRun();
+		assertEquals(1,run.getActive().peek().getNumber());
+		me.execute("TRIG 2");
+		assertEquals(1,run.getFinished().peek().getNumber());		
 		
 		
 	}
@@ -166,74 +174,75 @@ public class ControlTest
 	@Test
 	public void testNewRun()
 	{
-		me.on();
-		me.conn("GATE", 1);
-		me.conn("EYE",2);
-		me.event("IND");
-		me.newRun();
-		me.tog(1);
-		me.tog(2);
-		me.num(1);
-		me.trig(1);
-		me.trig(2);
-		me.endRun();
+		me.setEnabled(true);
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		system.setEvent("IND");
+		system.newRun();
+		system.getChannel(1).tog();
+		system.getChannel(2).tog();
+		me.execute("NUM 1");
+		system.getChannel(1).trig(1);
+		system.getChannel(2).trig(2);
+		system.endRun();
 		
-		try { me.newRun(); } catch (Exception ex) {}
-		assertEquals(2,me.getRunNumber());
-		me.num(2);
-		me.trig(1);
-		me.trig(2);
+		try { system.newRun(); } catch (Exception ex) {}
+		assertEquals(2,system.getRun().getRunNumber());
+		me.execute("NUM 2");
+		system.getChannel(1).trig(1);
+		system.getChannel(2).trig(2);
 	}
 	
 	@Test
 	public void testEndRun()
 	{
-		me.on();
-		me.conn("GATE", 1);
-		me.conn("EYE",2);
-		me.event("IND");
-		me.newRun();
-		me.tog(1);
-		me.tog(2);
-		me.num(1);
-		me.trig(1);
-		me.trig(2);
-		me.endRun();
+		me.setEnabled(true);
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		system.setEvent("IND");
+		system.newRun();
+		me.execute("TOG 1");
+		me.execute("TOG 2");
+		me.execute("NUM 1");
+		system.getChannel(1).trig(1);
+		system.getChannel(2).trig(2);
+		system.endRun();
 		
-		assertNull(me.getRun());
+		assertNull(system.getRun());
 	}
 	
 	@Test
 	public void testNum()
 	{
-		me.on();
-		me.conn("GATE", 1);
-		me.conn("EYE",2);
-		me.event("IND");
-		me.newRun();
-		me.tog(1);
-		me.tog(2);
-		me.num(1);
-		
-		assertEquals(1,me.getNextRunner().getRunNumber());
+		me.setEnabled(true);
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		system.setEvent("IND");
+		system.newRun();
+		me.execute("TOG 1");
+		me.execute("TOG 2");
+		me.execute("NUM 1");
+
+		RunIND run = (RunIND) system.getRun();
+		assertEquals(1,run.getwaitingRunners().peek().getNumber());
 	}
 	
 	@Test
 	public void testClr()
 	{
-		me.on();
-		me.conn("GATE", 1);
-		me.conn("EYE",2);
-		me.event("IND");
-		me.newRun();
-		me.tog(1);
-		me.tog(2);
-		me.num(1);
-		me.clr(1);
+		me.setEnabled(true);
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		system.setEvent("IND");
+		system.newRun();
+		me.execute("TOG 1");
+		me.execute("TOG 2");
+		me.execute("NUM 1");
+		system.getRun().clr(1);
 		
 		
-		//should be null because only 1 runner added.
-		assertNull(me.getNextRunner());
+		RunIND run = (RunIND) system.getRun();
+		assertTrue(run.getwaitingRunners().isEmpty());
 
 	}
 	
@@ -241,69 +250,75 @@ public class ControlTest
 	@Test
 	public void testStart()
 	{
-		me.on();
-		me.conn("GATE", 1);
-		me.conn("EYE",2);
-		me.event("IND");
-		me.newRun();
-		me.tog(1);
-		me.tog(2);
-		me.num(1);
-		me.start();
-		assertEquals(1,me.getActiveRunner().getRunNumber());
-		me.trig(2);
-		assertEquals(1,me.getFinishedRunner().getRunNumber());		
+		me.setEnabled(true);
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		system.setEvent("IND");
+		system.newRun();
+		me.execute("TOG 1");
+		me.execute("TOG 2");
+		me.execute("NUM 1");
+		system.getRun().start(1, new GregorianCalendar());
+		
+		RunIND run = (RunIND) system.getRun();
+		assertTrue(run.getwaitingRunners().isEmpty());
+		assertEquals(1,run.getActive().peek().getNumber());
+		me.execute("TRIG 2");
+		assertEquals(1,run.getFinished().peek().getNumber());		
 	}
 	
 	@Test
 	public void testCancel()
 	{
-		me.on();
-		me.conn("GATE", 1);
-		me.conn("EYE",2);
-		me.event("IND");
-		me.newRun();
-		me.tog(1);
-		me.tog(2);
-		me.num(1);
-		me.trig(1);
-		assertEquals(1,me.getActiveRunner().getRunNumber());
-		me.cancel();
-		assertEquals(1,me.getNextRunner().getRunNumber());		
+		me.setEnabled(true);
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		system.setEvent("IND");
+		system.newRun();
+		me.execute("TOG 1");
+		me.execute("TOG 2");
+		me.execute("NUM 1");
+		me.execute("TRIG 1");
+		RunIND run = (RunIND) system.getRun();
+		assertEquals(1,run.getActive().peek().getNumber());
+		run.cancel();
+		assertEquals(1,run.getwaitingRunners().peek().getNumber());		
 	}
 	
 	@Test
 	public void testDnf()
 	{
-		me.on();
-		me.conn("GATE", 1);
-		me.conn("EYE",2);
-		me.event("IND");
-		me.newRun();
-		me.tog(1);
-		me.tog(2);
-		me.num(1);
-		me.trig(1);
-		assertEquals(1,me.getActiveRunner().getRunNumber());
-		me.dnf();
-		assertEquals(1,me.getFinishedRunner().getRunNumber());	
+		me.setEnabled(true);
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		system.setEvent("IND");
+		system.newRun();
+		me.execute("TOG 1");
+		me.execute("TOG 2");
+		me.execute("NUM 1");
+		me.execute("TRIG 1");
+		RunIND run = (RunIND) system.getRun();
+		assertEquals(1,run.getActive().peek().getNumber());
+		run.dnf();
+		assertEquals(1,run.getFinished().peek().getNumber());		
 	}
 	
 	@Test
 	public void testFinish()
 	{
-		me.on();
-		me.conn("GATE", 1);
-		me.conn("EYE",2);
-		me.event("IND");
-		me.newRun();
-		me.tog(1);
-		me.tog(2);
-		me.num(1);
-		me.start();
-		assertEquals(1,me.getActiveRunner().getRunNumber());
-		me.finish();
-		assertEquals(1,me.getFinishedRunner().getRunNumber());		
+		me.setEnabled(true);
+		me.execute("CONN GATE 1");
+		me.execute("CONN EYE 2");
+		system.setEvent("IND");
+		system.newRun();
+		me.execute("TOG 1");
+		me.execute("TOG 2");
+		me.execute("NUM 1");
+		RunIND run = (RunIND) system.getRun();
+		run.start(1, new GregorianCalendar());;
+		assertEquals(1,run.getActive().peek().getNumber());
+		run.finish(2, new GregorianCalendar());
+		assertEquals(1,run.getFinished().peek().getNumber());		
 	}
 	
 	//TODO: Find way to test print and export functions.
