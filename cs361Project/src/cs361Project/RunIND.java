@@ -75,7 +75,7 @@ public class RunIND implements Run{
 	 * @param number - the runner's number
 	 */
 	@Override
-	public void num(int number){
+	public String num(int number){
 		if((number >= 0) && (number <= 99999)){
 			boolean notADuplicate = true;
 			for(Runner r : waitingRunners){
@@ -87,8 +87,13 @@ public class RunIND implements Run{
 			for(Runner r : finishedRunners){
 				if(r.getNumber() == number) notADuplicate = false;
 			}
-			if(notADuplicate) waitingRunners.push(new Runner(number));
+			if(notADuplicate){
+				waitingRunners.push(new Runner(number));
+				return "added runner " + number;
+			}
+			else return "error - duplicate number";
 		}
+		else return "error - invalid number";
 	}
 	
 	/**
@@ -97,8 +102,12 @@ public class RunIND implements Run{
 	 * @param number - the number of the runner being removed
 	 */
 	@Override
-	public void clr(int number){
-		if(waitingRunners.peek().getNumber() == number) waitingRunners.pop();
+	public String clr(int number){
+		if(waitingRunners.peek().getNumber() == number){
+			waitingRunners.pop();
+			return "removed runner " + number;
+		}
+		else return "error - " + number + " not next to run";
 	}
 	
 	/**
@@ -106,13 +115,15 @@ public class RunIND implements Run{
 	 * are not currently at least two runners in the activeRunners queue, then the method does nothing
 	 */
 	@Override
-	public void swap(){
+	public String swap(){
 		if(activeRunners.size() >= 2){
 			Runner temp1 = activeRunners.poll();
 			Runner temp2 = activeRunners.poll();
 			activeRunners.addFirst(temp1);
 			activeRunners.addFirst(temp2);
+			return "swapped runners";
 		}
+		else return "error - unable to swap";
 	}
 	
 	/**
@@ -121,13 +132,15 @@ public class RunIND implements Run{
 	 * @param time - the time stamp for when the run began
 	 */
 	@Override
-	public void start(int channel, Calendar time){
+	public String start(int channel, Calendar time){
 		//given there is only one stream of runners, the channel argument is ignored in this run type
 		if(!waitingRunners.isEmpty()){
 			Runner temp = waitingRunners.pop();
 			temp.setStart(time);
 			activeRunners.addLast(temp);
+			return temp.getNumber() + ": start - " + temp.getStart();
 		}
+		else return "error - no runners to start";
 	}
 	
 	/**
@@ -136,12 +149,14 @@ public class RunIND implements Run{
 	 * the activeRunners queue, then the method does nothing
 	 */
 	@Override
-	public void cancel(){
+	public String cancel(){
 		if(!activeRunners.isEmpty()){
 			Runner temp = activeRunners.pollLast();
 			temp.setStart(null);
 			waitingRunners.push(temp);
+			return "cancelled runner " + temp.getNumber();
 		}
+		else return "error - no runner to cancel";
 	}
 	
 	/**
@@ -150,13 +165,15 @@ public class RunIND implements Run{
 	 * @param time - the time stamp for when the run ended
 	 */
 	@Override
-	public void finish(int channel, Calendar time){
+	public String finish(int channel, Calendar time){
 		//given there is only one stream of runners, the channel argument is ignored in this run type
 		if(!activeRunners.isEmpty()){
 			Runner temp = activeRunners.poll();
 			temp.setEnd(time);
 			finishedRunners.addLast(temp);
+			return temp.getNumber() + ": time - " + temp.getTotalTime();
 		}
+		else return "error - no active runners";
 	}
 	
 	/**
@@ -164,12 +181,14 @@ public class RunIND implements Run{
 	 * endTime to null; if there is no Runner in the activeRunners queue, then the method does nothing
 	 */
 	@Override
-	public void dnf(){
+	public String dnf(){
 		if(!activeRunners.isEmpty()){
 			Runner temp = activeRunners.poll();
 			temp.setEnd(null);
 			finishedRunners.addLast(temp);
+			return temp.getNumber() + " DNF";
 		}
+		else return "error - no active runners";
 	}
 	
 	/**
@@ -217,11 +236,11 @@ public class RunIND implements Run{
 	public String printToDisplay(Calendar time){
 		String out = "";
 		
-		if(this.getwaitingRunners().size() >= 3) out += (this.getwaitingRunners().get(2).getNumber() + "\n");
+		if(this.getwaitingRunners().size() >= 3) out += (this.getwaitingRunners().get(this.getwaitingRunners().size() -3).getNumber() + "\n");
 		else out += "\n";
-		if(this.getwaitingRunners().size() >= 2) out += (this.getwaitingRunners().get(1).getNumber() + "\n");
+		if(this.getwaitingRunners().size() >= 2) out += (this.getwaitingRunners().get(this.getwaitingRunners().size() -2).getNumber() + "\n");
 		else out += "\n";
-		if(this.getwaitingRunners().size() >= 1) out += (this.getwaitingRunners().get(0).getNumber() + " >\n");
+		if(this.getwaitingRunners().size() >= 1) out += (this.getwaitingRunners().peek().getNumber() + " >\n");
 		else out += "\n";
 		
 		out += "\n\n";

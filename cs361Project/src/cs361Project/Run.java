@@ -16,13 +16,13 @@ public interface Run{
 	 * Method stubs, to be individually initialized for each sub-type of Run
 	 */
 	public String printRun(Calendar time);
-	public void num(int number);
-	public void clr(int number);
-	public void swap();
-	public void start(int channel, Calendar time);
-	public void cancel();
-	public void finish(int channel, Calendar time);
-	public void dnf();
+	public String num(int number);
+	public String clr(int number);
+	public String swap();
+	public String start(int channel, Calendar time);
+	public String cancel();
+	public String finish(int channel, Calendar time);
+	public String dnf();
 	public String exportRun(Calendar time);
 	public boolean isActive();
 	public boolean isWaiting();

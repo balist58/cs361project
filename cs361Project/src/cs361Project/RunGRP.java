@@ -107,8 +107,11 @@ public class RunGRP implements Run{
 	 * @param - runnerNumber - the int for the new Runner number, to be set at the current manual index
 	 */
 	@Override
-	public void num(int runnerNumber){
-		if(runnerNumber < 0 || runnerNumber > 99999) System.out.println("Error: Cannot add runner number " + runnerNumber + ", number is out of bounds!");
+	public String num(int runnerNumber){
+		if(runnerNumber < 0 || runnerNumber > 99999){
+			System.out.println("Error: Cannot add runner number " + runnerNumber + ", number is out of bounds!");
+			return "error - invalid number";
+		}
 		else{
 			if(this.getManIndex() < this.getRunners().size()){
 				boolean match = false;
@@ -118,12 +121,27 @@ public class RunGRP implements Run{
 				if(!match){
 					this.getRunners().get(this.getManIndex()).setNumber(runnerNumber);
 					++manIndex;
+					return "added runner " + runnerNumber;
 				}
-				else System.out.println("Error: Cannot add runner number " + runnerNumber + ", this number is already being used!");
+				else{
+					System.out.println("Error: Cannot add runner number " + runnerNumber + ", this number is already being used!");
+					return "error - duplicate number";
+				}
 			}
 			else{
-				runners.add(new Runner(runnerNumber));
-				++manIndex;
+				boolean match = false;
+				for(Runner r : this.getRunners()){
+					if(r.getNumber() == runnerNumber) match = true;
+				}
+				if(!match){
+					runners.add(new Runner(runnerNumber));
+					++manIndex;
+					return "added runner " + runnerNumber;
+				}
+				else{
+					System.out.println("Error: Cannot add runner number " + runnerNumber + ", this number is already being used!");
+					return "error - duplicate number";
+				}
 			}
 		}
 	}
@@ -134,48 +152,63 @@ public class RunGRP implements Run{
 	 * @param - runnerNumber - the int of the runner to be cleared
 	 */
 	@Override
-	public void clr(int runnerNumber){
+	public String clr(int runnerNumber){
 		if(this.getRunners().get(this.getManIndex()-1).getNumber() == runnerNumber){
 			this.getRunners().get(this.getManIndex()-1).setNumber(this.getManIndex()-1);
 			--manIndex;
+			return "cleared runner " + runnerNumber;
 		}
-		else System.out.println("Error: Cannot clear runner number " + runnerNumber + ", it is not the last manually added runner!");
+		else{
+			System.out.println("Error: Cannot clear runner number " + runnerNumber + ", it is not the last manually added runner!");
+			return "error - " + runnerNumber + " not a runner";
+		}
 	}
 	
 	/**
 	 * RunGRP.swap is not a functional method; the SWAP command is only meant for use in the IND race type
 	 */
 	@Override
-	public void swap(){System.out.println("Error: The swap command is not enabled for group runs!");}
+	public String swap(){
+		System.out.println("Error: The swap command is not enabled for group runs!");
+		return "error - swap not available in GRP";
+	}
 	
 	/**
 	 * RunGRP.start provides the start time for the first runner; it has no function for subsequent runners (who go off checkpoint time)
 	 * @params - int chanNumber - the channel providing the Start signal; Calendar startTime - the time of the start signal
 	 */
 	@Override
-	public void start(int chanNumber, Calendar startTime){
+	public String start(int chanNumber, Calendar startTime){
 		if(chanNumber == 0 || chanNumber == 1){  //Start only works when pressed manually or run off of Channel 1
 			if(this.getRunners().isEmpty()){runners.add(new Runner(1));}
 			if(this.getRunners().getFirst().getStartTime() == null){
 				this.getRunners().getFirst().setStart(startTime);
 				this.setCheckpoint(startTime);
+				return this.getRunners().getFirst().getNumber() + ": start - " + this.getRunners().getFirst().getStart();
 			}
+			else return "error - run already started";
 		}
+		else return "error - invalid start channel";
 	}
 	
 	/**
 	 * RunGRP.cancel is similar to start; it only works if the first runner has a start time and no end time, and otherwise does nothing
 	 */
 	@Override
-	public void cancel(){
+	public String cancel(){
 		if(this.getRunners().size() == 1 && this.getRunners().getFirst().getStartTime() != null && this.getRunners().getFirst().getEndTime() == null){
 			this.getRunners().getFirst().setStart(null);
 			this.setCheckpoint(null);
+			return "cancelled runner " + this.getRunners().getFirst().getNumber();
 		}
 		else if(this.getRunners().isEmpty() || this.getRunners().getFirst().getStartTime() == null){
 			System.out.println("Error: Cannot cancel; the run has not started!");
+			return "error - run not started";
 		}
-		else System.out.println("Error: Cannot cancel; the first runner has already finished running!");
+		else{
+			System.out.println("Error: Cannot cancel; the first runner has already finished running!");
+			return "error - can no longer cancel run";
+		}
 	}
 	
 	/**
@@ -183,10 +216,11 @@ public class RunGRP implements Run{
 	 * checkpoint time as the start time for the next runner (creating a new racer if necessary)
 	 */
 	@Override
-	public void finish(int chanNumber, Calendar finishTime){
+	public String finish(int chanNumber, Calendar finishTime){
 		if(chanNumber == 0 || chanNumber == 2){ //Finish only works when pressed manually or run off of Channel 2
 			if(this.getRunners().isEmpty() || this.getRunners().get(0).getStartTime() == null){
 				System.out.println("Error: Cannot finish current runner; the run has not started!");
+				return "error - run not started";
 			}
 			else if(!isDNF()){
 				//if there was no manually added runner for the next place, make a new one with the default number
@@ -198,9 +232,12 @@ public class RunGRP implements Run{
 				this.getRunners().get(this.getFinished().size()).setEnd(finishTime);
 				this.getFinished().add(this.getRunners().get(this.getFinished().size()));
 				this.setCheckpoint(finishTime);             //change the checkpoint to the new latest finish time
+				return "leg " + this.getFinished().size() + ": time - " + this.getFinished().get(this.getFinished().size() -1).getTotalTime();
 			}
+			else return "error - run is over";
 			//if the run is flagged *DNF* then further finish events do nothing
-		}	
+		}
+		else return "error - invalid finish channel";
 	}
 	
 	/**
@@ -208,11 +245,13 @@ public class RunGRP implements Run{
 	 * one leg of the run gets a DNF.  The function is used to complete all remaining queued runners (by adding them to finished)
 	 */
 	@Override
-	public void dnf(){
+	public String dnf(){
 		if(this.getRunners().size() >= 1 && this.getCheckpoint() != null){
 			for(Runner r : this.getRunners()){if(!this.getFinished().contains(r)) this.getFinished().add(r);}
 			this.setDNF(true);
-		}	
+			return "all remaining runners DNF";
+		}
+		else return "error - run has not started";
 	}
 	
 	/**

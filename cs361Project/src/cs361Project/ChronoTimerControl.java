@@ -110,58 +110,67 @@ public class ChronoTimerControl{
 				case "NUM":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute NUM; there is no active run!");
 					else if(cmdArgs.size() == 1){
-						this.getSystem().getRun().num(Integer.parseInt(cmdArgs.get(0)));
+						String out = this.getSystem().getRun().num(Integer.parseInt(cmdArgs.get(0)));
 						this.notifySubscribers();
+						this.notifyPrinters(out);
 					}
 					break;
 				case "CLR":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute CLR; there is no active run!");
 					else if(cmdArgs.size() == 1){
-						this.getSystem().getRun().clr(Integer.parseInt(cmdArgs.get(0)));
+						String out = this.getSystem().getRun().clr(Integer.parseInt(cmdArgs.get(0)));
 						this.notifySubscribers();
+						this.notifyPrinters(out);
 					}
 					break;
 				case "SWAP":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute SWAP; there is no active run!");
 					else{
-						this.getSystem().getRun().swap();
+						String out = this.getSystem().getRun().swap();
 						this.notifySubscribers();
+						this.notifyPrinters(out);
 					}
 					break;
 				case "START":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute START; there is no active run!");
 					else if(cmdArgs.isEmpty()){
-						this.getSystem().getRun().start(0, this.getSystem().getTime());
+						String out = this.getSystem().getRun().start(0, this.getSystem().getTime());
 						this.notifySubscribers();
+						this.notifyPrinters(out);
 					}
 					else if(cmdArgs.size() == 1){
-						this.getSystem().getRun().start(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
+						String out = this.getSystem().getRun().start(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
 						this.notifySubscribers();
+						this.notifyPrinters(out);
 					}
 					break;
 				case "CANCEL":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute CANCEL; there is no active run!");
 					else{
-						this.getSystem().getRun().cancel();
+						String out = this.getSystem().getRun().cancel();
 						this.notifySubscribers();
+						this.notifyPrinters(out);
 					}
 					break;
 				case "DNF":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute DNF; there is no active run!");
 					else{
-						this.getSystem().getRun().dnf();
+						String out = this.getSystem().getRun().dnf();
 						this.notifySubscribers();
+						this.notifyPrinters(out);
 					}
 					break;
 				case "FINISH":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute FINISH; there is no active run!");
 					else if(cmdArgs.isEmpty()){
-						this.getSystem().getRun().finish(0, this.getSystem().getTime());
+						String out = this.getSystem().getRun().finish(0, this.getSystem().getTime());
 						this.notifySubscribers();
+						this.notifyPrinters(out);
 					}
 					else if(cmdArgs.size() == 1){
-						this.getSystem().getRun().finish(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
+						String out = this.getSystem().getRun().finish(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
 						this.notifySubscribers();
+						this.notifyPrinters(out);
 					}
 					break;
 				case "TOG": case "TOGGLE":
@@ -247,6 +256,11 @@ public class ChronoTimerControl{
 	private void notifyPrinters(){
 		for(Object o: subscribers){
 			if(o instanceof ChronoTimerGUI) ((ChronoTimerGUI) o).printerUpdate();
+		}
+	}
+	private void notifyPrinters(String out){
+		for(Object o: subscribers){
+			if(o instanceof ChronoTimerGUI) ((ChronoTimerGUI) o).printerUpdate(out);
 		}
 	}
 	/**

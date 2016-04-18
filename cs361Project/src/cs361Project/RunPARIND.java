@@ -103,7 +103,7 @@ public class RunPARIND implements Run{
 	 * @param number - the runner's number
 	 */
 	@Override
-	public void num(int number){
+	public String num(int number){
 		if((number >= 0) && (number <= 99999)){
 			boolean notADuplicate = true;
 			for(Runner r : waitingRunners){
@@ -118,8 +118,13 @@ public class RunPARIND implements Run{
 			for(Runner r : finishedRunners){
 				if(r.getNumber() == number) notADuplicate = false;
 			}
-			if(notADuplicate) waitingRunners.push(new Runner(number));
+			if(notADuplicate){
+				waitingRunners.push(new Runner(number));
+				return "added runner " + number;
+			}
+			else return "error - duplicate number";
 		}
+		else return "error - invalid number";
 	}
 	
 	/**
@@ -128,16 +133,21 @@ public class RunPARIND implements Run{
 	 * @param number - the number of the runner being removed
 	 */
 	@Override
-	public void clr(int number){
-		if(waitingRunners.peek().getNumber() == number) waitingRunners.pop();
+	public String clr(int number){
+		if(waitingRunners.peek().getNumber() == number){
+			waitingRunners.pop();
+			return "cleared runner " + number;
+		}
+		else return "error - " + number + " not next runner";
 	}
 	
 	/**
 	 * Event.Run.swap is not enabled for the PARIND event type; it prints back an error and does nothing
 	 */
 	@Override
-	public void swap(){
+	public String swap(){
 		System.out.println("Error: The swap command is not supported in the PARIND event!");
+		return "error - swap unavailable for PARIND";
 	}
 	
 	/**
@@ -146,22 +156,30 @@ public class RunPARIND implements Run{
 	 * @param time - the time stamp for when the run began
 	 */
 	@Override
-	public void start(int channel, Calendar time){
-		if(waitingRunners.isEmpty()) System.out.println("Error: Cannot start; there are no runners awaiting start!");
+	public String start(int channel, Calendar time){
+		if(waitingRunners.isEmpty()){
+			System.out.println("Error: Cannot start; there are no runners awaiting start!");
+			return "error - no runners to start";
+		}
 		else{
 			if(channel == 0){
 				lastUsed = (lastUsed++)%2;
 				Runner temp = waitingRunners.pop();
 				temp.setStart(time);
 				activeRunners[lastUsed].addLast(temp);
+				return temp.getNumber() + ": start - " + temp.getStart();
 			}
 			else{
 				startRegister(channel);
-				if(channelMap[channel-1] == -1) System.out.println("ERROR: THE CHANNEL IS NOT REGISTERED!");
+				if(channelMap[channel-1] == -1){
+					System.out.println("ERROR: THE CHANNEL IS NOT REGISTERED!");
+					return "error - unregistered channel";
+				}
 				else{
 					Runner temp = waitingRunners.pop();
 					temp.setStart(time);
 					activeRunners[channelMap[channel-1]].addLast(temp);
+					return temp.getNumber() + ": start - " + temp.getStart();
 				}
 			}
 		}
@@ -171,23 +189,29 @@ public class RunPARIND implements Run{
 	 * Event.Run.cancel will cancel the active status of the la
 	 */
 	@Override
-	public void cancel(){
-		if(activeRunners[0].isEmpty() && activeRunners[1].isEmpty())System.out.println("Error:  Cannot cancel; no active runners!");
+	public String cancel(){
+		if(activeRunners[0].isEmpty() && activeRunners[1].isEmpty()){
+			System.out.println("Error:  Cannot cancel; no active runners!");
+			return "error - no active runners";
+		}
 		else if(activeRunners[0].isEmpty()){
 			Runner temp = activeRunners[1].pollLast();
 			temp.setStart(null);
 			waitingRunners.push(temp);
+			return "cancelled runner " + temp.getNumber();
 		}
 		else if(activeRunners[1].isEmpty()){
 			Runner temp = activeRunners[0].pollLast();
 			temp.setStart(null);
 			waitingRunners.push(temp);
+			return "cancelled runner " + temp.getNumber();
 		}
 		else{
 			int toCancel =((compareTimes(activeRunners[0].peekLast(), activeRunners[1].peekLast()))+1)%2;
 			Runner temp = activeRunners[toCancel].pollLast();
 			temp.setStart(null);
 			waitingRunners.push(temp);
+			return "cancelled runner " + temp.getNumber();
 		}
 	}
 	
@@ -196,39 +220,52 @@ public class RunPARIND implements Run{
 	 * @param time - the time stamp for when the run ended
 	 */
 	@Override
-	public void finish(int channel, Calendar time){
+	public String finish(int channel, Calendar time){
 		//If this was a manual finish, find the racer with the longest current run time and finish them
 		if(channel == 0){
-			if(activeRunners[0].isEmpty() && activeRunners[1].isEmpty()) System.out.println("Error:  Cannot finish; no active runners!");
+			if(activeRunners[0].isEmpty() && activeRunners[1].isEmpty()){
+				System.out.println("Error:  Cannot finish; no active runners!");
+				return "error - no active runners";
+			}
 			else if(activeRunners[0].isEmpty()){
 				Runner temp = activeRunners[1].poll();
 				temp.setEnd(time);
 				finishedRunners.addLast(temp);
 				lastUsed = 1;
-			}
+				return temp.getNumber() + ": time - " + temp.getTotalTime();
+			 }
 			else if(activeRunners[1].isEmpty()){
 				Runner temp = activeRunners[0].poll();
 				temp.setEnd(time);
 				finishedRunners.addLast(temp);
 				lastUsed = 0;
+				return temp.getNumber() + ": time - " + temp.getTotalTime();
 			}
 			else{
 				lastUsed = compareTimes(activeRunners[0].peek(), activeRunners[1].peek());
 				Runner temp = activeRunners[lastUsed].poll();
 				temp.setEnd(time);
 				finishedRunners.addLast(temp);
+				return temp.getNumber() + ": time - " + temp.getTotalTime();
 			}
 		}
 		//Otherwise, register the calling channel (if needed) and finish the racer in the matching queue (if there is one)
 		else{
 			finishRegister(channel);
-			if(channelMap[channel-1] == -1) System.out.println("Error: THE CHANNEL IS NOT REGISTERED");
-			else if(activeRunners[channelMap[channel-1]].isEmpty()) System.out.println("Error: Cannot finish; no active runner on this queue");
+			if(channelMap[channel-1] == -1){
+				System.out.println("Error: THE CHANNEL IS NOT REGISTERED");
+				return "error - channel not registered";
+			}
+			else if(activeRunners[channelMap[channel-1]].isEmpty()){
+				System.out.println("Error: Cannot finish; no active runner on this queue");
+				return "error - no active runners on this queue";
+			}
 			else{
 				Runner temp = activeRunners[channelMap[channel-1]].poll();
 				temp.setEnd(time);
 				finishedRunners.addLast(temp);
 				lastUsed = channelMap[channel-1];
+				return temp.getNumber() + ": time - " + temp.getTotalTime();
 			}
 		}
 	}
@@ -239,25 +276,31 @@ public class RunPARIND implements Run{
 	 * The runner that is moved is assigned no end time.  If there are no active runners, DNF does nothing.
 	 */
 	@Override
-	public void dnf(){
-		if(activeRunners[0].isEmpty() && activeRunners[1].isEmpty()) System.out.println("Error:  Cannot finish; no active runners!");
+	public String dnf(){
+		if(activeRunners[0].isEmpty() && activeRunners[1].isEmpty()){
+			System.out.println("Error:  Cannot finish; no active runners!");
+			return "error - no active runners";
+		}
 		else if(activeRunners[0].isEmpty()){
 			Runner temp = activeRunners[1].poll();
 			temp.setEnd(null);
 			finishedRunners.addLast(temp);
 			lastUsed = 1;
+			return temp.getNumber() + " DNF";
 		}
 		else if(activeRunners[1].isEmpty()){
 			Runner temp = activeRunners[0].poll();
 			temp.setEnd(null);
 			finishedRunners.addLast(temp);
 			lastUsed = 0;
+			return temp.getNumber() + " DNF";
 		}
 		else{
 			lastUsed = compareTimes(activeRunners[0].peek(), activeRunners[1].peek());
 			Runner temp = activeRunners[lastUsed].poll();
 			temp.setEnd(null);
 			finishedRunners.addLast(temp);
+			return temp.getNumber() + " DNF";
 		}
 	}
 	
@@ -350,9 +393,9 @@ public class RunPARIND implements Run{
 	public String printToDisplay(Calendar time){
 		String out = "";
 		
-		if(this.getwaitingRunners().size() >= 2) out += (this.getwaitingRunners().get(1).getNumber() + " >\n");
+		if(this.getwaitingRunners().size() >= 2) out += (this.getwaitingRunners().get(this.getwaitingRunners().size() -2).getNumber() + " >\n");
 		else out += "\n";
-		if(this.getwaitingRunners().size() >= 1) out += (this.getwaitingRunners().get(0).getNumber() + " >\n");
+		if(this.getwaitingRunners().size() >= 1) out += (this.getwaitingRunners().peek().getNumber() + " >\n");
 		else out += "\n";
 		
 		out += "\n\n";
@@ -361,6 +404,7 @@ public class RunPARIND implements Run{
 		if(!activeRunners[1].isEmpty()) out += (activeRunners[1].peekFirst().getNumber() + " " + activeRunners[1].peekFirst().getElapsed(time) + " R\n");
 		else out += "\n";
 		
+		out += "\n";
 		if(this.getFinished().size() >= 2){
 			Runner last = this.getFinished().pollLast();
 			Runner second = this.getFinished().pollLast();

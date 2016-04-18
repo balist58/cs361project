@@ -38,6 +38,7 @@ import javax.swing.border.BevelBorder;
 public class ChronoTimerGUI extends JFrame {
 	private ChronoTimerControl ct;
 	private CmdInterface cmd;
+	private String[] printerLog;
 	
 	private JPanel mainFrame;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
@@ -160,6 +161,7 @@ public class ChronoTimerGUI extends JFrame {
 		ct = new ChronoTimerControl();		//Implements the Controller as a persistent object
 		ct.addSubscriber(this);				//Adds this GUI object to the Controller's subscribers list
 		cmd = new CmdInterface(2, ct);		//Opens up an instance of the file parser to run through the console alongside the GUI
+		printerLog = new String[6];
 		enableKeys = false;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 837, 536);
@@ -964,12 +966,13 @@ public class ChronoTimerGUI extends JFrame {
 					printerOn = false;
 					printerText = "";
 					taPrinter.setText("");
+					taPrinter.repaint();
+					for(int i = 0; i < printerLog.length; ++i) printerLog[i] = null;
 				}
 				else if(ct.isEnabled()){
 					printerOn = true;
-					if(ct.getSystem().isActive()){
-						ct.execute("PRINT");
-					}
+					taPrinter.setText("Printing enabled");
+					taPrinter.repaint();
 				}
 			}
 		});
@@ -1294,6 +1297,21 @@ public class ChronoTimerGUI extends JFrame {
 	public void printerUpdate(){
 		if(printerOn){
 			taPrinter.setText(ct.printerUpdate());
+			taPrinter.repaint();
+		}
+	}
+	public void printerUpdate(String toDisplay){
+		if(printerOn){
+			for(int i = 1; i < printerLog.length; ++i){
+				if(printerLog[i] != null) printerLog[i-1] = printerLog[i];
+			}
+			printerLog[printerLog.length -1] = toDisplay;
+			String toPrinter = "";
+			for(String s : printerLog){
+				if(s == null) toPrinter += "\n";
+				else toPrinter += (s + "\n");
+			}
+			taPrinter.setText(toPrinter);
 			taPrinter.repaint();
 		}
 	}
