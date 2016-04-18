@@ -98,7 +98,8 @@ public class GroupRunTest
 	 */
 	@Test
 	public void testGroupRace_OneRunner() {
-		ct.execute("RESET");
+		ct.execute("OFF");
+		ct.execute("ON");
 		ct.execute("CONN GATE 1");
 		ct.execute("CONN EYE 2");
 		ct.execute("TOGGLE 1");

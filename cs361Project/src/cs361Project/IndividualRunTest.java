@@ -24,10 +24,10 @@ public class IndividualRunTest {
 		ct.execute("TOGGLE 1");
 		ct.execute("TOGGLE 2");
 		ct.execute("EVENT IND");
+		ct.execute("ENDRUN");
 		ct.execute("NUM 444");
 
 		assertTrue(ct.isEnabled());
-		assertNull(system.getRun());
 
 		system.setTime("11:00:07.0");
 		ct.execute("START");
@@ -242,7 +242,7 @@ public class IndividualRunTest {
 		assertEquals(444, run.getFinished().peek().getNumber());
 		assertEquals("11:00:17.00", run.getFinished().peek().getStart());
 		assertEquals("N/A", run.getFinished().peek().getEnd());
-		assertEquals("N/A", run.getFinished().peek().getTotalTime());
+		assertEquals("DNF", run.getFinished().peek().getTotalTime());
 
 		assertEquals(11, system.getTime().get(10));
 		assertEquals(0, system.getTime().get(12));
