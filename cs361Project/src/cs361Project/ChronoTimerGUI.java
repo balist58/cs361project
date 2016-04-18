@@ -809,11 +809,6 @@ public class ChronoTimerGUI extends JFrame {
 				if(ct.getSystem().isActive()){
 					ct.execute("TIME");
 					ct.execute("TRIG 2");
-					taDisplay.setText(ct.getSystem().export());
-				}
-				if(printerOn){
-					printerText += " " + ct.getSystem().export() + ": ";
-					taPrinter.setText(printerText);
 				}
 			}
 		});
@@ -823,11 +818,6 @@ public class ChronoTimerGUI extends JFrame {
 				if(ct.getSystem().isActive()){
 					ct.execute("TIME");
 					ct.execute("TRIG 4");
-					taDisplay.setText(ct.getSystem().export());
-				}
-				if(printerOn){
-					printerText += " " + ct.getSystem().export() + ": ";
-					taPrinter.setText(printerText);
 				}
 			}
 		});
@@ -837,11 +827,6 @@ public class ChronoTimerGUI extends JFrame {
 				if(ct.getSystem().isActive()){
 					ct.execute("TIME");
 					ct.execute("TRIG 6");
-					taDisplay.setText(ct.getSystem().export());
-				}
-				if(printerOn){
-					printerText += " " + ct.getSystem().export() + ": ";
-					taPrinter.setText(printerText);
 				}
 			}
 		});
@@ -851,11 +836,6 @@ public class ChronoTimerGUI extends JFrame {
 				if(ct.getSystem().isActive()){
 					ct.execute("TIME");
 					ct.execute("TRIG 8");
-					taDisplay.setText(ct.getSystem().export());
-				}
-				if(printerOn){
-					printerText += " " + ct.getSystem().export() + ": ";
-					taPrinter.setText(printerText);
 				}
 			}
 		});
@@ -966,8 +946,6 @@ public class ChronoTimerGUI extends JFrame {
 					ct.execute("NUM " + runnerNum);
 					enableKeys = false;
 					runnerNum = "";
-					taDisplay.setText("");
-					runnerNum = "";
 				}
 			}
 		});
@@ -990,8 +968,7 @@ public class ChronoTimerGUI extends JFrame {
 				else if(ct.isEnabled()){
 					printerOn = true;
 					if(ct.getSystem().isActive()){
-						printerText += " " + ct.execute("EXPORT") + ": ";
-						taPrinter.setText(printerText);
+						ct.execute("PRINT");
 					}
 				}
 			}
@@ -1043,10 +1020,6 @@ public class ChronoTimerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("TIME");
 				ct.execute("TRIG 1");
-				if(printerOn){
-					printerText += " " + ct.getSystem().export() + ": ";
-					taPrinter.setText(printerText);
-				}
 			}
 		});
 		
@@ -1054,10 +1027,6 @@ public class ChronoTimerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("TIME");
 				ct.execute("TRIG 3");
-				if(printerOn){
-					printerText += " " + ct.getSystem().export() + ": ";
-					taPrinter.setText(printerText);
-				}
 			}
 		});
 		
@@ -1085,10 +1054,6 @@ public class ChronoTimerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("TIME");
 				ct.execute("TRIG 5");
-				if(printerOn){
-					printerText += " " + ct.getSystem().export() + ": ";
-					taPrinter.setText(printerText);
-				}
 			}
 		});
 		
@@ -1096,10 +1061,6 @@ public class ChronoTimerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("TIME");
 				ct.execute("TRIG 7");
-				if(printerOn){
-					printerText += " " + ct.getSystem().export() + ": ";
-					taPrinter.setText(printerText);
-				}
 			}
 		});
 		
@@ -1123,6 +1084,7 @@ public class ChronoTimerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("ENDRUN");
 				taDisplay.setText("Run Ended.\nChoose a Command.");
+				taDisplay.repaint();
 			}
 		});
 		
@@ -1190,6 +1152,7 @@ public class ChronoTimerGUI extends JFrame {
 				
 				if(ct.getSystem().isActive()){
 					taDisplay.setText(enterRun);
+					taDisplay.repaint();
 					enableKeys = true;
 				}			
 			}

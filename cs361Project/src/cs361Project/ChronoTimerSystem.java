@@ -11,7 +11,6 @@ package cs361Project;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 
 public class ChronoTimerSystem {
@@ -37,7 +36,7 @@ public class ChronoTimerSystem {
 		}
 		eventType = "IND";
 		activeRun = null;
-		time = new GregorianCalendar();
+		time = Calendar.getInstance();
 		runList = new ArrayList<Run>();
 		runCounter = 1;
 	}
@@ -49,7 +48,7 @@ public class ChronoTimerSystem {
 	public void reset(){
 		eventType = "IND";
 		activeRun = null;
-		time = new GregorianCalendar();
+		time = Calendar.getInstance();
 		runList.clear();
 		runCounter = 1;
 	}
@@ -134,7 +133,7 @@ public class ChronoTimerSystem {
 	 * @param time - none; or a String, which must be of the format "HH:mm:ss.S", or this method will crash
 	 */
 	public void setTime() {
-		time = new GregorianCalendar();
+		time = Calendar.getInstance();
 	}
 	public void setTime(String timeString){
 		if (timeString.matches("^\\d{2}:\\d{2}:\\d{2}.\\d{1,2}")) {
@@ -163,7 +162,7 @@ public class ChronoTimerSystem {
 	public void setEvent(String type){
 		if(type.equalsIgnoreCase("IND") || type.equalsIgnoreCase("PARIND") || type.equalsIgnoreCase("GRP") || type.equalsIgnoreCase("PARGRP")){
 			eventType = type.toUpperCase();
-			runList.remove(activeRun);
+			if(activeRun != null) runList.remove(activeRun);
 			activeRun = null;
 			this.newRun();
 		}

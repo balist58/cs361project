@@ -41,7 +41,9 @@ public class RunGRP implements Run{
 	 * Getters for the RunGRP fields
 	 */
 	public int getRunNumber(){return runNumber;}
-	public Calendar getCheckpoint(){return checkpoint;}
+	public Calendar getCheckpoint(){
+		if(checkpoint == null) return null;
+		else return (Calendar)checkpoint.clone();}
 	public LinkedList<Runner> getRunners(){return runners;}
 	public ArrayList<Runner> getFinished(){return finishedRunners;}
 	public int getManIndex(){return manIndex;}
@@ -64,7 +66,12 @@ public class RunGRP implements Run{
 	 * Setter for the Checkpoint field - used for keeping a snapshot of the last finish time
 	 * @param Calendar newPt - the new value for the checkpoint field
 	 */
-	public void setCheckpoint(Calendar newPt){checkpoint = newPt;}
+	public void setCheckpoint(Calendar newPt){
+		Calendar newCP;
+		if(newPt == null) newCP = null;
+		else newCP = (Calendar)newPt.clone();
+		checkpoint = newCP;
+	}
 	/**
 	 * Setter for the DNF field - used for keeping track of whether further FINISH events should be processed
 	 */
@@ -79,7 +86,7 @@ public class RunGRP implements Run{
 	public String printRun(Calendar currentTime){
 		String log = "Run " + runNumber + "\n";
 		for(Runner r : runners){
-			if(!finishedRunners.contains(r) && r.getStartTime() == null) log += r.getNumber();
+			if(!finishedRunners.contains(r) && r.getStartTime() == null) log += (r.getNumber() + "\n");
 			else if(finishedRunners.contains(r) && r.getStartTime() == null) log += (r.getNumber() + " Did Not Run\n");
 			else if(finishedRunners.contains(r) && r.getEndTime() == null){
 				log += (r.getNumber() + " Did Not Finish\n");
@@ -115,7 +122,7 @@ public class RunGRP implements Run{
 				else System.out.println("Error: Cannot add runner number " + runnerNumber + ", this number is already being used!");
 			}
 			else{
-				this.getRunners().add(new Runner(runnerNumber));
+				runners.add(new Runner(runnerNumber));
 				++manIndex;
 			}
 		}
@@ -148,9 +155,9 @@ public class RunGRP implements Run{
 	@Override
 	public void start(int chanNumber, Calendar startTime){
 		if(chanNumber == 0 || chanNumber == 1){  //Start only works when pressed manually or run off of Channel 1
-			if(this.getRunners().isEmpty()){this.getRunners().add(new Runner(1));}
-			if(this.getRunners().size() == 1 && this.getRunners().get(0).getStartTime() == null){
-				this.getRunners().get(0).setStart(startTime);
+			if(this.getRunners().isEmpty()){runners.add(new Runner(1));}
+			if(this.getRunners().getFirst().getStartTime() == null){
+				this.getRunners().getFirst().setStart(startTime);
 				this.setCheckpoint(startTime);
 			}
 		}
@@ -161,11 +168,11 @@ public class RunGRP implements Run{
 	 */
 	@Override
 	public void cancel(){
-		if(this.getRunners().size() == 1 && this.getRunners().get(0).getStartTime() != null && this.getRunners().get(0).getEnd() == null){
-			this.getRunners().get(0).setStart(null);
+		if(this.getRunners().size() == 1 && this.getRunners().getFirst().getStartTime() != null && this.getRunners().getFirst().getEndTime() == null){
+			this.getRunners().getFirst().setStart(null);
 			this.setCheckpoint(null);
 		}
-		else if(this.getRunners().isEmpty() || this.getRunners().get(0).getStartTime() == null){
+		else if(this.getRunners().isEmpty() || this.getRunners().getFirst().getStartTime() == null){
 			System.out.println("Error: Cannot cancel; the run has not started!");
 		}
 		else System.out.println("Error: Cannot cancel; the first runner has already finished running!");
@@ -184,12 +191,12 @@ public class RunGRP implements Run{
 			else if(!isDNF()){
 				//if there was no manually added runner for the next place, make a new one with the default number
 				if(this.getRunners().get(0).getEndTime() != null && this.getManIndex() <= this.getRunners().size()){
-					this.getRunners().add(new Runner(this.getFinished().size()+1));
+					runners.add(new Runner(this.getFinished().size()+1));
 				}
-				Runner toFinish = this.getRunners().get(this.getFinished().size());
-				toFinish.setStart(checkpoint);              //set this runner's start time to the last checkpoint
-				toFinish.setEnd(finishTime);                //and their finish time to the new finish time
-				this.getFinished().add(toFinish);
+				Calendar cp = (Calendar)checkpoint.clone();
+				this.getRunners().get(this.getFinished().size()).setStart(cp);
+				this.getRunners().get(this.getFinished().size()).setEnd(finishTime);
+				this.getFinished().add(this.getRunners().get(this.getFinished().size()));
 				this.setCheckpoint(finishTime);             //change the checkpoint to the new latest finish time
 			}
 			//if the run is flagged *DNF* then further finish events do nothing
