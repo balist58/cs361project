@@ -56,15 +56,15 @@ public class RunIND implements Run{
 		for(Runner r : waitingRunners)
 			log += (r.getNumber() + "\n");
 		for(Runner r : activeRunners){
-			log += (r.getNumber() + " Start: " + r.getStart() + "\n");
-			log += (r.getNumber() + " Elapsed Time: " + r.getElapsed(time) + "\n");
+			log += (r.getNumber() + " Elapsed: " + r.getElapsed(time) + "\n");
 		}
 		for(Runner r : finishedRunners){
+			if(r.getStart() == null)
+				log += (r.getNumber() + "Did Not Run\n");
 			if(r.getEnd() == null)
-				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: DNF\n");
+				log += (r.getNumber() + " Did Not Finish\n");
 			else
-				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: " + r.getEnd() + "\n");
-				log += (r.getNumber() + " Total Elapsed Time: " + r.getTotalTime() + "\n");
+				log += (r.getNumber() + " Time: " + r.getTotalTime() + "\n");
 		}
 		return log;
 	}
@@ -194,6 +194,7 @@ public class RunIND implements Run{
 			ex += ",\n\"ElapsedTime\": ";
 			ex += r.getElapsed(time);
 			if(!(r == activeRunners.peekLast())) ex += "\n},";
+			else ex += "\n}";
 		}
 		ex += "\n],\n\"FinishedRunners\": [\n{";
 		for(Runner r : finishedRunners){
@@ -203,9 +204,35 @@ public class RunIND implements Run{
 			if(r.getEndTime() == null) ex += "DNF";
 			else ex += r.getTotalTime();
 			if(!(r == finishedRunners.peekLast())) ex += "\n},";
+			else ex += "\n}";
 		}
 		ex += "\n]\n}";
 		return ex;
+	}
+	
+	/**
+	 * RunIND.printToDisplay returns a String representing the current run state in the correct format for the ChronoTimerGUI run display
+	 * @return String - display output for the current run
+	 */
+	public String printToDisplay(Calendar time){
+		String out = "";
+		
+		if(this.getwaitingRunners().size() >= 3) out += (this.getwaitingRunners().get(2).getNumber() + "\n");
+		else out += "\n";
+		if(this.getwaitingRunners().size() >= 2) out += (this.getwaitingRunners().get(1).getNumber() + "\n");
+		else out += "\n";
+		if(this.getwaitingRunners().size() >= 1) out += (this.getwaitingRunners().get(0).getNumber() + " >\n");
+		else out += "\n";
+		
+		out += "\n\n";
+		if(!this.getActive().isEmpty()) out += (this.getActive().peekFirst().getNumber() + " " + this.getActive().peekFirst().getElapsed(time) + " R\n");
+		else out += "\n";
+		
+		out += "\n";
+		if(!this.getFinished().isEmpty()) out += (this.getFinished().peekLast().getNumber() + " " + this.getFinished().peekLast().getTotalTime() + " F\n");
+		else out += "\n";
+		
+		return out;
 	}
 	
 }

@@ -157,13 +157,15 @@ public class ChronoTimerSystem {
 	
 	/**
 	 * System.setEvent sets the event type to that specified by its argument, but only if it is valid;
-	 * changing the event is not allowed while there is currently a run in progress!
+	 * this will immediately replace the current run with a new run of the selected type, and not increment the run counter
 	 * @param String type - defines which event type to switch to (must be one of: IND, PARIND, GRP, PARGRP)
 	 */
 	public void setEvent(String type){
-		if(this.getRun() != null) System.out.println("Error: Cannot change event types while a run is in progress!");
-		else if(type.equalsIgnoreCase("IND") || type.equalsIgnoreCase("PARIND") || type.equalsIgnoreCase("GRP") || type.equalsIgnoreCase("PARGRP")){
+		if(type.equalsIgnoreCase("IND") || type.equalsIgnoreCase("PARIND") || type.equalsIgnoreCase("GRP") || type.equalsIgnoreCase("PARGRP")){
 			eventType = type.toUpperCase();
+			runList.remove(activeRun);
+			activeRun = null;
+			this.newRun();
 		}
 		else System.out.println("Error: Cannot set event type; invalid event type!");
 	}

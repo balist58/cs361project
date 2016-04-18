@@ -36,6 +36,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.BevelBorder;
 
 public class ChronoTimerGUI extends JFrame {
+	private ChronoTimerControl ct;
+	private CmdInterface cmd;
 	
 	private JPanel mainFrame;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
@@ -155,7 +157,9 @@ public class ChronoTimerGUI extends JFrame {
 		
 		
 		//create CT control object to manipulate the system
-		ChronoTimerControl ct = new ChronoTimerControl();	
+		ct = new ChronoTimerControl();		//Implements the Controller as a persistent object
+		ct.addSubscriber(this);				//Adds this GUI object to the Controller's subscribers list
+		cmd = new CmdInterface(2, ct);		//Opens up an instance of the file parser to run through the console alongside the GUI
 		enableKeys = false;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 837, 536);
@@ -1317,5 +1321,17 @@ public class ChronoTimerGUI extends JFrame {
 		btnStart7.setEnabled(true);
 		btnPrint.setEnabled(true);
 		cmbxSensor.setEnabled(true);
+	}
+	
+	public void update(){
+		taDisplay.setText(ct.displayUpdate());
+		taDisplay.repaint();
+	}
+	
+	public void printerUpdate(){
+		if(printerOn){
+			taPrinter.setText(ct.printerUpdate());
+			taPrinter.repaint();
+		}
 	}
 }

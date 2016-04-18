@@ -56,7 +56,7 @@ public class Runner {
 			double dblElapsed = ((double)elapsed)/1000;
 			return Double.toString(dblElapsed) + " seconds";				
 		} else {
-			return "N/A";
+			return "DNF";
 		}
 	}
 	

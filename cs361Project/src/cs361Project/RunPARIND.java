@@ -81,19 +81,18 @@ public class RunPARIND implements Run{
 		for(Runner r : waitingRunners)
 			log += (r.getNumber() + "\n");
 		for(Runner r : activeRunners[0]){
-			log += (r.getNumber() + " Start: " + r.getStart() + "\n");
-			log += (r.getNumber() + " Elapsed Time: " + r.getElapsed(time) + "\n");
+			log += (r.getNumber() + " Elapsed: " + r.getElapsed(time) + "\n");
 		}
 		for(Runner r : activeRunners[1]){
-			log += (r.getNumber() + " Start: " + r.getStart() + "\n");
-			log += (r.getNumber() + " Elapsed Time: " + r.getElapsed(time) + "\n");
+			log += (r.getNumber() + " Elapsed: " + r.getElapsed(time) + "\n");
 		}
 		for(Runner r : finishedRunners){
+			if(r.getStart() == null)
+				log += (r.getNumber() + " Did Not Run\n");
 			if(r.getEnd() == null)
-				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: DNF\n");
+				log += (r.getNumber() + " Did Not Finish\n");
 			else
-				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: " + r.getEnd() + "\n");
-				log += (r.getNumber() + " Total Elapsed Time: " + r.getTotalTime() + "\n");
+				log += (r.getNumber() + " Time: " + r.getTotalTime() + "\n");
 		}
 		return log;
 	}
@@ -318,6 +317,7 @@ public class RunPARIND implements Run{
 			ex += ",\n\"ElapsedTime\": ";
 			ex += r.getElapsed(time);
 			if(!(r == activeRunners[0].peekLast())) ex+= "\n},";
+			else ex+= "\n}";
 		}
 		ex += "\n],\n\"ActiveRunners1\": [\n{";
 		for(Runner r : activeRunners[1]){
@@ -326,6 +326,7 @@ public class RunPARIND implements Run{
 			ex += ",\n\"ElapsedTime\": ";
 			ex += r.getElapsed(time);
 			if(!(r == activeRunners[0].peekLast())) ex+= "\n},";
+			else ex+= "\n}";
 		}
 		ex += "\n],\n\"FinishedRunners\": [\n{";
 		for(Runner r : finishedRunners){
@@ -335,9 +336,42 @@ public class RunPARIND implements Run{
 			if(r.getEndTime() == null) ex += "DNF";
 			else ex += r.getTotalTime();
 			if(!(r == finishedRunners.peekLast())) ex += "\n},";
+			else ex+= "\n}";
 		}
 		ex += "\n]\n}";
 		return ex;
 	}
-
+	
+	/**
+	 * RunPARIND.printToDisplay returns a String representing the current run state in the correct format for the ChronoTimerGUI run display
+	 * @return String - display output for the current run
+	 */
+	@Override
+	public String printToDisplay(Calendar time){
+		String out = "";
+		
+		if(this.getwaitingRunners().size() >= 2) out += (this.getwaitingRunners().get(1).getNumber() + " >\n");
+		else out += "\n";
+		if(this.getwaitingRunners().size() >= 1) out += (this.getwaitingRunners().get(0).getNumber() + " >\n");
+		else out += "\n";
+		
+		out += "\n\n";
+		if(!activeRunners[0].isEmpty()) out += (activeRunners[0].peekFirst().getNumber() + " " + activeRunners[0].peekFirst().getElapsed(time) + " R\n");
+		else out += "\n";
+		if(!activeRunners[1].isEmpty()) out += (activeRunners[1].peekFirst().getNumber() + " " + activeRunners[1].peekFirst().getElapsed(time) + " R\n");
+		else out += "\n";
+		
+		if(this.getFinished().size() >= 2){
+			Runner last = this.getFinished().pollLast();
+			Runner second = this.getFinished().pollLast();
+			out += (second.getNumber() + " " + second.getTotalTime() + " F\n");
+			out += (last.getNumber() + " " + last.getTotalTime() + " F\n");
+			this.getFinished().add(second);
+			this.getFinished().add(last);
+		}
+		else if(this.getFinished().size() == 1) out += (this.getFinished().peekLast().getNumber() + " " + this.getFinished().peekLast().getTotalTime() + " F\n\n");
+		else out += "\n\n";
+		
+		return out;
+	}
 }

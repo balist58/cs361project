@@ -27,4 +27,5 @@ public interface Run{
 	public boolean isActive();
 	public boolean isWaiting();
 	public int getRunNumber();
+	public String printToDisplay(Calendar time);
 }

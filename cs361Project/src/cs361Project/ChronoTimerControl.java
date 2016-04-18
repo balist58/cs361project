@@ -18,6 +18,7 @@ public class ChronoTimerControl{
 	 */
 	private ChronoTimerSystem system;  //references the ChronoTimer system to which the controller relays commands
 	private boolean enabled;           //controls whether or not commands can be made
+	ArrayList<Object> subscribers;
 	
 	/**
 	 * The Controller constructor initializes the System, but leaves the interface in a disabled state
@@ -25,6 +26,7 @@ public class ChronoTimerControl{
 	public ChronoTimerControl(){
 		system = new ChronoTimerSystem();
 		enabled = false;
+		subscribers = new ArrayList<Object>();
 	}
 	
 	/**
@@ -60,6 +62,7 @@ public class ChronoTimerControl{
 				switch(cmd){
 				case "ON":
 					this.setEnabled(true);
+					this.notifySubscribers();
 					break;
 				case "CONN":
 					if(cmdArgs.size() == 2 && this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(1))) != null) {
@@ -80,52 +83,86 @@ public class ChronoTimerControl{
 				switch(cmd){
 				case "OFF":
 					this.setEnabled(false);
+					this.notifySubscribers();
 					break;
 				case "RESET":
 					this.getSystem().reset();
+					this.notifySubscribers();
 					break;
 				case "TIME":
 					if(cmdArgs.size() == 1) this.getSystem().setTime(cmdArgs.get(0));
 					else this.getSystem().setTime();
 					break;
 				case "EVENT" :
-					if(cmdArgs.size() == 1) this.getSystem().setEvent(cmdArgs.get(0));
+					if(cmdArgs.size() == 1){
+						this.getSystem().setEvent(cmdArgs.get(0));
+						this.notifySubscribers();
+					}
 					break;
 				case "NEWRUN":
 					this.getSystem().newRun();
+					this.notifySubscribers();
 					break;
 				case "ENDRUN":
 					this.getSystem().endRun();
+					this.notifySubscribers();
 					break;
 				case "NUM":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute NUM; there is no active run!");
-					else if(cmdArgs.size() == 1) this.getSystem().getRun().num(Integer.parseInt(cmdArgs.get(0)));
+					else if(cmdArgs.size() == 1){
+						this.getSystem().getRun().num(Integer.parseInt(cmdArgs.get(0)));
+						this.notifySubscribers();
+					}
 					break;
 				case "CLR":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute CLR; there is no active run!");
-					else if(cmdArgs.size() == 1) this.getSystem().getRun().clr(Integer.parseInt(cmdArgs.get(0)));
+					else if(cmdArgs.size() == 1){
+						this.getSystem().getRun().clr(Integer.parseInt(cmdArgs.get(0)));
+						this.notifySubscribers();
+					}
 					break;
 				case "SWAP":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute SWAP; there is no active run!");
-					else this.getSystem().getRun().swap();
+					else{
+						this.getSystem().getRun().swap();
+						this.notifySubscribers();
+					}
 					break;
 				case "START":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute START; there is no active run!");
-					else if(cmdArgs.isEmpty()) this.getSystem().getRun().start(0, this.getSystem().getTime());
-					else if(cmdArgs.size() == 1) this.getSystem().getRun().start(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
+					else if(cmdArgs.isEmpty()){
+						this.getSystem().getRun().start(0, this.getSystem().getTime());
+						this.notifySubscribers();
+					}
+					else if(cmdArgs.size() == 1){
+						this.getSystem().getRun().start(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
+						this.notifySubscribers();
+					}
 					break;
 				case "CANCEL":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute CANCEL; there is no active run!");
-					else this.getSystem().getRun().cancel();
+					else{
+						this.getSystem().getRun().cancel();
+						this.notifySubscribers();
+					}
 					break;
 				case "DNF":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute DNF; there is no active run!");
-					else this.getSystem().getRun().dnf();
+					else{
+						this.getSystem().getRun().dnf();
+						this.notifySubscribers();
+					}
 					break;
 				case "FINISH":
 					if(!this.getSystem().isActive()) System.out.println("Error: Unable to execute FINISH; there is no active run!");
-					else if(cmdArgs.isEmpty()) this.getSystem().getRun().finish(0, this.getSystem().getTime());
-					else if(cmdArgs.size() == 1) this.getSystem().getRun().finish(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
+					else if(cmdArgs.isEmpty()){
+						this.getSystem().getRun().finish(0, this.getSystem().getTime());
+						this.notifySubscribers();
+					}
+					else if(cmdArgs.size() == 1){
+						this.getSystem().getRun().finish(Integer.parseInt(cmdArgs.get(0)), this.getSystem().getTime());
+						this.notifySubscribers();
+					}
 					break;
 				case "TOG": case "TOGGLE":
 					if(cmdArgs.size() == 1 && this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))) != null) {
@@ -147,10 +184,14 @@ public class ChronoTimerControl{
 						//the Channel.trig() method returns a command String, which is to be executed upon the method returning
 						String toRun = this.getSystem().getChannel(Integer.parseInt(cmdArgs.get(0))).trig(Integer.parseInt(cmdArgs.get(0)));
 						execute(toRun);
+						this.notifySubscribers();
 					}
 					break;
 				case "PRINT":
-					if(cmdArgs.isEmpty()) this.getSystem().print();
+					if(cmdArgs.isEmpty()){
+						this.getSystem().print();
+						this.notifyPrinters();
+					}
 					else if(cmdArgs.size() == 1) this.getSystem().print(Integer.parseInt(cmdArgs.get(0)));
 					break;
 				case "EXPORT":
@@ -166,4 +207,55 @@ public class ChronoTimerControl{
 		}
 	}
 
+	/**
+	 * Control.addSubscriber and removeSubscriber add and remove objects from the Controller's subscriber list,
+	 * which handles updates to displays for active printing behavior
+	 * NOTE:  Only Objects that have a update() method should be added to the subscriber list
+	 */
+	public void addSubscriber(Object toAdd){subscribers.add(toAdd);}
+	public boolean removeSubscriber(Object toRemove){
+		if(subscribers.contains(toRemove)){
+			subscribers.remove(toRemove);
+			return true;
+		}
+		else return false;
+	}
+	
+	/**
+	 * Control.notifySubscribers calls the update() method of every object on the subscriber list, as long as they
+	 * are an Object of one of the known subscriber types (as of release, this is only the ChronoTimerGUI class)
+	 */
+	private void notifySubscribers(){
+		for(Object o: subscribers){
+			if(o instanceof ChronoTimerGUI) ((ChronoTimerGUI) o).update();
+		}
+	}
+	/**
+	 * Control.displayUpdate is the corresponding updater for subscribers to return the new text for the display field;
+	 * it returns a String dependent on the current active run with its current status
+	 * @return String - the status of the current run, in GUI display format
+	 */
+	public String displayUpdate(){
+		if(!this.getSystem().isActive()) return "";
+		else return this.getSystem().getRun().printToDisplay(this.getSystem().getTime());
+	}
+	
+	/**
+	 * Control.notifyPrinters calls the printerUpdate() method of every object on the subscriber list, as long as they are an
+	 * Object of one of the known subscriber types (as of release, this is only the ChronoTimerGUI class)
+	 */
+	private void notifyPrinters(){
+		for(Object o: subscribers){
+			if(o instanceof ChronoTimerGUI) ((ChronoTimerGUI) o).printerUpdate();
+		}
+	}
+	/**
+	 * Control.printerUpdate is the corresponding updater for the subscribers to return the new text for the printer field;
+	 * it returns a String dependent on the current active run with its current status
+	 * @return
+	 */
+	public String printerUpdate(){
+		if(!this.getSystem().isActive()) return "";
+		else return this.getSystem().getRun().printRun(this.getSystem().getTime());
+	}
 }

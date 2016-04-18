@@ -75,20 +75,20 @@ public class RunGRP implements Run{
 	 * in the order that they were added to the list of runners for the run
 	 * @return - String - a printed representation of the state of the current run
 	 */
+	@Override
 	public String printRun(Calendar currentTime){
 		String log = "Run " + runNumber + "\n";
 		for(Runner r : runners){
-			if(r.getStartTime() == null) log += r.getNumber();
+			if(!finishedRunners.contains(r) && r.getStartTime() == null) log += r.getNumber();
+			else if(finishedRunners.contains(r) && r.getStartTime() == null) log += (r.getNumber() + " Did Not Run\n");
 			else if(finishedRunners.contains(r) && r.getEndTime() == null){
-				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: DNF\n");
+				log += (r.getNumber() + " Did Not Finish\n");
 			}
 			else if(finishedRunners.contains(r) && r.getEndTime() != null){
-				log += (r.getNumber() + " Start: " + r.getStart() + ", Finish: " + r.getEnd() + "\n");
-				log += (r.getNumber() + " Total Elapsed Time: " + r.getTotalTime() + "\n");
+				log += (r.getNumber() + " Time: " + r.getTotalTime() + "\n");
 			}
 			else{
-				log += (r.getNumber() + " Start: " + r.getStart() + "\n");
-				log += (r.getNumber() + " Elapsed Time: " + r.getElapsed(currentTime) + "\n");
+				log += (r.getNumber() + " Elapsed: " + r.getElapsed(currentTime) + "\n");
 			}
 		}
 		return log;
@@ -99,6 +99,7 @@ public class RunGRP implements Run{
 	 * has not already been used by a different *manually set* runner
 	 * @param - runnerNumber - the int for the new Runner number, to be set at the current manual index
 	 */
+	@Override
 	public void num(int runnerNumber){
 		if(runnerNumber < 0 || runnerNumber > 99999) System.out.println("Error: Cannot add runner number " + runnerNumber + ", number is out of bounds!");
 		else{
@@ -125,6 +126,7 @@ public class RunGRP implements Run{
 	 * if replaces the manually assigned number with the auto-assigned number that racer originally had
 	 * @param - runnerNumber - the int of the runner to be cleared
 	 */
+	@Override
 	public void clr(int runnerNumber){
 		if(this.getRunners().get(this.getManIndex()-1).getNumber() == runnerNumber){
 			this.getRunners().get(this.getManIndex()-1).setNumber(this.getManIndex()-1);
@@ -136,12 +138,14 @@ public class RunGRP implements Run{
 	/**
 	 * RunGRP.swap is not a functional method; the SWAP command is only meant for use in the IND race type
 	 */
+	@Override
 	public void swap(){System.out.println("Error: The swap command is not enabled for group runs!");}
 	
 	/**
 	 * RunGRP.start provides the start time for the first runner; it has no function for subsequent runners (who go off checkpoint time)
 	 * @params - int chanNumber - the channel providing the Start signal; Calendar startTime - the time of the start signal
 	 */
+	@Override
 	public void start(int chanNumber, Calendar startTime){
 		if(chanNumber == 0 || chanNumber == 1){  //Start only works when pressed manually or run off of Channel 1
 			if(this.getRunners().isEmpty()){this.getRunners().add(new Runner(1));}
@@ -155,6 +159,7 @@ public class RunGRP implements Run{
 	/**
 	 * RunGRP.cancel is similar to start; it only works if the first runner has a start time and no end time, and otherwise does nothing
 	 */
+	@Override
 	public void cancel(){
 		if(this.getRunners().size() == 1 && this.getRunners().get(0).getStartTime() != null && this.getRunners().get(0).getEnd() == null){
 			this.getRunners().get(0).setStart(null);
@@ -170,6 +175,7 @@ public class RunGRP implements Run{
 	 * RunGRP.finish can be run anytime after the run is started; it will give the current runner a finish time, and allocate the same
 	 * checkpoint time as the start time for the next runner (creating a new racer if necessary)
 	 */
+	@Override
 	public void finish(int chanNumber, Calendar finishTime){
 		if(chanNumber == 0 || chanNumber == 2){ //Finish only works when pressed manually or run off of Channel 2
 			if(this.getRunners().isEmpty() || this.getRunners().get(0).getStartTime() == null){
@@ -194,6 +200,7 @@ public class RunGRP implements Run{
 	 * RunGRP.dnf is used for the sole purpose of killing runs, as it makes no logical sense to have continued finishes after
 	 * one leg of the run gets a DNF.  The function is used to complete all remaining queued runners (by adding them to finished)
 	 */
+	@Override
 	public void dnf(){
 		if(this.getRunners().size() >= 1 && this.getCheckpoint() != null){
 			for(Runner r : this.getRunners()){if(!this.getFinished().contains(r)) this.getFinished().add(r);}
@@ -201,9 +208,67 @@ public class RunGRP implements Run{
 		}	
 	}
 	
-	
-	//TODO:  turn this into a readable JSON format!
+	/**
+	 * RunGRP.exportRun will convert the current status of the run, including the runNumber and the status of each
+	 * of the runners in the runners list (according to whether they are listed, active, or finished), into JSON format for export
+	 * @return - a String to be converted into JSON
+	 */
+	@Override
 	public String exportRun(Calendar currentTime){
-		return null;
+		String ex = "{\n\"RunNumber\":";
+		ex += runNumber;
+		ex += ",\n\"Runners\":[";
+		for(Runner r : runners){
+			if(!finishedRunners.contains(r) && r.getStart() == null){
+				ex += "\n\"Number\": ";
+				ex += r.getNumber();
+				if(r != runners.peekLast()) ex += ",";
+			}
+			else if(!finishedRunners.contains(r) && r.getStart() != null){
+				ex += "{\n\"Number\": ";
+				ex += r.getNumber();
+				ex += ",\n\"ElapsedTime\": ";
+				ex += r.getElapsed(currentTime);
+				if(r != runners.peekLast()) ex += "\n},";
+				else ex += "\n}";
+			}
+			else{
+				ex += "{\n\"Number\": ";
+				ex += r.getNumber();
+				ex += ",\n\"ElapsedTime\": ";
+				if(r.getEndTime() == null) ex += "DNF";
+				else ex += r.getTotalTime();
+				if(r != runners.peekLast()) ex += "\n},";
+				else ex += "\n}";
+			}
+		}
+		ex += "\n]\n}";
+		return ex;
+	}
+	
+	/**
+	 * RunGRP.printToDisplay returns a String representing the current run state in the correct format for the ChronoTimerGUI run display
+	 * @return String - display output for the current run
+	 */
+	@Override
+	public String printToDisplay(Calendar time){
+		String out = "";
+		
+		if(!this.getRunners().isEmpty()){
+			Runner elapsed = new Runner(-1);
+			elapsed.setStart(this.getRunners().getFirst().getStartTime());
+			out += ("Elapsed: " + elapsed.getElapsed(time) + "\n");
+		}
+		else out += ("Run not started\n");
+		
+		out += "\n";
+		if(!this.getRunners().isEmpty() && this.getRunners().getFirst().getEnd() != null){
+			Runner check = new Runner(-1);
+			check.setStart(this.getRunners().getFirst().getStartTime());
+			out += ("Last finish: " + check.getElapsed(this.getCheckpoint()) + "\n");
+		}
+		else out += ("Last finish: n/a");
+		
+		return out;
 	}
 }

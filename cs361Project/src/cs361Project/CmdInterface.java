@@ -12,7 +12,7 @@ import java.util.Scanner;
  * Class: CmdInterface.java
  * The CmdInterface class parses commands via the console or a text file so that the ChronoTimerControl class can interact as-if hardware was connected.
  * @author Matt Balistreri
- * @version 1.0
+ * @version 2.0
  */
 public class CmdInterface {
 	
@@ -119,4 +119,5 @@ public class CmdInterface {
             ex.printStackTrace();
         }
 	}
+	
 }
