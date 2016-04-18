@@ -250,10 +250,11 @@ public class ChronoTimerSystem {
 			System.out.println("Error: Cannot print active run, there is no active run!");
 		}
 	}
+	
 	public void print(int runNumber){
 		Run toPrint = this.getRun(runNumber);
-		if(toPrint != null) System.out.print(toPrint.printRun(this.getTime()));
-		else System.out.println("Error: Could not print run number " + runNumber + ", run not found!");
+		if(toPrint != null){System.out.print(toPrint.printRun(this.getTime()));}
+		else{System.out.println("Error: Could not print run number " + runNumber + ", run not found!");}
 	}
 	
 	/**
