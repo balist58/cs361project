@@ -1,0 +1,167 @@
+package cs361Project;
+
+
+import static org.junit.Assert.*;
+
+import java.util.Calendar;
+
+import org.junit.Test;
+
+public class GroupRunTest 
+{
+	ChronoTimerControl ct = new ChronoTimerControl();
+	CmdInterface ctrl = new CmdInterface(1,ct);
+	ChronoTimerSystem system = ct.getSystem();
+	
+	/**
+	 * 
+	 */
+	@Test
+	public void testGroupRace() {
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		ct.execute("TOGGLE 1");
+		ct.execute("TOGGLE 2");
+		ct.execute("EVENT GRP");
+		ct.execute("NEWRUN");
+		
+		system.setTime("11:00:06.1");
+
+		ct.execute("NUM 888");
+		ct.execute("NUM 777");
+		ct.execute("NUM 666");
+		ct.execute("NUM 555");
+		ct.execute("NUM 444");
+
+		RunGRP run = (RunGRP) system.getRun();
+		assertEquals(5, run.getRunners().size());
+		assertTrue(run.getFinished().isEmpty());
+		assertEquals(1, run.getRunNumber());
+		
+		Runner num888 = run.getRunners().get(0);
+		Runner num777 = run.getRunners().get(1);
+		Runner num666 = run.getRunners().get(2);
+		Runner num555 = run.getRunners().get(3);
+		Runner num444 = run.getRunners().get(4);
+		assertEquals(444, num444.getNumber());
+		assertEquals(555, num555.getNumber());
+		assertEquals(666, num666.getNumber());
+		assertEquals(777, num777.getNumber());
+		assertEquals(888, num888.getNumber());
+		
+		assertTrue(ct.isEnabled());
+
+		system.setTime("11:00:17.0");
+		ct.execute("TRIG 1"); //Start
+
+		assertTrue(run.getFinished().isEmpty());
+
+		system.setTime("11:00:40.0");
+		ct.execute("TRIG 2"); //Finish 0001
+		assertEquals(1, run.getFinished().size());
+
+		system.setTime("11:00:41.0");
+		ct.execute("TRIG 2"); //Finish 0002
+		assertEquals(2, run.getFinished().size());
+
+		system.setTime("11:00:43.0");
+		ct.execute("TRIG 2"); //Finish 0003
+		assertEquals(3, run.getFinished().size());
+		
+		system.setTime("11:00:43.0");
+		ct.execute("TRIG 2"); //Finish 0004
+		assertEquals(4, run.getFinished().size());
+		
+		system.setTime("11:00:47.0");
+		ct.execute("TRIG 2"); //Finish 0005
+		assertEquals(5, run.getFinished().size());
+		
+		ct.execute("NUM 777");
+		ct.execute("NUM 888");
+		ct.execute("NUM 555");
+		ct.execute("NUM 666");
+		ct.execute("NUM 444");
+		
+		assertEquals("11:00:17.00", num444.getStart());
+		assertEquals("11:00:47.00", num444.getEnd());
+		//assertEquals("13.0 seconds", num444.getTotalTime());
+		
+		assertEquals("11:00:17.00", num555.getStart());
+		assertEquals("11:00:43.00", num555.getEnd());
+		//assertEquals("15.0 seconds", num555.getTotalTime());
+		
+		assertEquals("11:00:17.00", num666.getStart());
+		assertEquals("11:00:43.00", num666.getEnd());
+		//assertEquals("8.0 seconds", num666.getTotalTime());
+		
+		assertEquals("11:00:17.00", num777.getStart());
+		assertEquals("11:00:40.00", num777.getEnd());
+		//assertEquals("7.0 seconds", num777.getTotalTime());
+		
+		assertEquals("11:00:17.00", num888.getStart());
+		assertEquals("11:00:41.00", num888.getEnd());
+		//assertEquals("8.0 seconds", num888.getTotalTime());
+		
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(0,system.getTime().get(12));
+		assertEquals(47,system.getTime().get(13));
+		assertEquals(0,system.getTime().get(14));
+		
+		system.export(1);
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	public void testGroupRace_OneRunner() {
+		ct.execute("OFF");
+		ct.execute("ON");
+		ct.execute("CONN GATE 1");
+		ct.execute("CONN EYE 2");
+		ct.execute("TOGGLE 1");
+		ct.execute("TOGGLE 2");
+		ct.execute("EVENT GRP");
+		ct.execute("NEWRUN");
+		
+		system.setTime("11:00:06.1");
+
+		ct.execute("NUM 888");
+
+		RunGRP run = (RunGRP) system.getRun();
+		assertEquals(1, run.getRunners().size());
+		assertTrue(run.getFinished().isEmpty());
+		assertEquals(1, run.getRunNumber());
+		
+		Runner num888 = run.getRunners().get(0);
+		assertEquals(888, num888.getNumber());
+		
+		assertTrue(ct.isEnabled());
+
+		system.setTime("11:00:17.0");
+		ct.execute("TRIG 1"); //Start
+
+		assertTrue(run.getFinished().isEmpty());
+
+		system.setTime("11:00:41.0");
+		ct.execute("TRIG 2"); //Finish 0001
+		assertEquals(1, run.getFinished().size());
+		
+		ct.execute("NUM 888");
+		
+		
+		assertEquals("11:00:17.00", num888.getStart());
+		assertEquals("11:00:41.00", num888.getEnd());
+		//assertEquals("8.0 seconds", num888.getTotalTime());
+		
+		assertEquals(11,system.getTime().get(10));
+		assertEquals(0,system.getTime().get(12));
+		assertEquals(41,system.getTime().get(13));
+		assertEquals(0,system.getTime().get(14));
+		
+		system.export(1);
+	}
+}
+

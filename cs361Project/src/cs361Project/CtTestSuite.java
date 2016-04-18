@@ -9,7 +9,8 @@ import org.junit.runners.Suite;
 	ControlTest.class,
 	InitializationTest.class,
 	IndividualRunTest.class,
-	ParallelIndividualRunTest.class
+	ParallelIndividualRunTest.class,
+	GroupRunTest.class
 })
 public class CtTestSuite {
 }

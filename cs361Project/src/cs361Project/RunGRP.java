@@ -102,9 +102,9 @@ public class RunGRP implements Run{
 	public void num(int runnerNumber){
 		if(runnerNumber < 0 || runnerNumber > 99999) System.out.println("Error: Cannot add runner number " + runnerNumber + ", number is out of bounds!");
 		else{
-			if(this.getManIndex() <= this.getRunners().size()){
+			if(this.getManIndex() < this.getRunners().size()){
 				boolean match = false;
-				for(int i = 0; i < this.getManIndex(); ++i){
+				for(int i = 0; i <= this.getManIndex(); ++i){
 					if(this.getRunners().get(i).getNumber() == runnerNumber) match = true;
 				}
 				if(!match){
