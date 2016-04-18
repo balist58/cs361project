@@ -3,8 +3,6 @@ package cs361Project;
 
 import static org.junit.Assert.*;
 
-import java.util.Calendar;
-
 import org.junit.Test;
 
 public class GroupRunTest 
@@ -18,7 +16,6 @@ public class GroupRunTest
 	 */
 	@Test
 	public void testGroupRace() {
-		ct.execute("OFF");
 		ct.execute("ON");
 		ct.execute("CONN GATE 1");
 		ct.execute("CONN EYE 2");
@@ -37,7 +34,6 @@ public class GroupRunTest
 		RunGRP run = (RunGRP) system.getRun();
 		assertEquals(5, run.getRunners().size());
 		assertTrue(run.getFinished().isEmpty());
-		assertEquals(1, run.getRunNumber());
 		
 		Runner num888 = run.getRunners().get(0);
 		Runner num777 = run.getRunners().get(1);
@@ -55,7 +51,6 @@ public class GroupRunTest
 		system.setTime("11:00:17.0");
 		ct.execute("TRIG 1"); //Start
 		assertTrue(run.getRunners().get(0).getStartTime() != null);
-		System.out.println(run.getRunners().get(0).getStart());
 
 		assertTrue(run.getFinished().isEmpty());
 
@@ -96,8 +91,6 @@ public class GroupRunTest
 		assertEquals(0,system.getTime().get(12));
 		assertEquals(47,system.getTime().get(13));
 		assertEquals(0,system.getTime().get(14));
-		
-		system.export(1);
 	}
 	
 	/**
@@ -105,8 +98,7 @@ public class GroupRunTest
 	 */
 	@Test
 	public void testGroupRace_OneRunner() {
-		ct.execute("OFF");
-		ct.execute("ON");
+		ct.execute("RESET");
 		ct.execute("CONN GATE 1");
 		ct.execute("CONN EYE 2");
 		ct.execute("TOGGLE 1");
