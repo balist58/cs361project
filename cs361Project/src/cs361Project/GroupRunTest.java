@@ -12,7 +12,7 @@ public class GroupRunTest
 	ChronoTimerSystem system = ct.getSystem();
 	
 	/**
-	 * 
+	 * TC 4.1, 4.2, 4.3
 	 */
 	@Test
 	public void testGroupRace() {
