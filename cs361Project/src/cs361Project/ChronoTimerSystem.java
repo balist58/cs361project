@@ -9,6 +9,11 @@
 
 package cs361Project;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -103,7 +108,7 @@ public class ChronoTimerSystem {
 			System.out.println("Invalid run number!");
 			return null;
 		}
-		else return this.getRunList().get(runNumber);
+		else return this.getRunList().get(runNumber-1);
 	}
 	/**
 	 * System.isActive - helper method, tracks active run
@@ -267,10 +272,26 @@ public class ChronoTimerSystem {
 			return null;
 		}
 	}
-	public String export(int runNumber){
+public String export(int runNumber){
+		
 		Run toExport = this.getRun(runNumber);
 		if(toExport != null){
 			String export = toExport.exportRun(this.getTime());
+			try {
+				File file = new File("export.txt");
+				
+				FileWriter out = new FileWriter(file);
+				PrintWriter output = new PrintWriter(out);
+				output.println(export);
+				output.close();
+				
+			} catch (FileNotFoundException e) {
+				System.out.println(e.toString());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				System.out.println(e.toString());
+			}
+			
 			return export;
 		}
 		else{
