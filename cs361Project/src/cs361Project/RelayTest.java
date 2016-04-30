@@ -1,12 +1,12 @@
 package cs361Project;
 
-//TODO:  Correct this test suite so that it supports the new GRP run implementation (mostly just changing checks for start/finish time)
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class GroupRunTest 
-{
+public class RelayTest {
 	ChronoTimerControl ct = new ChronoTimerControl();
 	CmdInterface ctrl = new CmdInterface(1,ct);
 	ChronoTimerSystem system = ct.getSystem();
@@ -15,13 +15,13 @@ public class GroupRunTest
 	 * TC 4.1, 4.2, 4.3
 	 */
 	@Test
-	public void testGroupRace() {
+	public void testRelayRace() {
 		ct.execute("ON");
 		ct.execute("CONN GATE 1");
 		ct.execute("CONN EYE 2");
 		ct.execute("TOGGLE 1");
 		ct.execute("TOGGLE 2");
-		ct.execute("EVENT GRP");
+		ct.execute("EVENT RELAY");
 		
 		system.setTime("11:00:06.1");
 
@@ -31,7 +31,7 @@ public class GroupRunTest
 		ct.execute("NUM 555");
 		ct.execute("NUM 444");
 
-		RunGRP run = (RunGRP) system.getRun();
+		RunRELAY run = (RunRELAY) system.getRun();
 		assertEquals(5, run.getRunners().size());
 		assertTrue(run.getFinished().isEmpty());
 		
@@ -97,21 +97,21 @@ public class GroupRunTest
 	 * 
 	 */
 	@Test
-	public void testGroupRace_OneRunner() {
+	public void testRelayRace_OneRunner() {
 		ct.execute("OFF");
 		ct.execute("ON");
 		ct.execute("CONN GATE 1");
 		ct.execute("CONN EYE 2");
 		ct.execute("TOGGLE 1");
 		ct.execute("TOGGLE 2");
-		ct.execute("EVENT GRP");
+		ct.execute("EVENT RELAY");
 		
 		system.setTime("11:00:06.1");
 
-		RunGRP run = (RunGRP) system.getRun();
+		RunRELAY run = (RunRELAY) system.getRun();
 		assertTrue(run.getRunners().isEmpty());
 		assertTrue(run.getFinished().isEmpty());
-		assertEquals(null, run.getStart());
+		assertEquals(null, run.getCheckpoint());
 		assertEquals(1, run.getRunNumber());
 		
 		assertTrue(ct.isEnabled());
@@ -123,12 +123,12 @@ public class GroupRunTest
 		assertEquals(1,  run.getRunners().getFirst().getNumber());
 		assertEquals("11:00:17.00", run.getRunners().getFirst().getStart());
 		assertEquals(null, run.getRunners().getFirst().getEndTime());
-		assertTrue(run.getStart() != null);
+		assertTrue(run.getCheckpoint() != null);
 		assertTrue(run.getFinished().isEmpty());
 		
 		ct.execute("CANCEL");
 		assertEquals(null, run.getRunners().getFirst().getStartTime());
-		assertEquals(null, run.getStart());
+		assertEquals(null, run.getCheckpoint());
 		
 		system.setTime("11:00:25.0");
 		ct.execute("START");
@@ -139,7 +139,7 @@ public class GroupRunTest
 		assertEquals(1, run.getFinished().size());
 		assertEquals("11:00:41.00", run.getRunners().getFirst().getEnd());
 		Runner r = new Runner(-1);
-		r.setStart(run.getStart());
+		r.setStart(run.getCheckpoint());
 		assertEquals("11:00:41.00", r.getStart());
 		
 		ct.execute("NUM 888");
@@ -155,4 +155,3 @@ public class GroupRunTest
 		
 	}
 }
-
