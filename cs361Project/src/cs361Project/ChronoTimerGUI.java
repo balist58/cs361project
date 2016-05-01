@@ -21,6 +21,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import java.awt.Color;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.ButtonGroup;
@@ -132,6 +134,7 @@ public class ChronoTimerGUI extends JFrame {
 	private JScrollPane spPrinter;
 	private JTextArea taPrinter;
 	private JButton btnPrintfun;
+	private final Timer updater;
 
 	/**
 	 * Launch the application.
@@ -794,6 +797,15 @@ public class ChronoTimerGUI extends JFrame {
 /**
  * Add Action Listeners
  */
+		
+		//TODO:Add System Message bar to GUI
+			updater = new Timer(50, new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				ct.execute("TIME");
+				update();
+			}
+		});
+		
 		rbTogEven2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("tog 2");
@@ -823,6 +835,9 @@ public class ChronoTimerGUI extends JFrame {
 				if(ct.getSystem().isActive()){
 					ct.execute("TIME");
 					ct.execute("TRIG 2");
+					if(!ct.getSystem().isActive()){
+						updater.stop();
+					}
 				}
 			}
 		});
@@ -832,6 +847,9 @@ public class ChronoTimerGUI extends JFrame {
 				if(ct.getSystem().isActive()){
 					ct.execute("TIME");
 					ct.execute("TRIG 4");
+					if(!ct.getSystem().isActive()){
+						updater.stop();
+					}
 				}
 			}
 		});
@@ -841,6 +859,9 @@ public class ChronoTimerGUI extends JFrame {
 				if(ct.getSystem().isActive()){
 					ct.execute("TIME");
 					ct.execute("TRIG 6");
+					if(!ct.getSystem().isActive()){
+						updater.stop();
+					}
 				}
 			}
 		});
@@ -850,6 +871,9 @@ public class ChronoTimerGUI extends JFrame {
 				if(ct.getSystem().isActive()){
 					ct.execute("TIME");
 					ct.execute("TRIG 8");
+					if(!ct.getSystem().isActive()){
+						updater.stop();
+					}
 				}
 			}
 		});
@@ -1035,6 +1059,9 @@ public class ChronoTimerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("TIME");
 				ct.execute("TRIG 1");
+				if(ct.getSystem().isActive()){
+					updater.start();
+				}
 			}
 		});
 		
@@ -1042,6 +1069,10 @@ public class ChronoTimerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("TIME");
 				ct.execute("TRIG 3");
+				if(!updater.isRunning() && ct.getSystem().isActive())
+				{
+					updater.start();
+				}
 			}
 		});
 		
@@ -1069,6 +1100,10 @@ public class ChronoTimerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("TIME");
 				ct.execute("TRIG 5");
+				if(!updater.isRunning() && ct.getSystem().isActive())
+				{
+					updater.start();
+				}
 			}
 		});
 		
@@ -1076,6 +1111,10 @@ public class ChronoTimerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("TIME");
 				ct.execute("TRIG 7");
+				if(!updater.isRunning() && ct.getSystem().isActive())
+				{
+					updater.start();
+				}
 			}
 		});
 		
@@ -1167,7 +1206,7 @@ public class ChronoTimerGUI extends JFrame {
 				
 				if(ct.getSystem().isActive()){
 					taDisplay.setText(enterRun);
-					taDisplay.repaint();
+					//taDisplay.repaint();
 					enableKeys = true;
 				}			
 			}
@@ -1264,6 +1303,7 @@ public class ChronoTimerGUI extends JFrame {
 		cmbxSensor.setSelectedIndex(0);
 		cmbxSensor.setEnabled(false);
 		btnPrintfun.setEnabled(false);
+		updater.stop();
 	}
 	
 	/**
