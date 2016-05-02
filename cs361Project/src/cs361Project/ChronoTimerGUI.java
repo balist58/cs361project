@@ -1089,7 +1089,6 @@ public class ChronoTimerGUI extends JFrame {
 				ct.execute("TRIG 1");
 				if(ct.getSystem().isActive()){
 					updater.start();
-					taSysevent.setText("Start Channel 1");
 				}
 			}
 		});
@@ -1101,7 +1100,6 @@ public class ChronoTimerGUI extends JFrame {
 				if(!updater.isRunning() && ct.getSystem().isActive())
 				{
 					updater.start();
-					taSysevent.setText("Start Channel 3");
 				}
 			}
 		});
@@ -1133,7 +1131,6 @@ public class ChronoTimerGUI extends JFrame {
 				if(!updater.isRunning() && ct.getSystem().isActive())
 				{
 					updater.start();
-					taSysevent.setText("Start Channel 5");
 				}
 			}
 		});
@@ -1145,7 +1142,6 @@ public class ChronoTimerGUI extends JFrame {
 				if(!updater.isRunning() && ct.getSystem().isActive())
 				{
 					updater.start();
-					taSysevent.setText("Start Channel 7");
 				}
 			}
 		});
