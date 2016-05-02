@@ -330,7 +330,8 @@ public class RunGRP implements Run{
 			Runner check = new Runner(-1);
 			check.setStart(this.getStart());
 			check.setEnd(this.getFinish());
-			out += ("Last finish: " + check.getElapsed(this.getStart()) + "\n");
+			//out += ("Last finish: " + check.getElapsed(this.getStart()) + "\n");
+			out += ("Last finish: " + check.getEnd() + "\n");
 		}
 		else out += ("Last finish: n/a");
 		

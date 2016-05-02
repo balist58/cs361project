@@ -198,11 +198,11 @@ public class ChronoTimerSystem {
 				activeRun = newRun;
 				this.getRunList().add(this.getRun());
 				break;
-			//case "PARGRP":
-				//newRun = new RunPARGRP(this.getRunCount());
-				//activeRun = newRun;
-				//this.getRunList().add(this.getRun());
-				//break;
+			case "PARGRP":
+				newRun = new RunPARGRP(this.getRunCount());
+				activeRun = newRun;
+				this.getRunList().add(this.getRun());
+				break;
 			default:
 				System.out.println("Error: Cannot start a new run; invalid event type!");
 			}
