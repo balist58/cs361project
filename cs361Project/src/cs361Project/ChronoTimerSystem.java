@@ -9,11 +9,15 @@
 
 package cs361Project;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -271,6 +275,8 @@ public class ChronoTimerSystem {
 	public String export(){
 		if(this.isActive()){
 			String export = this.getRun().exportRun(this.getTime());
+
+			postResults(export);
 			return export;
 		}
 		else{
@@ -278,8 +284,8 @@ public class ChronoTimerSystem {
 			return null;
 		}
 	}
-public String export(int runNumber){
-		
+	
+	public String export(int runNumber){
 		Run toExport = this.getRun(runNumber);
 		if(toExport != null){
 			String export = toExport.exportRun(this.getTime());
@@ -298,11 +304,55 @@ public String export(int runNumber){
 				System.out.println(e.toString());
 			}
 			
+			postResults(export);
+			
 			return export;
 		}
 		else{
 			System.out.println("Error: Could not export run number " + runNumber + ", run not found!");
 			return null;
+		}
+	}
+	
+	private void postResults(String jsonStuff) {
+		try {
+			System.out.println("in the client");
+			
+			// Client will connect to this location
+			URL site = new URL("http://localhost:8000/sendresults");
+			HttpURLConnection conn = (HttpURLConnection) site.openConnection();
+			
+			// now create a POST request
+			conn.setRequestMethod("POST");
+			conn.setDoOutput(true);
+			conn.setDoInput(true);
+			DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+			
+			// build a string that contains JSON from console
+			String content = jsonStuff;
+			
+			// write out string to output buffer for message
+			out.writeBytes(content);
+			out.flush();
+			out.close();
+			
+			System.out.println("Done sent to server");
+			
+			InputStreamReader inputStr = new InputStreamReader(conn.getInputStream());
+			
+			// string to hold the result of reading in the response
+			StringBuilder sb = new StringBuilder();
+			
+			// read the characters from the request byte by byte and build up
+			// the Response
+			int nextChar;
+			while ((nextChar = inputStr.read()) > -1) {
+				sb = sb.append((char) nextChar);
+			}
+			System.out.println("Return String: " + sb);
+			conn.disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }
