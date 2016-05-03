@@ -47,8 +47,9 @@ public class RunPARGRP implements Run{
 		boolean waiting = false;
 		
 		for(Runner r : getRunners()){
-			if(r == null) waiting = true;
-			else if(r.getStartTime() == null) waiting = true;
+			if(r == null) break;
+			else 
+				if(r.getStartTime() == null) waiting = true;
 		}
 		return waiting;
 	}
@@ -60,8 +61,10 @@ public class RunPARGRP implements Run{
 	public boolean isActive(){
 		boolean active = false;
 		for(Runner r : getRunners()){
-			if(r == null) active = true;
-			else if(r.getStartTime() != null && !getFinished().contains(r)) active = true;
+			if(r == null)
+			break;
+			else
+				if(r.getStartTime() != null && !getFinished().contains(r)) active = true;
 		}
 		return active;
 	}
