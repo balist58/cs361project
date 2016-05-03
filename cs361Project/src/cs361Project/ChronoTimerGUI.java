@@ -63,7 +63,7 @@ public class ChronoTimerGUI extends JFrame {
 	private JRadioButton rbChan6;
 	private JRadioButton rbChan8;
 	private JLabel lblChan;
-	private JComboBox cmbxSensor;
+	private JComboBox<String> cmbxSensor;
 	private JLabel lblSensor;
 	private JPanel panelFinish;
 	private JLabel lblFinish;
@@ -121,7 +121,6 @@ public class ChronoTimerGUI extends JFrame {
 	private JButton btnParind;
 	private JButton btnGrp;
 	private JButton btnPargrp;
-	private JButton btnSwap;
 	private JButton btnExport;
 	private JButton btnEnterNumber;
 	private JScrollPane scrollPane;
@@ -136,6 +135,8 @@ public class ChronoTimerGUI extends JFrame {
 	private JButton btnPrintfun;
 	private final Timer updater;
 	private JTextArea taSysevent;
+	private JButton btnRelay;
+	private JButton btnSwap;
 
 	/**
 	 * Launch the application.
@@ -172,7 +173,7 @@ public class ChronoTimerGUI extends JFrame {
 		setBounds(100, 100, 913, 692);
 		mainFrame = new JPanel();
 		setContentPane(mainFrame);
-		cmbxSensor = new JComboBox();
+		cmbxSensor = new JComboBox<String>();
 		cmbxSensor.setEnabled(false);
 		cmbxSensor.setFont(new Font("Tahoma", Font.BOLD, 12));
 		cmbxSensor.setMaximumRowCount(3);
@@ -353,9 +354,6 @@ public class ChronoTimerGUI extends JFrame {
 		btnPargrp = new JButton("PAGRP");
 		btnPargrp.setEnabled(false);
 		btnPargrp.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btnSwap = new JButton("Swap");
-		btnSwap.setEnabled(false);
-		btnSwap.setFont(new Font("Tahoma", Font.BOLD, 11));
 		btnExport = new JButton("Export");
 		btnExport.setEnabled(false);
 		btnExport.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -474,58 +472,64 @@ public class ChronoTimerGUI extends JFrame {
 		JLabel lblSysevent = new JLabel("System Messages:");
 		lblSysevent.setFont(new Font("Tahoma", Font.BOLD, 13));
 		
+		btnRelay = new JButton("RELAY");
+		btnRelay.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnRelay.setEnabled(false);
+		
+		btnSwap = new JButton("Swap");
+		btnSwap.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnSwap.setEnabled(false);
+		
 		GroupLayout gl_mainFrame = new GroupLayout(mainFrame);
 		gl_mainFrame.setHorizontalGroup(
 			gl_mainFrame.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_mainFrame.createSequentialGroup()
-					.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
+					.addGap(12)
+					.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_mainFrame.createSequentialGroup()
-							.addGap(12)
-							.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
+							.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
 								.addGroup(gl_mainFrame.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
 									.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
 										.addGroup(gl_mainFrame.createSequentialGroup()
-											.addPreferredGap(ComponentPlacement.RELATED)
-											.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
-												.addGroup(gl_mainFrame.createSequentialGroup()
-													.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
-														.addComponent(btnDnf, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
-														.addComponent(btnNewrun, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
-													.addPreferredGap(ComponentPlacement.RELATED)
-													.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
-														.addComponent(btnCancel, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
-														.addComponent(btnEndrun)))
-												.addGroup(gl_mainFrame.createSequentialGroup()
-													.addComponent(btnInd, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
-													.addPreferredGap(ComponentPlacement.RELATED)
-													.addComponent(btnParind, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
-												.addGroup(gl_mainFrame.createSequentialGroup()
-													.addComponent(btnGrp, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
-													.addPreferredGap(ComponentPlacement.RELATED)
-													.addComponent(btnPargrp, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))))
-										.addGroup(gl_mainFrame.createSequentialGroup()
-											.addGap(29)
 											.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
-												.addComponent(btnPower, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
-												.addComponent(btnEnterNumber)))
-										.addGroup(gl_mainFrame.createSequentialGroup()
-											.addPreferredGap(ComponentPlacement.RELATED)
-											.addComponent(btnSwap, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
-											.addPreferredGap(ComponentPlacement.RELATED)
-											.addComponent(btnExport, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
-										.addGroup(gl_mainFrame.createSequentialGroup()
+												.addComponent(btnDnf, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+												.addComponent(btnNewrun, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
 											.addPreferredGap(ComponentPlacement.RELATED)
 											.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
-												.addComponent(panelChannel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-												.addComponent(cmbxSensor, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
-												.addComponent(lblSensor))))
-									.addGap(49))
+												.addComponent(btnCancel, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+												.addComponent(btnEndrun)))
+										.addGroup(gl_mainFrame.createSequentialGroup()
+											.addComponent(btnInd, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+											.addPreferredGap(ComponentPlacement.RELATED)
+											.addComponent(btnParind, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
+										.addGroup(gl_mainFrame.createSequentialGroup()
+											.addComponent(btnGrp, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+											.addPreferredGap(ComponentPlacement.RELATED)
+											.addComponent(btnPargrp, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))))
 								.addGroup(gl_mainFrame.createSequentialGroup()
-									.addComponent(lblSysevent)
-									.addGap(18))))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
+										.addComponent(panelChannel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+										.addComponent(cmbxSensor, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblSensor)))
+								.addGroup(gl_mainFrame.createSequentialGroup()
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
+										.addComponent(btnSwap, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+										.addComponent(btnRelay, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING, false)
+										.addComponent(btnPrintfun, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(btnExport, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)))
+								.addGroup(gl_mainFrame.createSequentialGroup()
+									.addGap(29)
+									.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
+										.addComponent(btnEnterNumber)
+										.addComponent(btnPower, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE))))
+							.addPreferredGap(ComponentPlacement.RELATED, 37, Short.MAX_VALUE))
 						.addGroup(gl_mainFrame.createSequentialGroup()
-							.addGap(35)
-							.addComponent(btnPrintfun, GroupLayout.PREFERRED_SIZE, 109, GroupLayout.PREFERRED_SIZE)))
+							.addComponent(lblSysevent)
+							.addGap(18)))
 					.addGap(18)
 					.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_mainFrame.createSequentialGroup()
@@ -536,10 +540,8 @@ public class ChronoTimerGUI extends JFrame {
 								.addComponent(panelFinish, GroupLayout.PREFERRED_SIZE, 339, GroupLayout.PREFERRED_SIZE)
 								.addComponent(panelStart, GroupLayout.PREFERRED_SIZE, 339, GroupLayout.PREFERRED_SIZE)
 								.addGroup(gl_mainFrame.createParallelGroup(Alignment.TRAILING, false)
-									.addGroup(Alignment.LEADING, gl_mainFrame.createSequentialGroup()
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addComponent(spSysevent))
-									.addComponent(scrollPane, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 332, GroupLayout.PREFERRED_SIZE)))
+									.addComponent(spSysevent, Alignment.LEADING)
+									.addComponent(scrollPane, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)))
 							.addGap(27)))
 					.addGap(15)
 					.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
@@ -561,6 +563,7 @@ public class ChronoTimerGUI extends JFrame {
 							.addGap(18)
 							.addComponent(panelCalculator, GroupLayout.PREFERRED_SIZE, 221, GroupLayout.PREFERRED_SIZE))
 						.addGroup(gl_mainFrame.createSequentialGroup()
+							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnEnterNumber)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(gl_mainFrame.createParallelGroup(Alignment.BASELINE)
@@ -580,11 +583,13 @@ public class ChronoTimerGUI extends JFrame {
 								.addComponent(btnPargrp))
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(gl_mainFrame.createParallelGroup(Alignment.BASELINE)
-								.addComponent(btnSwap)
-								.addComponent(btnExport))
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnPrintfun, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
-							.addGap(27)
+								.addComponent(btnExport)
+								.addComponent(btnRelay))
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addGroup(gl_mainFrame.createParallelGroup(Alignment.BASELINE)
+								.addComponent(btnPrintfun)
+								.addComponent(btnSwap))
+							.addGap(22)
 							.addComponent(lblSensor)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(cmbxSensor, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -600,7 +605,7 @@ public class ChronoTimerGUI extends JFrame {
 					.addGroup(gl_mainFrame.createParallelGroup(Alignment.LEADING)
 						.addComponent(lblSysevent)
 						.addComponent(spSysevent, GroupLayout.PREFERRED_SIZE, 56, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+					.addContainerGap(26, Short.MAX_VALUE))
 		);
 		
 		taSysevent = new JTextArea();
@@ -862,7 +867,7 @@ public class ChronoTimerGUI extends JFrame {
 				if(ct.getSystem().isActive()){
 					ct.execute("TIME");
 					ct.execute("TRIG 2");
-					if(!ct.getSystem().getRun().isActive() && !ct.getSystem().getEvent().equalsIgnoreCase("GRP")){
+					if(!ct.getSystem().getRun().isActive() && !ct.getSystem().getEvent().equalsIgnoreCase("GRP") && !ct.getSystem().getEvent().equalsIgnoreCase("RELAY")){
 						updater.stop();
 					}
 				}
@@ -1198,6 +1203,12 @@ public class ChronoTimerGUI extends JFrame {
 			}
 		});
 		
+		btnRelay.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				ct.execute("EVENT RELAY");
+			}
+		});
+		
 		btnGrp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("EVENT GRP");
@@ -1217,12 +1228,6 @@ public class ChronoTimerGUI extends JFrame {
 		btnPargrp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ct.execute("EVENT PARGRP");
-			}
-		});
-		
-		btnSwap.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ct.execute("SWAP");
 			}
 		});
 		
@@ -1337,6 +1342,7 @@ public class ChronoTimerGUI extends JFrame {
 		updater.stop();
 		btnPargrp.setEnabled(false);
 		taSysevent.setText("");
+		btnRelay.setEnabled(false);
 	}
 	
 	/**
@@ -1381,6 +1387,7 @@ public class ChronoTimerGUI extends JFrame {
 		cmbxSensor.setEnabled(true);
 		btnPrintfun.setEnabled(true);
 		btnPargrp.setEnabled(true);
+		btnRelay.setEnabled(true);
 	}
 	
 	public void update(){

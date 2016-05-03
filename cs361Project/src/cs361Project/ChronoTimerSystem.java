@@ -165,7 +165,7 @@ public class ChronoTimerSystem {
 	 * @param String type - defines which event type to switch to (must be one of: IND, PARIND, GRP, PARGRP)
 	 */
 	public void setEvent(String type){
-		if(type.equalsIgnoreCase("IND") || type.equalsIgnoreCase("PARIND") || type.equalsIgnoreCase("GRP") || type.equalsIgnoreCase("PARGRP")){
+		if(type.equalsIgnoreCase("IND") || type.equalsIgnoreCase("PARIND") || type.equalsIgnoreCase("GRP") || type.equalsIgnoreCase("PARGRP") || type.equalsIgnoreCase("RELAY")){
 			eventType = type.toUpperCase();
 			if(activeRun != null) runList.remove(activeRun);
 			activeRun = null;
@@ -200,6 +200,11 @@ public class ChronoTimerSystem {
 				break;
 			case "PARGRP":
 				newRun = new RunPARGRP(this.getRunCount());
+				activeRun = newRun;
+				this.getRunList().add(this.getRun());
+				break;
+			case "RELAY":
+				newRun = new RunRELAY(this.getRunCount());
 				activeRun = newRun;
 				this.getRunList().add(this.getRun());
 				break;
