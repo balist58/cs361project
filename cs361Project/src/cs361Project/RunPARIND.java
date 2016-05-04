@@ -355,55 +355,10 @@ public class RunPARIND implements Run{
 		for(Runner r : finishedRunners) {
 			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
 		}
-		/*for(Runner r : activeRunners[0]){
-			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
-		}
-		for(Runner r : activeRunners[1]){
-			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
-		}*/
 
 		Gson g = new Gson();
 		return g.toJson(e);
 		
-		/*
-		String ex = "{\n\"RunNumber\":";
-		ex += runNumber;
-		ex += ",\n\"WaitingRunners\":[";
-		for(Runner r : waitingRunners){
-			ex += "\n\"Number\": ";
-			ex += r.getNumber();
-			if(!(r == waitingRunners.lastElement())) ex += ",";
-		}
-		ex += "\n],\n\"ActiveRunners0\": [\n{";
-		for(Runner r : activeRunners[0]){
-			ex += "\n\"Number\": ";
-			ex += r.getNumber();
-			ex += ",\n\"ElapsedTime\": ";
-			ex += r.getElapsed(time);
-			if(!(r == activeRunners[0].peekLast())) ex+= "\n},";
-			else ex+= "\n}";
-		}
-		ex += "\n],\n\"ActiveRunners1\": [\n{";
-		for(Runner r : activeRunners[1]){
-			ex += "\n\"Number\": ";
-			ex += r.getNumber();
-			ex += ",\n\"ElapsedTime\": ";
-			ex += r.getElapsed(time);
-			if(!(r == activeRunners[0].peekLast())) ex+= "\n},";
-			else ex+= "\n}";
-		}
-		ex += "\n],\n\"FinishedRunners\": [\n{";
-		for(Runner r : finishedRunners){
-			ex += "\n\"Number\": ";
-			ex += r.getNumber();
-			ex += ",\n\"ElapsedTime\": ";
-			if(r.getEndTime() == null) ex += "DNF";
-			else ex += r.getTotalTime();
-			if(!(r == finishedRunners.peekLast())) ex += "\n},";
-			else ex+= "\n}";
-		}
-		ex += "\n]\n}";
-		return ex;*/
 	}
 	
 	/**

@@ -107,42 +107,13 @@ public class RunPARGRP implements Run{
 		e.raceType = "PARGRP";
 		
 		for(Runner r : finishedRunners) {
-			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
-		}
-		
-		/*for(int i = 0; i < MAX_RUNNERS; ++i){
-			if(runners[i] != null) {
-				e.runners.add(new ExportedRunner(runners[i].getNumber(), runners[i].getTotalTime()));
+			if(r != null) {
+				e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
 			}
-		}*/
+		}
 
 		Gson g = new Gson();
 		return g.toJson(e);
-		
-		/*String ex = "{\n\"RunNumber\":";
-		ex += runNumber;
-		ex += ",\n\"Runners\":[\n{";
-		for(int i = 0; i < MAX_RUNNERS; ++i){
-			ex += "\n\"Lane\": " + (i + 1) + ",\n\"Number\": ";
-			if(getRunners()[i] != null){
-				ex += getRunners()[i].getNumber();
-				if(getRunners()[i].getStartTime() != null && !getFinished().contains(getRunners()[i])){
-					ex += ",\n\"ElapsedTime\": ";
-					ex += getRunners()[i].getElapsed(time);
-				}
-				else if(getRunners()[i].getEndTime() == null){
-					ex += ",\n\"ElapsedTime\": DNF";
-				}
-				else{
-					ex += ",\n\"TotalTime\": ";
-					ex += getRunners()[i].getTotalTime();
-				}
-			}
-			else ex += "n/a";
-			if((i + 1) != MAX_RUNNERS) ex += ",";
-		}
-		ex += "}\n]\n}";
-		return ex;*/
 	}
 	
 	/**

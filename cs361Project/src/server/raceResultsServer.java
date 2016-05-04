@@ -1,5 +1,8 @@
 package server;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -24,6 +30,7 @@ public class raceResultsServer {
     static String sharedResponse = "";
     static boolean gotMessageFlag = false;
     static ArrayList<ExportedRun> expRun = new ArrayList<ExportedRun>();
+    static Map<Integer, String> nameMap = new HashMap<Integer, String>();
 
     public static void main(String[] args) throws Exception {
 
@@ -38,6 +45,8 @@ public class raceResultsServer {
         server.createContext("/sendresults",new PostHandler());
         server.setExecutor(null); // creates a default executor
 
+    	fillInNames();
+    	
         // get it going
         System.out.println("Starting Server...");
         server.start();
@@ -51,17 +60,20 @@ public class raceResultsServer {
             //String response = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/mystyle.css\">";
             String response = getHeader();
             
+            Collections.sort(expRun);
+            
             for(ExportedRun e : expRun) {
             	response += "<div class=\"raceContainer\">" +
             				"<div class=\"eventTitle\">" + e.raceType + " Race</div>" +
             				"<div class=\"runNumber\">Run #" + e.raceNumber +"</div>" +
             				"<table><tr class=\"header\"><td class=\"place\">Place</td><td class=\"runner\">Runner</td><td class=\"name\">Name</td><td class=\"elapsed\">Elapsed</td>";
             	int i = 1;
+                Collections.sort(e.runners);
             	for(ExportedRunner r : e.runners) {
             		response += "<tr>" +
 								"<td class=\"place\">" + i + ".</td>" +
 								"<td class=\"runner\">" + r.number + "</td>" +
-								"<td class=\"name\">" + " " + "</td>" +
+								"<td class=\"name\">" + getName(r.number) + "</td>" +
 								"<td class=\"elapsed\">" + r.elapsedTime + "</td>" +
 								"</tr>";
             		++i;
@@ -82,7 +94,7 @@ public class raceResultsServer {
     	String res = "<style>" +
 						"body { font-family: Verdana, Helvetica, Arial, sans-serif; }" +
 						".raceContainer { margin-bottom: 40px; padding-bottom: 40px; border-bottom: 2px solid gray; }" +
-						"table { margin-top: 5px; min-width: 400px; border-collapse: collapse; }" +
+						"table { margin-top: 5px; min-width: 450px; border-collapse: collapse; }" +
 						"table tr:nth-child(2n) { background-color: #DDD; }" +
 						"th, td { padding: 1px 8px; font-size: .9em; }" +
 						".place { text-align: right; }" +
@@ -91,6 +103,40 @@ public class raceResultsServer {
 					"</style>" +
 					"<h2>Race Results</h2>";
     	return res;
+    }
+    
+    private static String getName(Integer number) {
+    	return nameMap.containsKey(number) ? nameMap.get(number) : "";
+    }
+    
+    private static void fillInNames() {
+    	// The name of the file to open.
+        String fileName = "racers.txt";
+
+        // This will reference one line at a time
+        String line = null;
+
+        try {
+            // FileReader reads text files in the default encoding.
+            FileReader fileReader = new FileReader(fileName);
+
+            // Always wrap FileReader in BufferedReader.
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            while((line = bufferedReader.readLine()) != null) {
+                String[] tokens = line.split("\t");
+                nameMap.put(Integer.parseInt(tokens[0]), tokens[1]);
+            }   
+
+            // Always close files.
+            bufferedReader.close();         
+        }
+        catch(FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + fileName + "'");                
+        }
+        catch(IOException ex) {
+            System.out.println("Error reading file '" + fileName + "'");
+        }
     }
 
     static class PostHandler implements HttpHandler {

@@ -205,12 +205,6 @@ public class RunIND implements Run{
 		e.raceNumber = runNumber;
 		e.raceType = "IND";
 		
-		/*for(Runner r : waitingRunners){
-			e.runners.add(new ExportedRunner(r.getNumber(), "DNF"));
-		}
-		for(Runner r : activeRunners){
-			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
-		}*/
 		for(Runner r : finishedRunners){
 			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
 		}

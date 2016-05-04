@@ -293,35 +293,6 @@ public class RunGRP implements Run{
 		Gson g = new Gson();
 		return g.toJson(e);
 		
-		/*String ex = "{\n\"RunNumber\":";
-		ex += runNumber;
-		ex += ",\n\"Runners\":[";
-		for(Runner r : runners){
-			if(!finishedRunners.contains(r) && r.getStart() == null){
-				ex += "\n\"Number\": ";
-				ex += r.getNumber();
-				if(r != runners.peekLast()) ex += ",";
-			}
-			else if(!finishedRunners.contains(r) && r.getStart() != null){
-				ex += "{\n\"Number\": ";
-				ex += r.getNumber();
-				ex += ",\n\"ElapsedTime\": ";
-				ex += r.getElapsed(currentTime);
-				if(r != runners.peekLast()) ex += "\n},";
-				else ex += "\n}";
-			}
-			else{
-				ex += "{\n\"Number\": ";
-				ex += r.getNumber();
-				ex += ",\n\"ElapsedTime\": ";
-				if(r.getEndTime() == null) ex += "DNF";
-				else ex += r.getTotalTime();
-				if(r != runners.peekLast()) ex += "\n},";
-				else ex += "\n}";
-			}
-		}
-		ex += "\n]\n}";
-		return ex;*/
 	}
 	
 	/**
