@@ -106,8 +106,14 @@ public class RunPARGRP implements Run{
 		e.raceNumber = runNumber;
 		e.raceType = "PARGRP";
 		
-		for(Runner r : finishedRunners) {
+		/*for(Runner r : finishedRunners) {
 			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
+		}*/
+		
+		for(int i = 0; i < MAX_RUNNERS; ++i){
+			if(runners[i] != null) {
+				e.runners.add(new ExportedRunner(runners[i].getNumber(), runners[i].getTotalTime()));
+			}
 		}
 
 		Gson g = new Gson();

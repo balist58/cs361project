@@ -286,8 +286,10 @@ public class RunGRP implements Run{
 		e.raceNumber = runNumber;
 		e.raceType = "GRP";
 		
-		for(Runner r : finishedRunners) {
-			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
+		for(Runner r : runners) {
+			if(r.getStart() != null) {
+				e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));				
+			}
 		}
 
 		Gson g = new Gson();
