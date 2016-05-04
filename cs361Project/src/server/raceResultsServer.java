@@ -16,11 +16,14 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import cs361Project.ExportedRun;
+import cs361Project.ExportedRunner;
+
 public class raceResultsServer {
     // a shared area where we get the POST data and then use it in the other handler
     static String sharedResponse = "";
     static boolean gotMessageFlag = false;
-    static ArrayList<Object> emp = new ArrayList<Object>();
+    static ArrayList<ExportedRun> expRun = new ArrayList<ExportedRun>();
 
     public static void main(String[] args) throws Exception {
 
@@ -46,7 +49,26 @@ public class raceResultsServer {
         	t.getResponseHeaders().set("Content-Type", "Text/html");
         	
             //String response = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/mystyle.css\">";
-            String response = sharedResponse;
+            String response = getHeader();
+            
+            for(ExportedRun e : expRun) {
+            	response += "<div class=\"raceContainer\">" +
+            				"<div class=\"eventTitle\">" + e.raceType + " Race</div>" +
+            				"<div class=\"runNumber\">Run #" + e.raceNumber +"</div>" +
+            				"<table><tr class=\"header\"><td class=\"place\">Place</td><td class=\"runner\">Runner</td><td class=\"name\">Name</td><td class=\"elapsed\">Elapsed</td>";
+            	int i = 1;
+            	for(ExportedRunner r : e.runners) {
+            		response += "<tr>" +
+								"<td class=\"place\">" + i + ".</td>" +
+								"<td class=\"runner\">" + r.number + "</td>" +
+								"<td class=\"name\">" + " " + "</td>" +
+								"<td class=\"elapsed\">" + r.elapsedTime + "</td>" +
+								"</tr>";
+            		++i;
+            	}
+            	
+            	response += "</table></div>";
+            }
             
             // write out the response
             t.sendResponseHeaders(200, response.length());
@@ -54,6 +76,21 @@ public class raceResultsServer {
             os.write(response.getBytes());
             os.close();
         }
+    }
+    
+    private static String getHeader() {
+    	String res = "<style>" +
+						"body { font-family: Verdana, Helvetica, Arial, sans-serif; }" +
+						".raceContainer { margin-bottom: 40px; padding-bottom: 40px; border-bottom: 2px solid gray; }" +
+						"table { margin-top: 5px; min-width: 400px; border-collapse: collapse; }" +
+						"table tr:nth-child(2n) { background-color: #DDD; }" +
+						"th, td { padding: 1px 8px; font-size: .9em; }" +
+						".place { text-align: right; }" +
+						".header, .eventTitle { font-weight: bold; }" +
+						".runNumber { font-size: .9em; font-style: italic; }" +
+					"</style>" +
+					"<h2>Race Results</h2>";
+    	return res;
     }
 
     static class PostHandler implements HttpHandler {
@@ -75,17 +112,17 @@ public class raceResultsServer {
                 nextChar=inputStr.read();
             }
 
-            // create our response String to use in other handler
-            sharedResponse += "<br/><hr/><br/>" + sb.toString();
-
             // respond to the POST with ROGER
             String postResponse = "RODGER JSON RECIEVED";
 
             System.out.println("response: " + sharedResponse);
             
-            //Gson g = new Gson();
-            //ArrayList<Object> fromJson = g.fromJson(sharedResponse, (new TypeToken<ArrayList<Object>>(){}).getType());
-            //emp.addAll(fromJson);
+            Gson g = new Gson();
+            ExportedRun fromJson = g.fromJson(sb.toString(), (new TypeToken<ExportedRun>(){}).getType());
+            expRun.add(fromJson);
+           
+            // create our response String to use in other handler
+            sharedResponse += "<br/><hr/><br/>" + sb.toString();
             
             // assume that stuff works all the time
             transmission.sendResponseHeaders(300, postResponse.length());

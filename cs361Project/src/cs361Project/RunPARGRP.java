@@ -9,6 +9,9 @@
 package cs361Project;
 
 import java.util.Calendar;
+
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 
 public class RunPARGRP implements Run{
@@ -98,7 +101,19 @@ public class RunPARGRP implements Run{
 	 */
 	@Override
 	public String exportRun(Calendar time){
-		String ex = "{\n\"RunNumber\":";
+		
+		ExportedRun e =  new ExportedRun();
+		e.raceNumber = runNumber;
+		e.raceType = "PARGRP";
+		
+		for(Runner r : finishedRunners) {
+			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
+		}
+
+		Gson g = new Gson();
+		return g.toJson(e);
+		
+		/*String ex = "{\n\"RunNumber\":";
 		ex += runNumber;
 		ex += ",\n\"Runners\":[\n{";
 		for(int i = 0; i < MAX_RUNNERS; ++i){
@@ -121,7 +136,7 @@ public class RunPARGRP implements Run{
 			if((i + 1) != MAX_RUNNERS) ex += ",";
 		}
 		ex += "}\n]\n}";
-		return ex;
+		return ex;*/
 	}
 	
 	/**

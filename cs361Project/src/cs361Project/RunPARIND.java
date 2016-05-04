@@ -13,6 +13,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import com.google.gson.Gson;
+
 public class RunPARIND implements Run{
 	/**
 	 * Fields for the Run class - a stack for runners with no start time; a queue that holds the
@@ -345,6 +347,19 @@ public class RunPARIND implements Run{
 	 */
 	@Override
 	public String exportRun(Calendar time){
+		
+		ExportedRun e =  new ExportedRun();
+		e.raceNumber = runNumber;
+		e.raceType = "PARIND";
+		
+		for(Runner r : finishedRunners) {
+			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
+		}
+
+		Gson g = new Gson();
+		return g.toJson(e);
+		
+		/*
 		String ex = "{\n\"RunNumber\":";
 		ex += runNumber;
 		ex += ",\n\"WaitingRunners\":[";
@@ -382,7 +397,7 @@ public class RunPARIND implements Run{
 			else ex+= "\n}";
 		}
 		ex += "\n]\n}";
-		return ex;
+		return ex;*/
 	}
 	
 	/**

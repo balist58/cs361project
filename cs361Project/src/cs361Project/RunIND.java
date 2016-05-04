@@ -13,6 +13,9 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import com.google.gson.Gson;
+
+
 public class RunIND implements Run{
 	/**
 	 * Fields for the Run class - a stack for runners with no start time; a queue that holds the
@@ -198,35 +201,22 @@ public class RunIND implements Run{
 	 */
 	@Override
 	public String exportRun(Calendar time){
-		String ex = "{\n\"RunNumber\":";
-		ex += runNumber;
-		ex += ",\n\"WaitingRunners\":[";
-		for(Runner r : waitingRunners){
-			ex += "\n\"Number\": ";
-			ex += r.getNumber();
-			if(!(r == waitingRunners.lastElement())) ex += ",";
+		ExportedRun e =  new ExportedRun();
+		e.raceNumber = runNumber;
+		e.raceType = "IND";
+		
+		/*for(Runner r : waitingRunners){
+			e.runners.add(new ExportedRunner(r.getNumber(), "DNF"));
 		}
-		ex += "\n],\n\"ActiveRunners\": [\n{";
 		for(Runner r : activeRunners){
-			ex += "\n\"Number\": ";
-			ex += r.getNumber();
-			ex += ",\n\"ElapsedTime\": ";
-			ex += r.getElapsed(time);
-			if(!(r == activeRunners.peekLast())) ex += "\n},";
-			else ex += "\n}";
-		}
-		ex += "\n],\n\"FinishedRunners\": [\n{";
+			e.runners.add(new ExportedRunner(r.getNumber(), "DNF"));
+		}*/
 		for(Runner r : finishedRunners){
-			ex += "\n\"Number\": ";
-			ex += r.getNumber();
-			ex += ",\n\"ElapsedTime\": ";
-			if(r.getEndTime() == null) ex += "DNF";
-			else ex += r.getTotalTime();
-			if(!(r == finishedRunners.peekLast())) ex += "\n},";
-			else ex += "\n}";
+			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
 		}
-		ex += "\n]\n}";
-		return ex;
+		
+		Gson g = new Gson();
+		return g.toJson(e);
 	}
 	
 	/**

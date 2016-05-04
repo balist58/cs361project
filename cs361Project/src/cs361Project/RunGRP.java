@@ -10,6 +10,9 @@ package cs361Project;
 
 import java.util.Calendar;
 import java.util.LinkedList;
+
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 
 public class RunGRP implements Run{
@@ -279,7 +282,18 @@ public class RunGRP implements Run{
 	 */
 	@Override
 	public String exportRun(Calendar currentTime){
-		String ex = "{\n\"RunNumber\":";
+		ExportedRun e =  new ExportedRun();
+		e.raceNumber = runNumber;
+		e.raceType = "GRP";
+		
+		for(Runner r : finishedRunners) {
+			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
+		}
+
+		Gson g = new Gson();
+		return g.toJson(e);
+		
+		/*String ex = "{\n\"RunNumber\":";
 		ex += runNumber;
 		ex += ",\n\"Runners\":[";
 		for(Runner r : runners){
@@ -307,7 +321,7 @@ public class RunGRP implements Run{
 			}
 		}
 		ex += "\n]\n}";
-		return ex;
+		return ex;*/
 	}
 	
 	/**
