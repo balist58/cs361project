@@ -355,12 +355,12 @@ public class RunPARIND implements Run{
 		for(Runner r : finishedRunners) {
 			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
 		}
-		for(Runner r : activeRunners[0]){
+		/*for(Runner r : activeRunners[0]){
 			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
 		}
 		for(Runner r : activeRunners[1]){
 			e.runners.add(new ExportedRunner(r.getNumber(), r.getTotalTime()));
-		}
+		}*/
 
 		Gson g = new Gson();
 		return g.toJson(e);

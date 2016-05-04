@@ -230,6 +230,9 @@ public class ChronoTimerSystem {
 				this.getRun().start(0, null);
 				this.getRun().dnf();
 			}
+			
+			export(); //Export the run to the web server
+			
 			activeRun = null;
 			++runCounter;
 		}
